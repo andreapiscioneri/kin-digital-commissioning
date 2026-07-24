@@ -40,9 +40,9 @@ const tabs = [
 
     <div class="body">
       <section class="scenes">
-        <SectionHeader title="Scene">
+        <SectionHeader title="Scene" @action="navigateTo(`/progetti/${projectId}/scene/nuova`)">
           <template #action>
-            <span class="new-scene-btn" @click="navigateTo(`/progetti/${projectId}/scene/nuova`)">
+            <span class="new-scene-btn">
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
               Nuovo
             </span>
