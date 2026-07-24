@@ -24,6 +24,7 @@ withDefaults(
   flex-direction: column;
   align-items: center;
   text-align: center;
+  width: 100%;
 }
 
 .empty-state.centered {
