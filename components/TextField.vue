@@ -9,8 +9,9 @@ withDefaults(
     error?: string
     disabled?: boolean
     readonly?: boolean
+    variant?: 'underline' | 'boxed'
   }>(),
-  { label: '', placeholder: '', type: 'text', required: false, error: '', disabled: false, readonly: false }
+  { label: '', placeholder: '', type: 'text', required: false, error: '', disabled: false, readonly: false, variant: 'underline' }
 )
 
 const emit = defineEmits<{
@@ -28,7 +29,7 @@ function onInput(e: Event) {
 </script>
 
 <template>
-  <div class="field" :class="{ 'is-error': !!error, 'is-disabled': disabled, 'is-focused': focused }">
+  <div class="field" :class="[variant, { 'is-error': !!error, 'is-disabled': disabled, 'is-focused': focused }]">
     <label v-if="label" :for="inputId" class="field-label">{{ label }}<span v-if="required" class="required">*</span></label>
     <input
       :id="inputId"
@@ -94,6 +95,22 @@ function onInput(e: Event) {
 .field.is-disabled .field-input {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.field.boxed .field-input {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  padding: 13px 14px;
+}
+
+.field.boxed.is-focused .field-input {
+  border-color: var(--color-border-focus);
+  border-width: 1px;
+  padding: 13px 14px;
+}
+
+.field.boxed.is-error .field-input {
+  border-color: var(--color-error);
 }
 
 .field-error {

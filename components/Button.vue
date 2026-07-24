@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    variant?: 'primary' | 'secondary' | 'ghost'
+    variant?: 'primary' | 'secondary' | 'ghost' | 'system'
     type?: 'button' | 'submit'
     disabled?: boolean
     loading?: boolean
@@ -89,6 +89,18 @@ defineEmits<{ click: [MouseEvent] }>()
 .btn.secondary:disabled {
   color: var(--color-text-secondary);
   cursor: not-allowed;
+}
+
+.btn.system {
+  height: 48px;
+  background: #e2e2e2;
+  color: var(--color-primary);
+  border-radius: var(--radius-card);
+  font-weight: 400;
+}
+
+.btn.system:hover:not(:disabled) {
+  background: #d6d6d6;
 }
 
 .btn.ghost {
