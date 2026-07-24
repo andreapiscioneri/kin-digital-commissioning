@@ -1,0 +1,77 @@
+:root {
+  /* Colors — campionati dagli screenshot DC (palette neutra/grayscale, coerente con KINsync) */
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-ink: #111111;
+  --color-primary: #273945;
+  --color-primary-disabled: rgba(39, 57, 69, 0.3);
+  --color-text-secondary: #929292;
+  --color-text-muted: #6b7280;
+  --color-border: #c6c6c6;
+  --color-border-secondary: #caced8;
+  --color-border-focus: #273945;
+  --color-error: #eb5160;
+  --color-success: #3ecd88;
+  --color-warning: #f2a93b;
+
+  /* Typography */
+  --font-family: 'Work Sans', sans-serif;
+  --font-size-h1: 24px;
+  --font-size-h2: 20px;
+  --font-size-label: 16px;
+  --font-size-input: 20px;
+  --font-size-body: 14px;
+  --font-size-small: 13px;
+  --font-size-button: 20px;
+
+  /* Radius */
+  --radius-button: 32px;
+  --radius-input: 8px;
+  --radius-icon-button: 10px;
+  --radius-checkbox: 4px;
+  --radius-card: 12px;
+
+  /* Spacing */
+  --space-page-x: 20px;
+  --space-stack: 24px;
+  --space-input-gap: 24px;
+
+  /* Layout */
+  --screen-max-width: 375px;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#__nuxt {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-primary);
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
