@@ -3,7 +3,7 @@ const route = useRoute()
 const projectId = route.params.id as string
 const levelId = route.params.levelId as string
 const { getLevel, updateLevel } = useLevelsStore(projectId)
-const { goBack } = useNavDirection()
+const { goBack, goBackTo } = useNavDirection()
 
 const level = getLevel(levelId)
 const name = ref(level?.name || '')
@@ -18,7 +18,7 @@ function choosePlanSource() {
 
 function save() {
   updateLevel(levelId, { name: name.value, subLevels: subLevels.value, hasPlan: hasPlan.value })
-  goBack(`/progetti/${projectId}/livelli`)
+  goBackTo(`/progetti/${projectId}/livelli`)
 }
 </script>
 

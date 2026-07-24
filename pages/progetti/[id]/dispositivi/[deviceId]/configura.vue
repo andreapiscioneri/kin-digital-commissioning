@@ -28,7 +28,7 @@ function nextDeviceOrFinish() {
   if (next) {
     navigateTo(`/progetti/${projectId}/dispositivi/${next.id}/configura`)
   } else {
-    navigateTo(`/progetti/${projectId}/gruppi`)
+    navigateTo(`/progetti/${projectId}?tab=gruppi`)
   }
 }
 

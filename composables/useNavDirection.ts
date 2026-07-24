@@ -17,10 +17,15 @@ export function useNavDirection() {
     }
   }
 
+  function goBackTo(path: string) {
+    direction.value = 'back'
+    navigateTo(path)
+  }
+
   function goClose(path: string) {
     direction.value = 'close'
     navigateTo(path)
   }
 
-  return { direction, transitionName, goForward, goBack, goClose }
+  return { direction, transitionName, goForward, goBack, goBackTo, goClose }
 }

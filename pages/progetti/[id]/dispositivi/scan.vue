@@ -67,7 +67,7 @@ function addToZone() {
   if (provisioned.length > 0) {
     goForward(`/progetti/${projectId}/dispositivi/${provisioned[0].id}/configura`)
   } else {
-    goClose(`/progetti/${projectId}/gruppi`)
+    goClose(`/progetti/${projectId}?tab=gruppi`)
   }
 }
 </script>
