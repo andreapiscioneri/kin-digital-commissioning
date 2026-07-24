@@ -70,7 +70,7 @@ function onContinue() {
       address: newProjectDraft.value.address,
       city: ''
     })
-    goClose(`/progetti/${project.id}`)
+    goClose(`/progetti/${project.id}/livelli/nuovo`)
   } else {
     goForward('/progetti/nuovo/azienda')
   }

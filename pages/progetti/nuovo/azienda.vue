@@ -35,14 +35,14 @@ function onContinue() {
     address: newProjectDraft.value.address,
     city: ''
   })
-  goClose(`/progetti/${project.id}`)
+  goClose(`/progetti/${project.id}/livelli/nuovo`)
 }
 </script>
 
 <template>
   <div class="screen">
     <StatusBar />
-    <AppHeader title='Abilita ruolo "Installer"' leading="none" trailing="close" @close="showInterrupt = true" />
+    <AppHeader title='Abilita ruolo “Installer”' leading="none" trailing="close" @close="showInterrupt = true" />
 
     <div v-if="formVisible" class="body">
       <p class="section-label">Informazioni aggiuntive</p>
@@ -60,7 +60,7 @@ function onContinue() {
       <Button variant="primary" :disabled="!canContinue" @click="onContinue">Continua</Button>
     </div>
 
-    <AlertDialog v-model="showEnableInstaller" title='Abilita ruolo "Installer"' description="Per creare un nuovo progetto è necessario abilitare il ruolo Installer aggiungendo alcune informazioni al tuo profilo." :closable="false">
+    <AlertDialog v-model="showEnableInstaller" title='Abilita ruolo “Installer”' description="Per creare un nuovo progetto è necessario abilitare il ruolo Installer aggiungendo alcune informazioni al tuo profilo." :closable="false">
       <template #icon>
         <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 2L1 18h18L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><circle cx="10" cy="15" r="0.8" fill="currentColor" /></svg>
       </template>
