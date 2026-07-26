@@ -64,10 +64,11 @@ function applyFilters() {
 function addToZone() {
   const ids = Array.from(selected.value)
   const provisioned = provisionDevices(ids, zone)
+  const next = (route.query.next as string) || `/progetti/${projectId}?tab=gruppi`
   if (provisioned.length > 0) {
-    goForward(`/progetti/${projectId}/dispositivi/${provisioned[0].id}/configura`)
+    goForward(`/progetti/${projectId}/dispositivi/${provisioned[0].id}/configura?next=${encodeURIComponent(next)}`)
   } else {
-    goClose(`/progetti/${projectId}?tab=gruppi`)
+    goClose(next)
   }
 }
 </script>

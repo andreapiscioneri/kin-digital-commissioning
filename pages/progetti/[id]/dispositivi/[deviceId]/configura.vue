@@ -25,10 +25,12 @@ function nextDeviceOrFinish() {
   const list = provisionedDevices.value
   const idx = list.findIndex((d) => d.id === deviceId)
   const next = list[idx + 1]
+  const nextParam = (route.query.next as string) || ''
+  const suffix = nextParam ? `?next=${encodeURIComponent(nextParam)}` : ''
   if (next) {
-    navigateTo(`/progetti/${projectId}/dispositivi/${next.id}/configura`)
+    navigateTo(`/progetti/${projectId}/dispositivi/${next.id}/configura${suffix}`)
   } else {
-    navigateTo(`/progetti/${projectId}?tab=gruppi`)
+    navigateTo(nextParam || `/progetti/${projectId}?tab=gruppi`)
   }
 }
 
@@ -39,7 +41,8 @@ function save() {
 </script>
 
 <template>
-  <div v-if="device" class="screen">
+  <div class="screen">
+    <template v-if="device">
     <StatusBar />
     <AppHeader :title="device.code" leading="back" trailing="none" @back="goBack(`/progetti/${projectId}`)" />
 
@@ -139,6 +142,7 @@ function save() {
     <div class="footer">
       <Button variant="primary" @click="save">Salva</Button>
     </div>
+    </template>
   </div>
 </template>
 

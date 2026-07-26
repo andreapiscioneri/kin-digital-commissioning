@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node test4.mjs)",
+      "Bash(node test5.mjs)",
+      "Bash(node test6.mjs)",
+      "Bash(find / -maxdepth 4 -iname \"*Installer Loggato*\")",
+      "Bash(find / -maxdepth 6 -iname \"*GEWISS*\")"
+    ]
+  }
+}

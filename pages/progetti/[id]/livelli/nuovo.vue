@@ -2,9 +2,9 @@
 const route = useRoute()
 const projectId = route.params.id as string
 const { createLevels } = useLevelsStore(projectId)
-const { goClose } = useNavDirection()
+const { goClose, goForward } = useNavDirection()
 
-type Screen = 'config' | 'modalita' | 'intro' | 'stepper'
+type Screen = 'config' | 'modalita' | 'intro' | 'stepper' | 'guidata-intro' | 'guidata-stepper'
 const screen = ref<Screen>('config')
 const modalita = ref<'manuale' | 'guidata' | null>(null)
 const count = ref(0)
@@ -17,9 +17,18 @@ function selectModalita(value: 'manuale' | 'guidata') {
   modalita.value = value
 }
 
+function onModalitaContinue() {
+  screen.value = modalita.value === 'guidata' ? 'guidata-intro' : 'intro'
+}
+
 function onStepperContinue() {
   createLevels(count.value)
-  navigateTo(`/progetti/${projectId}/livelli`)
+  goForward(`/progetti/${projectId}/livelli`)
+}
+
+function onGuidataStepperContinue() {
+  createLevels(count.value)
+  goForward(`/progetti/${projectId}/wizard-guidato/1`)
 }
 </script>
 
@@ -53,7 +62,53 @@ function onStepperContinue() {
         </SelectableRow>
       </div>
       <div class="footer">
-        <Button variant="primary" :disabled="!modalita" @click="screen = 'intro'">Continua</Button>
+        <Button variant="primary" :disabled="!modalita" @click="onModalitaContinue">Continua</Button>
+      </div>
+    </template>
+
+    <template v-else-if="screen === 'guidata-intro'">
+      <AppHeader title="Modalità guidata" leading="back" trailing="close" @back="screen = 'modalita'" @close="goDashboard" />
+      <div class="body">
+        <h1 class="title left">Crea la struttura del progetto</h1>
+        <p class="subtitle left">Ti guideremo passo dopo passo nella configurazione del tuo progetto.</p>
+
+        <ol class="guided-steps">
+          <li>
+            <span class="guided-step-badge">1</span>
+            <span class="guided-step-text">
+              <strong>Creazione livello</strong>
+              <span>Crea un livello e personalizzalo aggiungendo una planimetria o una foto.</span>
+            </span>
+          </li>
+          <li>
+            <span class="guided-step-badge">2</span>
+            <span class="guided-step-text">
+              <strong>Creazione sottolivello</strong>
+              <span>Organizza il livello in sezioni più specifiche, se necessario.</span>
+            </span>
+          </li>
+          <li>
+            <span class="guided-step-badge">3</span>
+            <span class="guided-step-text">
+              <strong>Aggiunta dispositivi</strong>
+              <span>Assegna i dispositivi al livello e ai sottolivelli creati.</span>
+            </span>
+          </li>
+        </ol>
+      </div>
+      <div class="footer">
+        <Button variant="primary" @click="screen = 'guidata-stepper'">Continua</Button>
+      </div>
+    </template>
+
+    <template v-else-if="screen === 'guidata-stepper'">
+      <AppHeader title="Crea livelli" leading="back" trailing="close" @back="screen = 'guidata-intro'" @close="goDashboard" />
+      <div class="body">
+        <p class="field-title">Seleziona il numero di livelli</p>
+        <StepperControl v-model="count" variant="card" />
+      </div>
+      <div class="footer">
+        <Button variant="primary" :disabled="count === 0" @click="onGuidataStepperContinue">Continua</Button>
       </div>
     </template>
 
@@ -118,6 +173,66 @@ function onStepperContinue() {
   align-items: center;
   text-align: center;
   justify-content: center;
+}
+
+.title.left,
+.subtitle.left {
+  text-align: left;
+}
+
+.guided-steps {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.guided-steps li {
+  display: flex;
+  gap: 16px;
+  padding-bottom: 24px;
+  position: relative;
+}
+
+.guided-steps li:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-border);
+}
+
+.guided-step-badge {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.guided-step-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 4px;
+}
+
+.guided-step-text strong {
+  font-size: var(--font-size-body);
+  color: var(--color-primary);
+}
+
+.guided-step-text span:last-child {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
 }
 
 .placeholder-icon {

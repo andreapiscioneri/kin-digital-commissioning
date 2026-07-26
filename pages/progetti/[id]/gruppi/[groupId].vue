@@ -31,7 +31,8 @@ function save() {
 </script>
 
 <template>
-  <div v-if="group" class="screen">
+  <div class="screen">
+    <template v-if="group">
     <StatusBar />
     <AppHeader :title="group.name" leading="back" trailing="none" @back="goBack(`/progetti/${projectId}`)" />
 
@@ -94,6 +95,7 @@ function save() {
     <div class="footer">
       <Button variant="primary" @click="save">Salva</Button>
     </div>
+    </template>
   </div>
 </template>
 
