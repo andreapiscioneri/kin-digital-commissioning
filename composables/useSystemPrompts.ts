@@ -1,26 +1,12 @@
 type CookieChoice = 'pending' | 'accepted' | 'rejected'
 type NotificationsChoice = 'pending' | 'granted' | 'denied'
 
-const COOKIE_KEY = 'kinsync-cookie-choice'
-const NOTIFICATIONS_KEY = 'kinsync-notifications-choice'
-
-function readStored<T extends string>(key: string): T | null {
-  if (!import.meta.client) return null
-  const value = window.localStorage.getItem(key)
-  return (value as T) || null
-}
-
 export function useSystemPrompts() {
-  const cookieChoice = useState<CookieChoice>('sys-cookie-choice', () => readStored<CookieChoice>(COOKIE_KEY) || 'pending')
-  const notificationsChoice = useState<NotificationsChoice>(
-    'sys-notifications-choice',
-    () => readStored<NotificationsChoice>(NOTIFICATIONS_KEY) || 'pending'
-  )
-
-  if (import.meta.client) {
-    watch(cookieChoice, (value) => window.localStorage.setItem(COOKIE_KEY, value))
-    watch(notificationsChoice, (value) => window.localStorage.setItem(NOTIFICATIONS_KEY, value))
-  }
+  // Stato solo in-memory (non persistito): come i veri prompt di sistema,
+  // vanno richiesti ad ogni avvio dell'app finché non si integra un vero
+  // storage dei permessi lato dispositivo.
+  const cookieChoice = useState<CookieChoice>('sys-cookie-choice', () => 'pending')
+  const notificationsChoice = useState<NotificationsChoice>('sys-notifications-choice', () => 'pending')
 
   function acceptCookies() {
     cookieChoice.value = 'accepted'

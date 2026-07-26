@@ -1,6 +1,6 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ initials?: string; name?: string; notificationCount?: number }>(), {
-  initials: 'MR',
+withDefaults(defineProps<{ avatarSrc?: string; name?: string; notificationCount?: number }>(), {
+  avatarSrc: '/images/avatar-marco.jpg',
   name: 'Marco',
   notificationCount: 0
 })
@@ -9,17 +9,17 @@ defineEmits<{ menu: []; notifications: [] }>()
 
 <template>
   <header class="greeting-header">
-    <span class="avatar">{{ initials }}</span>
+    <img class="avatar" :src="avatarSrc" :alt="name" />
     <span class="greeting-text">
       <span class="greeting-title">Ciao!</span>
       <span class="greeting-subtitle">Bentornato, {{ name }}</span>
     </span>
     <button type="button" class="icon-btn" aria-label="Notifiche" @click="$emit('notifications')">
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2a5 5 0 00-5 5v3l-1.5 3h13L15 10V7a5 5 0 00-5-5zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
       <span v-if="notificationCount > 0" class="badge">{{ notificationCount }}</span>
     </button>
     <button type="button" class="icon-btn" aria-label="Menu" @click="$emit('menu')">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
     </button>
   </header>
 </template>
@@ -38,13 +38,7 @@ defineEmits<{ menu: []; notifications: [] }>()
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--color-surface);
-  color: var(--color-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: var(--font-size-body);
+  object-fit: cover;
   flex-shrink: 0;
   box-shadow: 0 0 0 2px var(--color-accent);
 }

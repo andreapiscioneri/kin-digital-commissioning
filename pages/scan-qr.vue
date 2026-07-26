@@ -52,7 +52,7 @@ onBeforeUnmount(() => {
   <div class="screen">
     <div class="viewfinder-bg">
       <StatusBar inverted />
-      <AppHeader title="" leading="none" trailing="close" inverted @close="closeScan" />
+      <AppHeader title="" leading="back" trailing="close" inverted @back="closeScan" @close="closeScan" />
 
       <div class="viewfinder-body">
         <template v-if="screen === 'scanning'">

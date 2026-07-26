@@ -24,7 +24,7 @@ function emptyCompanyDraft(): CompanyInfoDraft {
 }
 
 export function useCommissioningFlow() {
-  const bluetoothEnabled = useState<boolean>('dc-bluetooth-enabled', () => true)
+  const bluetoothEnabled = useState<boolean>('dc-bluetooth-enabled', () => false)
   const installerRoleEnabled = useState<boolean>('dc-installer-role', () => false)
   const newProjectDraft = useState<NewProjectDraft>('dc-new-project-draft', emptyDraft)
   const companyInfoDraft = useState<CompanyInfoDraft>('dc-company-draft', emptyCompanyDraft)

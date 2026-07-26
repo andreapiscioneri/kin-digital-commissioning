@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { BleClient, type ScanResult } from '@capacitor-community/bluetooth-le'
 import type { DiscoveredDevice } from '~/composables/useDeviceCatalog'
 
 const route = useRoute()
@@ -7,6 +8,7 @@ const zone = (route.query.zona as string) || 'Ufficio 1.1'
 const { scanDevices, provisionDevices } = useDeviceCatalog(projectId)
 const { bluetoothEnabled } = useCommissioningFlow()
 const { goClose, goForward } = useNavStack()
+const { isNative } = usePlatform()
 
 type Screen = 'intro' | 'scanning'
 const screen = ref<Screen>('intro')
@@ -29,22 +31,53 @@ const visibleDevices = computed(() => {
   return list
 })
 
-function startScan() {
-  if (!bluetoothEnabled.value) {
-    showBluetoothOff.value = true
-    return
-  }
+async function startScan() {
   screen.value = 'scanning'
   found.value = []
-  const all = scanDevices()
-  all.forEach((d, i) => {
-    setTimeout(() => {
-      found.value = [...found.value, d]
-    }, i * 220)
-  })
+
+  if (!isNative.value) {
+    if (!bluetoothEnabled.value) {
+      showBluetoothOff.value = true
+      screen.value = 'intro'
+      return
+    }
+    const all = scanDevices()
+    all.forEach((d, i) => {
+      setTimeout(() => {
+        found.value = [...found.value, d]
+      }, i * 220)
+    })
+    return
+  }
+
+  try {
+    await BleClient.initialize({ androidNeverForLocation: false })
+    await BleClient.requestLEScan({}, (result: ScanResult) => {
+      // Nessuna spec GATT nota per l'hardware Kin Sync: il "type" resta un
+      // placeholder finché non arriva una mappatura service-UUID -> tipo dispositivo.
+      const device: DiscoveredDevice = {
+        id: result.device.deviceId,
+        code: result.device.name || result.device.deviceId,
+        type: 'Lampada',
+        rssi: result.rssi ?? -99
+      }
+      if (!found.value.some((d: DiscoveredDevice) => d.id === device.id)) {
+        found.value = [...found.value, device]
+      }
+    })
+    setTimeout(() => BleClient.stopLEScan(), 8000)
+  } catch {
+    showBluetoothOff.value = true
+    screen.value = 'intro'
+  }
 }
 
 function retryBluetooth() {
+  if (isNative.value) {
+    showBluetoothOff.value = false
+    startScan()
+    return
+  }
   bluetoothEnabled.value = true
   showBluetoothOff.value = false
   startScan()
@@ -62,8 +95,8 @@ function applyFilters() {
 }
 
 function addToZone() {
-  const ids = Array.from<string>(selected.value)
-  const provisioned = provisionDevices(ids, zone)
+  const devices = found.value.filter((d: DiscoveredDevice) => selected.value.has(d.id))
+  const provisioned = provisionDevices(devices, zone)
   const next = (route.query.next as string) || `/progetti/${projectId}?tab=gruppi`
   if (provisioned.length > 0) {
     goForward(`/progetti/${projectId}/dispositivi/${provisioned[0].id}/configura?next=${encodeURIComponent(next)}`)
@@ -83,7 +116,7 @@ function addToZone() {
         <div class="intro-bg-overlay" />
         <div class="intro-content">
           <StatusBar inverted />
-          <AppHeader title="" leading="none" trailing="close" inverted @close="goClose(`/progetti/${projectId}`)" />
+          <AppHeader title="" leading="back" trailing="close" inverted @back="goClose(`/progetti/${projectId}`)" @close="goClose(`/progetti/${projectId}`)" />
           <div class="body centered">
             <span class="radar-illustration" aria-hidden="true">
               <span class="radar-ring ring-1" />
@@ -120,10 +153,10 @@ function addToZone() {
       <div class="toolbar">
         <div class="search-box">
           <input v-model="search" type="search" placeholder="Cerca dispositivo" />
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.4" /><path d="M18 18l-4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" /><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
         </div>
         <button type="button" class="toolbar-icon" aria-label="Filtri" @click="showFilters = true">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3 4h14l-5.5 7v5L8.5 18v-7z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 5h16l-6 7.5V19l-4 2v-8.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" /></svg>
         </button>
       </div>
 
@@ -157,14 +190,16 @@ function addToZone() {
       </div>
     </template>
 
-    <AlertDialog v-model="showBluetoothOff" title="Il Bluetooth è disattivato" description="Attiva il Bluetooth nelle impostazioni di questo dispositivo per proseguire.">
-      <template #icon>
-        <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 2L1 18h18L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><circle cx="10" cy="15" r="0.8" fill="currentColor" /></svg>
-      </template>
-      <div class="dialog-btn-row">
-        <Button variant="ghost" @click="showBluetoothOff = false">Annulla</Button>
-        <Button variant="primary" @click="retryBluetooth">Riprova</Button>
-      </div>
+    <AlertDialog
+      v-if="!isNative"
+      v-model="showBluetoothOff"
+      system
+      row-actions
+      title="Il Bluetooth è disattivato"
+      description="Attiva il Bluetooth nelle impostazioni di questo dispositivo per proseguire."
+    >
+      <Button variant="ios" @click="showBluetoothOff = false">Annulla</Button>
+      <Button variant="ios" @click="retryBluetooth"><strong>Riprova</strong></Button>
     </AlertDialog>
 
     <BottomSheet v-model="showFilters" title="Filtri">
@@ -357,14 +392,20 @@ function addToZone() {
 
 .search-box input {
   width: 100%;
-  height: 40px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-input);
-  padding: 0 36px 0 12px;
+  height: 44px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-button);
+  padding: 0 40px 0 16px;
   font-size: var(--font-size-body);
   font-family: var(--font-family);
   color: var(--color-primary);
   background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--color-accent);
 }
 
 .search-box svg {
@@ -375,10 +416,12 @@ function addToZone() {
 }
 
 .toolbar-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
   border: none;
-  background: transparent;
   color: var(--color-primary);
   display: flex;
   align-items: center;
@@ -403,6 +446,15 @@ function addToZone() {
 .device-list {
   display: flex;
   flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 0 14px;
+}
+
+.device-list :deep(.device-row:last-child) {
+  border-bottom: none;
 }
 
 .dialog-btn-row {

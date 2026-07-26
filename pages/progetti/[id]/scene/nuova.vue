@@ -91,7 +91,7 @@ function updateSceneParams(sceneId: string) {
     <StatusBar />
 
     <template v-if="screen === 'intro'">
-      <AppHeader title="" leading="none" trailing="close" @close="goClose(`/progetti/${projectId}`)" />
+      <AppHeader title="" leading="back" trailing="close" @back="goClose(`/progetti/${projectId}`)" @close="goClose(`/progetti/${projectId}`)" />
       <div class="body centered">
         <svg class="illustration" width="140" height="120" viewBox="0 0 140 120" fill="none" aria-hidden="true">
           <rect x="20" y="20" width="40" height="70" rx="6" stroke="currentColor" stroke-width="1.2" />
@@ -216,7 +216,7 @@ function updateSceneParams(sceneId: string) {
     </template>
 
     <template v-else-if="screen === 'personalizza'">
-      <AppHeader title="Personalizza scene" leading="none" trailing="close" @close="goClose(`/progetti/${projectId}`)" />
+      <AppHeader title="Personalizza scene" leading="back" trailing="close" @back="screen = 'form'" @close="goClose(`/progetti/${projectId}`)" />
       <div class="body">
         <p class="scene-form-caption">Crea e gestisci le tue scene, personalizzando il comportamento dei dispositivi loro attivazione.</p>
 

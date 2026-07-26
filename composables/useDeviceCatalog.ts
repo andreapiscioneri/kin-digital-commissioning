@@ -37,11 +37,8 @@ export function useDeviceCatalog(projectId: string) {
     return MOCK_DEVICES
   }
 
-  function provisionDevices(deviceIds: string[], zone: string, levelId?: string) {
-    const newlyProvisioned: ProvisionedDevice[] = deviceIds
-      .map((id) => MOCK_DEVICES.find((d) => d.id === id))
-      .filter((d): d is DiscoveredDevice => !!d)
-      .map((d) => ({ ...d, zone, levelId, name: d.code, configured: false }))
+  function provisionDevices(devices: DiscoveredDevice[], zone: string, levelId?: string) {
+    const newlyProvisioned: ProvisionedDevice[] = devices.map((d) => ({ ...d, zone, levelId, name: d.code, configured: false }))
     provisionedDevices.value = [...provisionedDevices.value, ...newlyProvisioned]
     return newlyProvisioned
   }

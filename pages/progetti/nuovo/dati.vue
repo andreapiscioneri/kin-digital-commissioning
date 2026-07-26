@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import { Geolocation } from '@capacitor/geolocation'
 import type { ProjectCategory } from '~/composables/useProjectsStore'
 
 const { newProjectDraft, installerRoleEnabled } = useCommissioningFlow()
 const { createProject } = useProjectsStore()
 const { goBack, goClose, goForward } = useNavStack()
+const { isNative } = usePlatform()
 
 const showInterrupt = ref(false)
-const showLocationPermission = ref(false)
 const showAddressSheet = ref(false)
+const showLocationPermission = ref(false)
+const locating = ref(false)
+const locationError = ref('')
 const addressSearch = ref('')
 const nameTouched = ref(false)
 const nameError = computed(() => (nameTouched.value && !newProjectDraft.value.name.trim() ? 'Campo obbligatorio' : ''))
@@ -39,7 +43,16 @@ const canContinue = computed(() =>
 )
 
 function useCurrentLocation() {
-  showLocationPermission.value = true
+  locationError.value = ''
+
+  if (!isNative.value) {
+    // Nessun runtime nativo (browser/anteprima web): simula il prompt di
+    // sistema iOS così l'aspetto resta coerente anche fuori dall'app nativa.
+    showLocationPermission.value = true
+    return
+  }
+
+  requestNativeLocation()
 }
 
 function grantLocation() {
@@ -51,6 +64,25 @@ function grantLocation() {
 
 function denyLocation() {
   showLocationPermission.value = false
+}
+
+async function requestNativeLocation() {
+  locating.value = true
+  try {
+    const perm = await Geolocation.requestPermissions()
+    if (perm.location !== 'granted' && perm.coarseLocation !== 'granted') {
+      locationError.value = 'Permesso posizione negato.'
+      return
+    }
+    const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true })
+    newProjectDraft.value.useCurrentLocation = true
+    newProjectDraft.value.address = `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`
+    if (!newProjectDraft.value.timezone) newProjectDraft.value.timezone = 'Roma: UTC+1'
+  } catch {
+    locationError.value = 'Impossibile ottenere la posizione.'
+  } finally {
+    locating.value = false
+  }
 }
 
 function openAddressSheet() {
@@ -102,10 +134,11 @@ function onContinue() {
         </span>
       </div>
 
-      <Button variant="secondary" @click="useCurrentLocation">
+      <Button variant="secondary" :disabled="locating" @click="useCurrentLocation">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 00-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.4" /><circle cx="10" cy="8" r="2" stroke="currentColor" stroke-width="1.4" /></svg>
-        Usa posizione corrente
+        {{ locating ? 'Individuazione posizione…' : 'Usa posizione corrente' }}
       </Button>
+      <p v-if="locationError" class="location-error">{{ locationError }}</p>
 
       <p class="or-divider">Oppure inserisci manualmente</p>
 
@@ -126,16 +159,19 @@ function onContinue() {
       <Button variant="primary" :disabled="!canContinue" @click="onContinue">Continua</Button>
     </div>
 
-    <AlertDialog v-model="showLocationPermission" title="">
+    <AlertDialog
+      v-if="!isNative"
+      v-model="showLocationPermission"
+      system
+      title=""
+      description="La tua posizione rende più facile trovare l'indirizzo del tuo impianto."
+    >
       <template #title>
         Vuoi consentire a <strong>Kin Sync</strong> di utilizzare la tua posizione?
       </template>
-      <p class="alert-extra">La tua posizione rende più facile trovare l'indirizzo del tuo impianto.</p>
-      <div class="system-btn-stack">
-        <Button variant="system" @click="grantLocation">Consenti una volta</Button>
-        <Button variant="system" @click="grantLocation">Consenti quando utilizzi l'app</Button>
-        <Button variant="system" @click="denyLocation">Non consentire</Button>
-      </div>
+      <Button variant="ios" @click="grantLocation">Consenti una volta</Button>
+      <Button variant="ios" @click="grantLocation">Consenti quando utilizzi l'app</Button>
+      <Button variant="ios" @click="denyLocation"><strong>Non consentire</strong></Button>
     </AlertDialog>
 
     <AlertDialog v-model="showInterrupt" title="Interrompi creazione progetto" description="Sei sicuro di voler interrompere la creazione del tuo progetto?">
@@ -185,6 +221,8 @@ function onContinue() {
 
 .map-preview {
   position: relative;
+  height: 140px;
+  flex-shrink: 0;
   border-radius: var(--radius-card);
   overflow: hidden;
   border: 1px solid var(--color-border);
@@ -192,6 +230,8 @@ function onContinue() {
 
 .map-preview svg {
   display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .map-pin {
@@ -233,12 +273,10 @@ function onContinue() {
   flex: 1;
 }
 
-.system-btn-stack {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 8px;
+.location-error {
+  margin: -8px 0 0;
+  font-size: var(--font-size-small);
+  color: var(--color-danger, #c0392b);
 }
 
 .alert-extra {

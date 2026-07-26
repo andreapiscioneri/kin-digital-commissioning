@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    variant?: 'primary' | 'secondary' | 'ghost' | 'system'
+    variant?: 'primary' | 'secondary' | 'ghost' | 'system' | 'ios'
     size?: 'default' | 'lg'
     type?: 'button' | 'submit'
     disabled?: boolean
@@ -111,6 +111,34 @@ defineEmits<{ click: [MouseEvent] }>()
 
 .btn.system:hover:not(:disabled) {
   background: var(--color-chip-hover);
+}
+
+.btn.ios {
+  height: auto;
+  min-height: 44px;
+  padding: 10px 8px;
+  background: transparent;
+  color: var(--color-system-link);
+  border-radius: 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
+}
+
+.btn.ios .btn-label {
+  white-space: normal;
+}
+
+.btn.ios:active:not(:disabled) {
+  background: var(--color-chip-active);
+  transform: none;
+}
+
+.btn.ios:disabled {
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
 }
 
 .btn.ghost {

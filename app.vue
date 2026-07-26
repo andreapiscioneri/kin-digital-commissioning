@@ -19,17 +19,17 @@ const showNotificationsPrompt = computed(() => cookieChoice.value !== 'pending' 
 
       <AlertDialog
         :model-value="showNotificationsPrompt"
-        title="Attiva le notifiche push"
-        description="Ricevi aggiornamenti su sincronizzazioni, inviti dei collaboratori e stato dei tuoi progetti."
+        system
+        row-actions
+        title=""
+        description="Le notifiche possono includere avvisi, suoni e badge. Puoi configurarle in Impostazioni."
         :closable="false"
       >
-        <template #icon>
-          <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 2a5 5 0 00-5 5v3l-1.5 3h13L15 10V7a5 5 0 00-5-5zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <template #title>
+          <strong>“Kin Sync”</strong> vorrebbe inviarti notifiche
         </template>
-        <div class="dialog-btn-row">
-          <Button variant="ghost" @click="denyNotifications">Non ora</Button>
-          <Button variant="primary" @click="grantNotifications">Attiva</Button>
-        </div>
+        <Button variant="ios" @click="denyNotifications">Non consentire</Button>
+        <Button variant="ios" @click="grantNotifications"><strong>Consenti</strong></Button>
       </AlertDialog>
     </div>
   </div>

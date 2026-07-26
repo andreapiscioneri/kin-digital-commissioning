@@ -98,10 +98,10 @@ function goToNewProject() {
       <div class="toolbar">
         <div class="search-box">
           <input v-model="search" type="search" placeholder="Cerca progetto" />
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.4" /><path d="M18 18l-4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" /><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
         </div>
         <button type="button" class="toolbar-icon" aria-label="Filtra">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3 4h14l-5.5 7v5L8.5 18v-7z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 5h16l-6 7.5V19l-4 2v-8.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" /></svg>
         </button>
         <button type="button" class="toolbar-icon" aria-label="Ordina">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 5h12M6 10h8M8 15h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
@@ -231,14 +231,20 @@ function goToNewProject() {
 
 .search-box input {
   width: 100%;
-  height: 40px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-input);
-  padding: 0 36px 0 12px;
+  height: 44px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-button);
+  padding: 0 40px 0 16px;
   font-size: var(--font-size-body);
   font-family: var(--font-family);
   color: var(--color-primary);
   background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--color-accent);
 }
 
 .search-box svg {
@@ -249,10 +255,12 @@ function goToNewProject() {
 }
 
 .toolbar-icon {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
   border: none;
-  background: transparent;
   color: var(--color-primary);
   display: flex;
   align-items: center;

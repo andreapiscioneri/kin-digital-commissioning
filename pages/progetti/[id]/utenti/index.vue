@@ -4,7 +4,7 @@ import type { CollaboratorRole } from '~/composables/useCollaboratorsStore'
 const route = useRoute()
 const projectId = route.params.id as string
 const { invite } = useCollaboratorsStore(projectId)
-const { goClose } = useNavStack()
+const { goBack, goClose } = useNavStack()
 
 type Screen = 'intro' | 'form' | 'success'
 const screen = ref<Screen>('intro')
@@ -59,7 +59,7 @@ function inviteAnother() {
     <StatusBar />
 
     <template v-if="screen === 'intro'">
-      <AppHeader title="" leading="none" trailing="close" @close="goToNextStep" />
+      <AppHeader title="" leading="back" trailing="close" @back="goBack(`/progetti/${projectId}`)" @close="goToNextStep" />
       <div class="body centered">
         <svg class="illustration" width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
           <rect x="30" y="20" width="60" height="100" rx="8" stroke="currentColor" stroke-width="1.3" />
@@ -97,7 +97,7 @@ function inviteAnother() {
     </template>
 
     <template v-else-if="screen === 'success'">
-      <AppHeader title="" leading="none" trailing="none" />
+      <AppHeader title="" leading="back" trailing="none" @back="goToNextStep" />
       <div class="body centered">
         <span class="success-icon">
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="6" y="12" width="36" height="26" rx="3" stroke="currentColor" stroke-width="1.4" /><path d="M6 14l18 14 18-14" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><circle cx="36" cy="34" r="10" fill="var(--color-primary)" /><path d="M31 34l3.5 3.5L41 30" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>

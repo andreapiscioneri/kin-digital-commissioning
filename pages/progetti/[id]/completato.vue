@@ -12,6 +12,9 @@ const { goClose } = useNavStack()
     <div class="hero">
       <img src="/images/wizard-complete-bg.jpg" alt="" class="hero-image" />
       <div class="hero-overlay" />
+      <button type="button" class="hero-back" aria-label="Indietro" @click="goClose(`/progetti/${projectId}`)">
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8h17M1 8l6-6M1 8l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
       <span class="hero-check" aria-hidden="true">
         <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </span>
@@ -53,6 +56,22 @@ const { goClose } = useNavStack()
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(17, 17, 17, 0.15) 0%, var(--color-bg) 100%);
+}
+
+.hero-back {
+  position: absolute;
+  top: 44px;
+  left: var(--space-page-x);
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(17, 17, 17, 0.35);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .hero-check {

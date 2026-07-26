@@ -1,13 +1,36 @@
 <script setup lang="ts">
+import { BleClient } from '@capacitor-community/bluetooth-le'
+
 const { bluetoothEnabled, resetNewProjectDraft } = useCommissioningFlow()
 const { goClose } = useNavStack()
+const { isNative } = usePlatform()
 
 resetNewProjectDraft()
 
 const showBluetoothOff = ref(false)
 const showInterrupt = ref(false)
 
-function onContinue() {
+async function onContinue() {
+  if (isNative.value) {
+    try {
+      await BleClient.initialize({ androidNeverForLocation: false })
+      const enabled = await BleClient.isEnabled()
+      if (!enabled) {
+        try {
+          await BleClient.enable()
+        } catch {
+          // iOS non espone un enable() programmatico: CoreBluetooth mostra il proprio
+          // alert di sistema alla prima interrogazione dello stato quando è spento.
+        }
+      }
+    } catch {
+      // BLE non disponibile o permesso negato: si prosegue comunque, lo stato
+      // reale verrà rivalutato nella schermata di scan.
+    }
+    navigateTo('/progetti/nuovo/dati')
+    return
+  }
+
   if (!bluetoothEnabled.value) {
     showBluetoothOff.value = true
     return
@@ -29,7 +52,7 @@ function confirmInterrupt() {
 <template>
   <div class="screen">
     <StatusBar />
-    <AppHeader title="" leading="none" trailing="close" @close="showInterrupt = true" />
+    <AppHeader title="" leading="back" trailing="close" @back="goClose('/progetti')" @close="showInterrupt = true" />
 
     <div class="body">
       <svg class="illustration" width="220" height="180" viewBox="0 0 220 180" fill="none" aria-hidden="true">
@@ -53,15 +76,16 @@ function confirmInterrupt() {
       <Button variant="primary" @click="onContinue">Continua</Button>
     </div>
 
-    <AlertDialog v-model="showBluetoothOff" title="Il Bluetooth è disattivato" description="Attiva il Bluetooth nelle impostazioni di questo dispositivo per proseguire.">
-      <template #icon>
-        <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 2L1 18h18L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><circle cx="10" cy="15" r="0.8" fill="currentColor" /></svg>
-      </template>
-      <button type="button" class="link-inline" @click="retryBluetooth">Vai a impostazioni</button>
-      <div class="dialog-btn-row">
-        <Button variant="ghost" @click="showBluetoothOff = false">Annulla</Button>
-        <Button variant="primary" @click="retryBluetooth">Riprova</Button>
-      </div>
+    <AlertDialog
+      v-if="!isNative"
+      v-model="showBluetoothOff"
+      system
+      row-actions
+      title="Il Bluetooth è disattivato"
+      description="Attiva il Bluetooth nelle impostazioni di questo dispositivo per proseguire."
+    >
+      <Button variant="ios" @click="showBluetoothOff = false">Annulla</Button>
+      <Button variant="ios" @click="retryBluetooth"><strong>Riprova</strong></Button>
     </AlertDialog>
 
     <AlertDialog v-model="showInterrupt" title="Interrompi creazione progetto" description="Sei sicuro di voler interrompere la creazione del tuo progetto?">
@@ -131,16 +155,6 @@ function confirmInterrupt() {
 
 .footer {
   padding: 16px var(--space-page-x) 24px;
-}
-
-.link-inline {
-  border: none;
-  background: transparent;
-  color: var(--color-primary);
-  font-weight: 500;
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: var(--font-size-body);
 }
 
 .dialog-btn-row {

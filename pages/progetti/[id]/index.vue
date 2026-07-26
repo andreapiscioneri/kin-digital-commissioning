@@ -6,7 +6,7 @@ const { projects } = useProjectsStore()
 const { levels } = useLevelsStore(projectId)
 const { provisionedDevices } = useDeviceCatalog(projectId)
 const { groups } = useGroupsStore(projectId)
-const { goForward } = useNavStack()
+const { goBack, goForward } = useNavStack()
 
 const project = computed(() => projects.value.find((p) => p.id === projectId))
 const activeTab = ref((route.query.tab as string) || 'livelli')
@@ -29,6 +29,9 @@ watch(activeTab, (tab: string) => {
 
     <header class="dashboard-header">
       <div class="header-row">
+        <IconButton ariaLabel="Indietro" class="back-btn" @click="goBack('/progetti')">
+          <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8h17M1 8l6-6M1 8l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </IconButton>
         <div class="welcome">
           <div class="company-row">
             <p class="company">{{ project?.name }}</p>
@@ -39,10 +42,10 @@ watch(activeTab, (tab: string) => {
         </div>
         <div class="actions">
           <IconButton ariaLabel="Notifiche" @click="goForward('/account/notifiche')">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2a5 5 0 00-5 5v3l-1.5 3h13L15 10V7a5 5 0 00-5-5zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
           </IconButton>
           <IconButton ariaLabel="Menu" @click="menuOpen = true">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
           </IconButton>
         </div>
       </div>
@@ -89,15 +92,17 @@ watch(activeTab, (tab: string) => {
             </EmptyState>
           </template>
           <template v-else>
-            <DeviceRow
-              v-for="d in provisionedDevices"
-              :key="d.id"
-              :code="d.name"
-              :type="d.type"
-              :show-settings="true"
-              @toggle="goForward(`/progetti/${projectId}/dispositivi/${d.id}/configura`)"
-              @settings="goForward(`/progetti/${projectId}/dispositivi/${d.id}/configura`)"
-            />
+            <div class="device-list">
+              <DeviceRow
+                v-for="d in provisionedDevices"
+                :key="d.id"
+                :code="d.name"
+                :type="d.type"
+                :show-settings="true"
+                @toggle="goForward(`/progetti/${projectId}/dispositivi/${d.id}/configura`)"
+                @settings="goForward(`/progetti/${projectId}/dispositivi/${d.id}/configura`)"
+              />
+            </div>
           </template>
         </template>
 
@@ -144,8 +149,13 @@ watch(activeTab, (tab: string) => {
 .header-row {
   display: flex;
   align-items: center;
+  gap: 8px;
   justify-content: space-between;
   padding: 10px 20px 20px;
+}
+
+.back-btn {
+  flex-shrink: 0;
 }
 
 .company-row {
@@ -212,5 +222,19 @@ watch(activeTab, (tab: string) => {
   flex-direction: column;
   gap: 12px;
   padding: 16px var(--space-page-x) 32px;
+}
+
+.device-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 0 14px;
+}
+
+.device-list :deep(.device-row:last-child) {
+  border-bottom: none;
 }
 </style>

@@ -147,6 +147,7 @@
   --color-accent-hover: #a32900; /* Orange/7 */
   --color-accent-soft: #fff6f2; /* Orange/1 */
   --color-accent-disabled: #d7d5d6; /* Grey/4 */
+  --color-system-link: #007aff; /* iOS system blue — usato nei bottoni degli alert di sistema */
   --color-text-secondary: #747272; /* Grey/6 */
   --color-text-muted: #a4a3a4; /* Grey/5 */
   --color-border: #d7d5d6; /* Grey/4 */
@@ -189,6 +190,7 @@
   --color-accent-hover: #f48457; /* Orange/4 */
   --color-accent-soft: rgba(232, 78, 15, 0.16);
   --color-accent-disabled: #4a423e;
+  --color-system-link: #0a84ff; /* iOS system blue (dark) */
   --color-text-secondary: #a4a3a4; /* Grey/5 */
   --color-text-muted: #747272; /* Grey/6 */
   --color-border: #4a423e;

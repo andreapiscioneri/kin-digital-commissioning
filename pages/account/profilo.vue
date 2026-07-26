@@ -9,7 +9,7 @@ const { goBack } = useNavStack()
 
     <div class="body">
       <div class="avatar-row">
-        <span class="avatar">MR</span>
+        <img class="avatar" src="/images/avatar-marco.jpg" alt="Marco Rossi" />
         <div class="avatar-text">
           <p class="name">Marco Rossi</p>
           <p class="role">Installer</p>
@@ -60,13 +60,7 @@ const { goBack } = useNavStack()
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--color-surface-alt);
-  color: var(--color-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: var(--font-size-h2);
+  object-fit: cover;
   flex-shrink: 0;
 }
 

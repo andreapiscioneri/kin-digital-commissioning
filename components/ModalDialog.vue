@@ -1,5 +1,8 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{ modelValue: boolean; closable?: boolean }>(), { closable: true })
+const props = withDefaults(
+  defineProps<{ modelValue: boolean; closable?: boolean; system?: boolean }>(),
+  { closable: true, system: false }
+)
 const emit = defineEmits<{ 'update:modelValue': [boolean]; close: [] }>()
 
 function close() {
@@ -13,7 +16,7 @@ function close() {
   <Transition name="modal-overlay">
     <div v-if="modelValue" class="modal-overlay" @mousedown.self="close">
       <Transition name="modal-card" appear>
-        <div v-if="modelValue" class="modal-card" role="dialog" aria-modal="true">
+        <div v-if="modelValue" class="modal-card" :class="{ 'modal-card--system': system }" role="dialog" aria-modal="true">
           <slot />
         </div>
       </Transition>
@@ -47,6 +50,21 @@ function close() {
   text-align: center;
   gap: 12px;
   box-shadow: var(--shadow-frame);
+}
+
+.modal-card--system {
+  max-width: 270px;
+  padding: 0;
+  gap: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(247, 247, 248, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+.dark-mode .modal-card--system {
+  background: rgba(40, 40, 42, 0.78);
 }
 
 .modal-overlay-enter-active,
