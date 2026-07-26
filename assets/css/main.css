@@ -1,19 +1,4 @@
 :root {
-  /* Colors — campionati dagli screenshot DC (palette neutra/grayscale, coerente con KINsync) */
-  --color-bg: #fafafa;
-  --color-surface: #ffffff;
-  --color-ink: #111111;
-  --color-primary: #273945;
-  --color-primary-disabled: rgba(39, 57, 69, 0.3);
-  --color-text-secondary: #929292;
-  --color-text-muted: #6b7280;
-  --color-border: #c6c6c6;
-  --color-border-secondary: #caced8;
-  --color-border-focus: #273945;
-  --color-error: #eb5160;
-  --color-success: #3ecd88;
-  --color-warning: #f2a93b;
-
   /* Typography */
   --font-family: 'Work Sans', sans-serif;
   --font-size-h1: 24px;
@@ -44,6 +29,61 @@
   --duration-fast: 150ms;
   --duration-base: 250ms;
   --duration-slow: 400ms;
+}
+
+/* Colors — campionati dal Design System GEWISS (Figma 03WMGiqYwwpcw7dAocXVHp) */
+.light-mode {
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f0f0f0;
+  --color-chip-active: #e2e2e2;
+  --color-chip-hover: #d6d6d6;
+  --color-avatar-bg: #d9d9d9;
+  --color-ink: #111111;
+  --color-primary: #273945;
+  --color-primary-hover: #1c2a33;
+  --color-primary-disabled: rgba(39, 57, 69, 0.3);
+  --color-text-secondary: #929292;
+  --color-text-muted: #6b7280;
+  --color-border: #c6c6c6;
+  --color-border-secondary: #caced8;
+  --color-border-focus: #273945;
+  --color-error: #eb5160;
+  --color-success: #3ecd88;
+  --color-warning: #f2a93b;
+  --color-focus-ring: rgba(39, 57, 69, 0.35);
+  --color-outer-frame: #e5e5e5;
+  --shadow-fab: 0 8px 20px rgba(0, 0, 0, 0.2);
+  --shadow-frame: 0 20px 60px rgba(0, 0, 0, 0.25);
+  --shadow-menu: -10px 0 30px rgba(0, 0, 0, 0.15);
+  --overlay-scrim: rgba(17, 17, 17, 0.35);
+}
+
+.dark-mode {
+  --color-bg: #14181b;
+  --color-surface: #1c2228;
+  --color-surface-alt: #262d33;
+  --color-chip-active: #313940;
+  --color-chip-hover: #3a434b;
+  --color-avatar-bg: #313940;
+  --color-ink: #fafafa;
+  --color-primary: #2f8eff;
+  --color-primary-hover: #5aa4ff;
+  --color-primary-disabled: rgba(47, 142, 255, 0.3);
+  --color-text-secondary: #9aa3ab;
+  --color-text-muted: #7c8892;
+  --color-border: #33393f;
+  --color-border-secondary: #3a434b;
+  --color-border-focus: #2f8eff;
+  --color-error: #f27b86;
+  --color-success: #6ecfa6;
+  --color-warning: #f8c971;
+  --color-focus-ring: rgba(47, 142, 255, 0.4);
+  --color-outer-frame: #0b0d0f;
+  --shadow-fab: 0 8px 20px rgba(0, 0, 0, 0.5);
+  --shadow-frame: 0 20px 60px rgba(0, 0, 0, 0.6);
+  --shadow-menu: -10px 0 30px rgba(0, 0, 0, 0.4);
+  --overlay-scrim: rgba(0, 0, 0, 0.55);
 }
 
 * {

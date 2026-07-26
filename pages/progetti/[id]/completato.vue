@@ -3,25 +3,25 @@ const route = useRoute()
 const projectId = route.params.id as string
 const { projects } = useProjectsStore()
 const project = computed(() => projects.value.find((p) => p.id === projectId))
+const { goClose } = useNavStack()
 </script>
 
 <template>
   <div class="screen">
     <StatusBar />
+    <div class="hero">
+      <img src="/images/wizard-complete-bg.jpg" alt="" class="hero-image" />
+      <div class="hero-overlay" />
+      <span class="hero-check" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </span>
+    </div>
     <div class="body">
-      <svg class="illustration" width="180" height="150" viewBox="0 0 180 150" fill="none" aria-hidden="true">
-        <path d="M20 130V30h140v100z" stroke="currentColor" stroke-width="1.2" />
-        <path d="M20 30l70-20 70 20" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
-        <circle cx="55" cy="70" r="5" fill="currentColor" />
-        <circle cx="125" cy="70" r="5" fill="currentColor" />
-        <circle cx="90" cy="100" r="5" fill="currentColor" />
-        <path d="M60 40l10 8-10 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
       <h1 class="title">Configurazione “{{ project?.name }}” completata</h1>
       <p class="subtitle">Il progetto è stato configurato correttamente, ora è pronto per essere utilizzato.</p>
     </div>
     <div class="footer">
-      <Button variant="primary" @click="navigateTo(`/progetti/${projectId}`)">Vai alla dashboard</Button>
+      <Button variant="primary" @click="goClose(`/progetti/${projectId}`)">Vai alla dashboard</Button>
     </div>
   </div>
 </template>
@@ -34,6 +34,42 @@ const project = computed(() => projects.value.find((p) => p.id === projectId))
   background: var(--color-bg);
 }
 
+.hero {
+  position: relative;
+  height: 42%;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.15) 0%, var(--color-bg) 100%);
+}
+
+.hero-check {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translate(-50%, 50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-fab);
+}
+
 .body {
   flex: 1;
   display: flex;
@@ -41,13 +77,8 @@ const project = computed(() => projects.value.find((p) => p.id === projectId))
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 20px var(--space-page-x);
+  padding: 32px var(--space-page-x) 20px;
   gap: 12px;
-}
-
-.illustration {
-  color: var(--color-primary);
-  margin-bottom: 8px;
 }
 
 .title {

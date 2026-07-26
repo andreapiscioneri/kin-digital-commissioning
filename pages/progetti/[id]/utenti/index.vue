@@ -4,7 +4,7 @@ import type { CollaboratorRole } from '~/composables/useCollaboratorsStore'
 const route = useRoute()
 const projectId = route.params.id as string
 const { invite } = useCollaboratorsStore(projectId)
-const { goClose } = useNavDirection()
+const { goClose } = useNavStack()
 
 type Screen = 'intro' | 'form' | 'success'
 const screen = ref<Screen>('intro')
@@ -79,7 +79,7 @@ function inviteAnother() {
         <Button variant="primary" :disabled="!canInvite" @click="askConfirm">Invita</Button>
       </div>
 
-      <AlertDialog v-model="showConfirm" title="Confermi di voler inviare l'invito?" :description="`Stai invitando ${email} ad unirsi a questo progetto con il ruolo di ${role}`">
+      <AlertDialog v-model="showConfirm" title="Confermi di voler inoltrare l'invito?" :description="`Stai invitando ${email} ad unirsi a questo progetto con il ruolo di ${role}`">
         <div class="dialog-btn-row">
           <Button variant="ghost" @click="showConfirm = false">Annulla</Button>
           <Button variant="primary" @click="confirmInvite">Invita</Button>

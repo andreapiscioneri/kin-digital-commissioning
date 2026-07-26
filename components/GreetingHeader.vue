@@ -30,7 +30,7 @@ defineEmits<{ menu: []; notifications: [] }>()
   align-items: center;
   gap: 12px;
   padding: 12px var(--space-page-x) 16px;
-  background: #f0f0f0;
+  background: var(--color-surface-alt);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -38,7 +38,7 @@ defineEmits<{ menu: []; notifications: [] }>()
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #d9d9d9;
+  background: var(--color-avatar-bg);
   color: var(--color-primary);
   display: flex;
   align-items: center;

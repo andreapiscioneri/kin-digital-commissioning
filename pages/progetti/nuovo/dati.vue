@@ -3,7 +3,7 @@ import type { ProjectCategory } from '~/composables/useProjectsStore'
 
 const { newProjectDraft, installerRoleEnabled } = useCommissioningFlow()
 const { createProject } = useProjectsStore()
-const { goBack, goClose, goForward } = useNavDirection()
+const { goBack, goClose, goForward } = useNavStack()
 
 const showInterrupt = ref(false)
 const showLocationPermission = ref(false)
@@ -14,7 +14,8 @@ const categoryOptions: { value: ProjectCategory; label: string }[] = [
   { value: 'Office', label: 'Office' },
   { value: 'Industry', label: 'Industry' },
   { value: 'Sport indoor', label: 'Sport indoor' },
-  { value: 'Retail', label: 'Retail' }
+  { value: 'Relamping', label: 'Relamping' },
+  { value: 'Altro', label: 'Altro' }
 ]
 
 const timezoneOptions = [

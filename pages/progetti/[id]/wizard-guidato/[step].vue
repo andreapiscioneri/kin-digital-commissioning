@@ -3,12 +3,12 @@ const route = useRoute()
 const projectId = route.params.id as string
 const levelIndex = Number(route.params.step)
 const { levels, updateLevel } = useLevelsStore(projectId)
-const { goClose } = useNavDirection()
+const { goClose } = useNavStack()
 
 const level = computed(() => levels.value[levelIndex - 1])
 const totalLevels = computed(() => levels.value.length)
 
-type SubStep = 'livello' | 'sottolivello' | 'dispositivi'
+type SubStep = 'livello' | 'sottolivello-intro' | 'sottolivello' | 'dispositivi'
 const subStep = ref<SubStep>('livello')
 
 const levelName = ref(level.value?.name || `Livello ${levelIndex}`)
@@ -16,18 +16,27 @@ const subLevelName = ref('Sottolivello 1')
 const hasPlan = ref(level.value?.hasPlan || false)
 const showUploadSheet = ref(false)
 
+const nextDestination = computed(() =>
+  levelIndex < totalLevels.value ? `/progetti/${projectId}/wizard-guidato/${levelIndex + 1}` : `/progetti/${projectId}/utenti`
+)
+
 function goDashboard() {
   goClose(`/progetti/${projectId}`)
 }
 
 function saveLevelStep() {
   updateLevel(level.value.id, { name: levelName.value })
-  subStep.value = 'sottolivello'
+  subStep.value = 'sottolivello-intro'
 }
 
 function choosePlanSource() {
   hasPlan.value = true
   showUploadSheet.value = false
+}
+
+function skipSubLevel() {
+  updateLevel(level.value.id, { name: levelName.value, hasPlan: hasPlan.value, subLevels: 0 })
+  subStep.value = 'dispositivi'
 }
 
 function saveSubLevelStep() {
@@ -36,8 +45,11 @@ function saveSubLevelStep() {
 }
 
 function goToDeviceScan() {
-  const next = levelIndex < totalLevels.value ? `/progetti/${projectId}/wizard-guidato/${levelIndex + 1}` : `/progetti/${projectId}/utenti`
-  navigateTo(`/progetti/${projectId}/dispositivi/scan?zona=${encodeURIComponent(subLevelName.value)}&next=${encodeURIComponent(next)}`)
+  navigateTo(`/progetti/${projectId}/dispositivi/scan?zona=${encodeURIComponent(subLevelName.value)}&next=${encodeURIComponent(nextDestination.value)}`)
+}
+
+function skipDevices() {
+  navigateTo(nextDestination.value)
 }
 </script>
 
@@ -70,8 +82,23 @@ function goToDeviceScan() {
       </div>
     </template>
 
-    <template v-else-if="subStep === 'sottolivello'">
+    <template v-else-if="subStep === 'sottolivello-intro'">
       <AppHeader title="Creazione sottolivello" leading="back" trailing="close" @back="subStep = 'livello'" @close="goDashboard" />
+      <div class="body centered">
+        <span class="placeholder-icon">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><circle cx="8" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" /><path d="M2 17l5.5-5.5L12 16l4-4 6 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
+        </span>
+        <h1 class="title">Creazione dei sottolivelli</h1>
+        <p class="subtitle">I sottolivelli rappresentano gli spazi all'interno di un livello, ad esempio uffici, corridoi o reparti.</p>
+      </div>
+      <div class="footer">
+        <Button variant="primary" @click="subStep = 'sottolivello'">Continua</Button>
+        <Button variant="ghost" class="skip" @click="skipSubLevel">Salta</Button>
+      </div>
+    </template>
+
+    <template v-else-if="subStep === 'sottolivello'">
+      <AppHeader :title="subLevelName" leading="back" trailing="close" @back="subStep = 'sottolivello-intro'" @close="goDashboard" />
       <WizardProgress :current="2" :total="3" />
       <div class="body">
         <p class="parent-level-name">{{ levelName }}</p>
@@ -96,10 +123,11 @@ function goToDeviceScan() {
           <circle cx="95" cy="90" r="4" fill="currentColor" />
         </svg>
         <h1 class="title">Aggiungi i dispositivi</h1>
-        <p class="subtitle">Individua e assegna i dispositivi a “{{ subLevelName }}”.</p>
+        <p class="subtitle">I dispositivi possono essere assegnati a un livello o a un sottolivello per completare la struttura del progetto.</p>
       </div>
       <div class="footer">
-        <Button variant="primary" @click="goToDeviceScan">Continua</Button>
+        <Button variant="primary" @click="goToDeviceScan">Aggiungi dispositivi</Button>
+        <Button variant="ghost" class="skip" @click="skipDevices">Non adesso</Button>
       </div>
     </template>
 
@@ -137,6 +165,18 @@ function goToDeviceScan() {
 
 .illustration {
   color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.placeholder-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-card);
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 8px;
 }
 
@@ -215,6 +255,13 @@ function goToDeviceScan() {
 
 .footer {
   padding: 16px var(--space-page-x) 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.skip {
+  align-self: center;
 }
 
 .sheet-action {

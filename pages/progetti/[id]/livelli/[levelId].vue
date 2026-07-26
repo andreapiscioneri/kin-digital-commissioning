@@ -3,7 +3,7 @@ const route = useRoute()
 const projectId = route.params.id as string
 const levelId = route.params.levelId as string
 const { getLevel, updateLevel } = useLevelsStore(projectId)
-const { goBack, goBackTo } = useNavDirection()
+const { goBack, goBackTo } = useNavStack()
 
 const level = getLevel(levelId)
 const name = ref(level?.name || '')
@@ -86,7 +86,7 @@ function save() {
   height: 90px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-input);
-  background: #f7f7f7;
+  background: var(--color-surface-alt);
   color: var(--color-primary);
   font-family: var(--font-family);
   font-size: var(--font-size-body);

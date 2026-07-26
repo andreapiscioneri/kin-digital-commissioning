@@ -14,7 +14,7 @@ withDefaults(defineProps<{ size?: number }>(), { size: 40 })
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #f0f0f0;
+  background: var(--color-surface-alt);
   color: var(--color-primary);
   flex-shrink: 0;
 }

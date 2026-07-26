@@ -38,7 +38,7 @@ withDefaults(
 }
 
 .empty-state.card {
-  background: #f0f0f0;
+  background: var(--color-surface-alt);
   border-radius: var(--radius-card);
   padding: 20px;
   align-items: flex-start;

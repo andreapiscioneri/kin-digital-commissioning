@@ -3,7 +3,7 @@ import type { ProjectCategory } from '~/composables/useProjectsStore'
 
 const { newProjectDraft, companyInfoDraft, installerRoleEnabled } = useCommissioningFlow()
 const { createProject } = useProjectsStore()
-const { goBack, goClose } = useNavDirection()
+const { goBack, goClose } = useNavStack()
 
 const showEnableInstaller = ref(!installerRoleEnabled.value)
 const formVisible = ref(installerRoleEnabled.value)

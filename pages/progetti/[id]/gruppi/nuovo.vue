@@ -5,7 +5,7 @@ const route = useRoute()
 const projectId = route.params.id as string
 const { provisionedDevices } = useDeviceCatalog(projectId)
 const { createGroup } = useGroupsStore(projectId)
-const { goBack, goClose } = useNavDirection()
+const { goBack, goClose } = useNavStack()
 
 const name = ref('')
 const expandedType = ref<DeviceType | null>(null)

@@ -674,7 +674,7 @@
     unctx "^2.5.0"
     untyped "^2.0.0"
 
-"@nuxt/kit@^4.4.4", "@nuxt/kit@^4.5.0":
+"@nuxt/kit@^4.4.4", "@nuxt/kit@^4.4.6", "@nuxt/kit@^4.5.0":
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/@nuxt/kit/-/kit-4.5.0.tgz#33886255e5e9d734100a82ee35d2e9efd355422b"
   integrity sha512-VD4GjRjbh7r7ILoXYbiKeQgZuYP/vJ7iMk6fSRak1+xEyXHpQ+OIq/EfIjfsHv7DVimddOB+I6W/wGXjRVZ+Ng==
@@ -792,6 +792,17 @@
     vite-node "^5.3.0"
     vite-plugin-checker "^0.14.4"
     vue-bundle-renderer "^2.3.1"
+
+"@nuxtjs/color-mode@^4.0.1":
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/@nuxtjs/color-mode/-/color-mode-4.0.1.tgz#fd06ba8dac561278ec62261267fce95651260bf6"
+  integrity sha512-eiA7hWXi5zNHaYKyJFCGF6i0wFZtuvR7KDXZ6jiSvwxjCpRFwphrw0MOSmNfArTSSsT1wpW+/2H92cejeVfUlg==
+  dependencies:
+    "@nuxt/kit" "^4.4.6"
+    exsolve "^1.0.8"
+    pathe "^2.0.3"
+    pkg-types "^2.3.1"
+    semver "^7.8.1"
 
 "@nuxtjs/google-fonts@^3.2.0":
   version "3.2.0"
@@ -4120,7 +4131,7 @@ semver@^6.3.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
 
-semver@^7.5.3, semver@^7.7.4, semver@^7.8.5:
+semver@^7.5.3, semver@^7.7.4, semver@^7.8.1, semver@^7.8.5:
   version "7.8.5"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.8.5.tgz#39b646037dd50c14fb451e7e4cac58ed8b863f69"
   integrity sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==

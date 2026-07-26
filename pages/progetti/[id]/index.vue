@@ -1,10 +1,12 @@
 <script setup lang="ts">
 const route = useRoute()
+const router = useRouter()
 const projectId = route.params.id as string
 const { projects } = useProjectsStore()
 const { levels } = useLevelsStore(projectId)
 const { provisionedDevices } = useDeviceCatalog(projectId)
 const { groups } = useGroupsStore(projectId)
+const { goForward } = useNavStack()
 
 const project = computed(() => projects.value.find((p) => p.id === projectId))
 const activeTab = ref((route.query.tab as string) || 'livelli')
@@ -15,6 +17,10 @@ const tabs = [
   { value: 'dispositivi', label: 'Dispositivi' },
   { value: 'gruppi', label: 'Gruppi' }
 ]
+
+watch(activeTab, (tab) => {
+  router.replace({ query: { ...route.query, tab } })
+})
 </script>
 
 <template>
@@ -28,7 +34,7 @@ const tabs = [
           <p class="greeting">Bentornato, Marco</p>
         </div>
         <div class="actions">
-          <IconButton aria-label="Notifiche">
+          <IconButton aria-label="Notifiche" @click="goForward('/account/notifiche')">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2a5 5 0 00-5 5v3l-1.5 3h13L15 10V7a5 5 0 00-5-5zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
           </IconButton>
           <IconButton aria-label="Menu" @click="menuOpen = true">
@@ -40,7 +46,7 @@ const tabs = [
 
     <div class="body">
       <section class="scenes">
-        <SectionHeader title="Scene" @action="navigateTo(`/progetti/${projectId}/scene/nuova`)">
+        <SectionHeader title="Scene" @action="goForward(`/progetti/${projectId}/scene/nuova`)">
           <template #action>
             <span class="new-scene-btn">
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
@@ -56,7 +62,7 @@ const tabs = [
         <template v-if="activeTab === 'livelli'">
           <template v-if="levels.length === 0">
             <EmptyState variant="card" title="Nessun livello creato" subtitle="Aggiungi almeno un livello per organizzare il tuo progetto.">
-              <Button variant="secondary" @click="navigateTo(`/progetti/${projectId}/livelli/nuovo`)">+ Aggiungi livelli</Button>
+              <Button variant="secondary" @click="goForward(`/progetti/${projectId}/livelli/nuovo`)">+ Aggiungi livelli</Button>
             </EmptyState>
           </template>
           <template v-else>
@@ -67,7 +73,7 @@ const tabs = [
               :subtitle-strong="String(level.subLevels)"
               subtitle="Sottolivelli"
               clickable
-              @click="navigateTo(`/progetti/${projectId}/livelli/${level.id}`)"
+              @click="goForward(`/progetti/${projectId}/livelli/${level.id}`)"
             />
           </template>
         </template>
@@ -75,7 +81,7 @@ const tabs = [
         <template v-else-if="activeTab === 'dispositivi'">
           <template v-if="provisionedDevices.length === 0">
             <EmptyState variant="card" title="Nessun dispositivo aggiunto" subtitle="Avvia una scansione Bluetooth per individuare i dispositivi da aggiungere.">
-              <Button variant="secondary" @click="navigateTo(`/progetti/${projectId}/dispositivi/scan`)">+ Aggiungi dispositivi</Button>
+              <Button variant="secondary" @click="goForward(`/progetti/${projectId}/dispositivi/scan`)">+ Aggiungi dispositivi</Button>
             </EmptyState>
           </template>
           <template v-else>
@@ -85,8 +91,8 @@ const tabs = [
               :code="d.name"
               :type="d.type"
               :show-settings="true"
-              @toggle="navigateTo(`/progetti/${projectId}/dispositivi/${d.id}/configura`)"
-              @settings="navigateTo(`/progetti/${projectId}/dispositivi/${d.id}/configura`)"
+              @toggle="goForward(`/progetti/${projectId}/dispositivi/${d.id}/configura`)"
+              @settings="goForward(`/progetti/${projectId}/dispositivi/${d.id}/configura`)"
             />
           </template>
         </template>
@@ -94,7 +100,7 @@ const tabs = [
         <template v-else-if="activeTab === 'gruppi'">
           <template v-if="groups.length === 0">
             <EmptyState variant="card" title="Non hai creato ancora nessun gruppo" subtitle="Gestisci parametri e comportamenti specifici per gruppi di dispositivi.">
-              <Button variant="secondary" @click="navigateTo(`/progetti/${projectId}/gruppi/nuovo`)">Crea gruppo</Button>
+              <Button variant="secondary" @click="goForward(`/progetti/${projectId}/gruppi/nuovo`)">Crea gruppo</Button>
             </EmptyState>
           </template>
           <template v-else>
@@ -105,15 +111,15 @@ const tabs = [
               :subtitle-strong="String(group.deviceIds.length)"
               subtitle="dispositivi"
               clickable
-              @click="navigateTo(`/progetti/${projectId}/gruppi/${group.id}`)"
+              @click="goForward(`/progetti/${projectId}/gruppi/${group.id}`)"
             />
-            <Button variant="secondary" @click="navigateTo(`/progetti/${projectId}/gruppi/nuovo`)">+ Crea gruppo</Button>
+            <Button variant="secondary" @click="goForward(`/progetti/${projectId}/gruppi/nuovo`)">+ Crea gruppo</Button>
           </template>
         </template>
       </section>
     </div>
 
-    <SideMenu v-model="menuOpen" />
+    <SideMenu v-model="menuOpen" :project-id="projectId" />
   </div>
 </template>
 

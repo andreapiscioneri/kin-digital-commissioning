@@ -5,15 +5,16 @@ withDefaults(
     leading?: 'back' | 'none'
     trailing?: 'close' | 'none'
     divider?: boolean
+    inverted?: boolean
   }>(),
-  { title: '', leading: 'back', trailing: 'none', divider: true }
+  { title: '', leading: 'back', trailing: 'none', divider: true, inverted: false }
 )
 
 const emit = defineEmits<{ back: []; close: [] }>()
 </script>
 
 <template>
-  <header class="app-header" :class="{ 'no-divider': !divider }">
+  <header class="app-header" :class="{ 'no-divider': !divider, inverted }">
     <button v-if="leading === 'back'" type="button" class="icon-btn" aria-label="Indietro" @click="emit('back')">
       <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8h17M1 8l6-6M1 8l6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
@@ -37,6 +38,16 @@ const emit = defineEmits<{ back: []; close: [] }>()
   padding: 8px var(--space-page-x) 16px;
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
+}
+
+.app-header.inverted {
+  border-bottom-color: transparent;
+  color: #ffffff;
+}
+
+.app-header.inverted .app-header-title,
+.app-header.inverted .icon-btn {
+  color: #ffffff;
 }
 
 .app-header.no-divider {

@@ -3,7 +3,7 @@ const route = useRoute()
 const projectId = route.params.id as string
 const deviceId = route.params.deviceId as string
 const { getDevice, updateDevice, provisionedDevices } = useDeviceCatalog(projectId)
-const { goBack } = useNavDirection()
+const { goBack } = useNavStack()
 
 const device = getDevice(deviceId)
 
@@ -232,7 +232,7 @@ function save() {
   height: 90px;
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-card);
-  background: #f7f7f7;
+  background: var(--color-surface-alt);
   color: var(--color-primary);
   font-family: var(--font-family);
   font-size: var(--font-size-small);

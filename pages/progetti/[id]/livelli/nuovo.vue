@@ -2,7 +2,7 @@
 const route = useRoute()
 const projectId = route.params.id as string
 const { createLevels } = useLevelsStore(projectId)
-const { goClose, goForward } = useNavDirection()
+const { goClose, goForward } = useNavStack()
 
 type Screen = 'config' | 'modalita' | 'intro' | 'stepper' | 'guidata-intro' | 'guidata-stepper'
 const screen = ref<Screen>('config')
@@ -239,7 +239,7 @@ function onGuidataStepperContinue() {
   width: 100px;
   height: 100px;
   border-radius: var(--radius-card);
-  background: #f0f0f0;
+  background: var(--color-surface-alt);
   color: var(--color-text-secondary);
   display: flex;
   align-items: center;

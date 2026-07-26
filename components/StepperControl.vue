@@ -82,7 +82,7 @@ function inc() {
 }
 
 .stepper-btn.minus {
-  background: #eef0f2;
+  background: var(--color-surface-alt);
   color: var(--color-primary);
 }
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { bluetoothEnabled, resetNewProjectDraft } = useCommissioningFlow()
-const { goClose } = useNavDirection()
+const { goClose } = useNavStack()
 
 resetNewProjectDraft()
 

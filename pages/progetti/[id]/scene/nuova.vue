@@ -4,7 +4,7 @@ const projectId = route.params.id as string
 const { provisionedDevices } = useDeviceCatalog(projectId)
 const { groups } = useGroupsStore(projectId)
 const { scenes, createScene } = useScenesStore(projectId)
-const { goBack, goClose, goForward } = useNavDirection()
+const { goBack, goClose, goForward } = useNavStack()
 
 type Screen = 'intro' | 'form' | 'icon-picker' | 'select-devices' | 'personalizza'
 const screen = ref<Screen>('intro')

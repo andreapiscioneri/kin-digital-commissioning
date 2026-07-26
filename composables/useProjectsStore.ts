@@ -1,4 +1,4 @@
-export type ProjectCategory = 'Office' | 'Industry' | 'Sport indoor' | 'Retail'
+export type ProjectCategory = 'Office' | 'Industry' | 'Sport indoor' | 'Retail' | 'Relamping' | 'Altro'
 export type ProjectSyncStatus = 'synced' | 'not-synced' | 'error'
 export type ProjectConnectionStatus = 'online' | 'fault' | 'none'
 

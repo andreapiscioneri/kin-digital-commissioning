@@ -4,7 +4,7 @@ const projectId = route.params.id as string
 const groupId = route.params.groupId as string
 const { getGroup, updateGroup } = useGroupsStore(projectId)
 const { provisionedDevices } = useDeviceCatalog(projectId)
-const { goBack, goBackTo } = useNavDirection()
+const { goBack, goBackTo } = useNavStack()
 
 const group = getGroup(groupId)
 

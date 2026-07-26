@@ -25,7 +25,7 @@ function close() {
 .modal-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(17, 17, 17, 0.45);
+  background: var(--overlay-scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,7 +46,7 @@ function close() {
   align-items: center;
   text-align: center;
   gap: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-frame);
 }
 
 .modal-overlay-enter-active,

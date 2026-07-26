@@ -66,7 +66,7 @@ function onPointerUp() {
 .sheet-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(17, 17, 17, 0.45);
+  background: var(--overlay-scrim);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -82,7 +82,7 @@ function onPointerUp() {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-menu);
   touch-action: none;
 }
 

@@ -6,7 +6,7 @@ const projectId = route.params.id as string
 const zone = (route.query.zona as string) || 'Ufficio 1.1'
 const { scanDevices, provisionDevices } = useDeviceCatalog(projectId)
 const { bluetoothEnabled } = useCommissioningFlow()
-const { goClose, goForward } = useNavDirection()
+const { goClose, goForward } = useNavStack()
 
 type Screen = 'intro' | 'scanning'
 const screen = ref<Screen>('intro')
@@ -75,28 +75,32 @@ function addToZone() {
 
 <template>
   <div class="screen">
-    <StatusBar />
+    <StatusBar v-if="screen !== 'intro'" />
 
     <template v-if="screen === 'intro'">
-      <AppHeader title="" leading="none" trailing="close" @close="goClose(`/progetti/${projectId}`)" />
-      <div class="body centered">
-        <svg class="illustration" width="160" height="140" viewBox="0 0 160 140" fill="none" aria-hidden="true">
-          <path d="M20 130V20h120v110z" stroke="currentColor" stroke-width="1.2" />
-          <circle cx="50" cy="45" r="4" fill="currentColor" />
-          <circle cx="110" cy="45" r="4" fill="currentColor" />
-          <circle cx="50" cy="90" r="4" fill="currentColor" />
-          <circle cx="110" cy="90" r="4" fill="currentColor" />
-          <path d="M50 45v10M110 45v10M50 90v-10M110 90v-10" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2" />
-        </svg>
-        <h1 class="title">Aggiungi dispositivi a “{{ zone }}”</h1>
-        <p class="subtitle">Questo processo ti guiderà nell'individuazione dei dispositivi da aggiungere alla zona.</p>
-        <div class="note">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2L1 18h18L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><circle cx="10" cy="15" r="0.8" fill="currentColor" /></svg>
-          <span>Assicurati di avere attivato il Bluetooth su questo dispositivo.</span>
+      <div class="intro-bg">
+        <img src="/images/scan-bg.jpg" alt="" class="intro-bg-image" />
+        <div class="intro-bg-overlay" />
+        <div class="intro-content">
+          <StatusBar inverted />
+          <AppHeader title="" leading="none" trailing="close" inverted @close="goClose(`/progetti/${projectId}`)" />
+          <div class="body centered">
+            <span class="radar-illustration" aria-hidden="true">
+              <span class="radar-ring ring-1" />
+              <span class="radar-ring ring-2" />
+              <span class="radar-dot" />
+            </span>
+            <h1 class="title">Aggiungi dispositivi a “{{ zone }}”</h1>
+            <p class="subtitle">Questo processo ti guiderà nell'individuazione dei dispositivi da aggiungere alla zona.</p>
+            <div class="note">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2L1 18h18L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><circle cx="10" cy="15" r="0.8" fill="currentColor" /></svg>
+              <span>Assicurati di avere attivato il Bluetooth su questo dispositivo.</span>
+            </div>
+          </div>
+          <div class="footer">
+            <Button variant="primary" @click="startScan">Avvia scansione Bluetooth</Button>
+          </div>
         </div>
-      </div>
-      <div class="footer">
-        <Button variant="primary" @click="startScan">Avvia scansione Bluetooth</Button>
       </div>
     </template>
 
@@ -200,21 +204,89 @@ function addToZone() {
   gap: 16px;
 }
 
-.illustration {
-  color: var(--color-primary);
+.intro-bg {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.intro-bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.intro-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.55) 0%, rgba(17, 17, 17, 0.75) 60%, rgba(17, 17, 17, 0.92) 100%);
+}
+
+.intro-content {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+}
+
+.radar-illustration {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.radar-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  animation: radar-pulse 2.4s ease-out infinite;
+}
+
+.radar-ring.ring-2 {
+  animation-delay: 1.2s;
+}
+
+.radar-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes radar-pulse {
+  0% {
+    width: 14px;
+    height: 14px;
+    opacity: 0.9;
+  }
+  100% {
+    width: 120px;
+    height: 120px;
+    opacity: 0;
+  }
 }
 
 .title {
   margin: 0;
   font-size: var(--font-size-h1);
   font-weight: 600;
-  color: var(--color-primary);
+  color: #ffffff;
 }
 
 .subtitle {
   margin: 0;
   font-size: var(--font-size-body);
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .note {
@@ -222,7 +294,7 @@ function addToZone() {
   align-items: flex-start;
   gap: 10px;
   text-align: left;
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-size: var(--font-size-small);
   margin-top: 8px;
 }

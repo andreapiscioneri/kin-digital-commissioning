@@ -4,6 +4,7 @@ import type { ProjectCategory } from '~/composables/useProjectsStore'
 const { projects, isOnline, toggleFavorite, removeProject } = useProjectsStore()
 const route = useRoute()
 const router = useRouter()
+const { goForward } = useNavStack()
 
 // Stato demo per rivedere Offline / Empty state senza dover svuotare i dati reali:
 // ?demo=offline oppure ?demo=empty sull'URL.
@@ -38,11 +39,11 @@ function retryConnection() {
 }
 
 function openProject(id: string) {
-  navigateTo(`/progetti/${id}`)
+  goForward(`/progetti/${id}`)
 }
 
 function goToNewProject() {
-  navigateTo('/progetti/nuovo')
+  goForward('/progetti/nuovo')
 }
 </script>
 
@@ -70,19 +71,12 @@ function goToNewProject() {
     <template v-else-if="!hasAnyProject || demoState === 'empty'">
       <GreetingHeader @menu="sideMenuOpen = true" />
       <div class="empty-body">
+        <img src="/images/empty-projects.jpg" alt="" class="empty-image" />
         <EmptyState
           variant="centered"
           title=""
           subtitle="Non è presente alcun progetto collegato al tuo account. Crea un nuovo progetto per iniziare."
-        >
-          <template #icon>
-            <svg width="180" height="140" viewBox="0 0 180 140" fill="none" aria-hidden="true">
-              <path d="M90 10L170 55v0L90 100 10 55z" stroke="currentColor" stroke-width="1.2" />
-              <path d="M10 55v40l80 45v-40M170 55v40l-80 45" stroke="currentColor" stroke-width="1.2" />
-              <path d="M90 100v40" stroke="currentColor" stroke-width="1.2" />
-            </svg>
-          </template>
-        </EmptyState>
+        />
       </div>
       <div class="bottom-cta">
         <Button variant="primary" @click="goToNewProject">Crea nuovo progetto</Button>
@@ -167,8 +161,20 @@ function goToNewProject() {
 .empty-body {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
+  padding: 0 var(--space-page-x);
+}
+
+.empty-image {
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-card);
+  margin-bottom: 12px;
 }
 
 .offline-body {
@@ -291,7 +297,7 @@ function goToNewProject() {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-fab);
 }
 
 .wifi-off-icon {
@@ -299,7 +305,7 @@ function goToNewProject() {
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  background: #f0f0f0;
+  background: var(--color-surface-alt);
   display: flex;
   align-items: center;
   justify-content: center;

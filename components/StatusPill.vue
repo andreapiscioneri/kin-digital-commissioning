@@ -14,17 +14,17 @@ withDefaults(defineProps<{ tone?: 'neutral' | 'success' | 'error' }>(), { tone: 
   border-radius: var(--radius-button);
   font-size: var(--font-size-small);
   font-weight: 500;
-  background: #eef0f2;
+  background: var(--color-surface-alt);
   color: var(--color-primary);
 }
 
 .pill.success {
-  background: rgba(62, 205, 136, 0.15);
-  color: #1f8c56;
+  background: color-mix(in srgb, var(--color-success) 18%, transparent);
+  color: var(--color-success);
 }
 
 .pill.error {
-  background: rgba(235, 81, 96, 0.12);
+  background: color-mix(in srgb, var(--color-error) 15%, transparent);
   color: var(--color-error);
 }
 </style>

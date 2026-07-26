@@ -2,13 +2,13 @@
 const route = useRoute()
 const projectId = route.params.id as string
 const { scenes } = useScenesStore(projectId)
-const { goClose } = useNavDirection()
+const { goBack, goForward } = useNavStack()
 </script>
 
 <template>
   <div class="screen">
     <StatusBar />
-    <AppHeader title="Scene" leading="back" trailing="none" @back="goClose(`/progetti/${projectId}`)" />
+    <AppHeader title="Scene" leading="back" trailing="none" @back="goBack(`/progetti/${projectId}`)" />
 
     <div class="body">
       <p class="section-caption">Elenco scene</p>
@@ -19,14 +19,14 @@ const { goClose } = useNavDirection()
         :subtitle-strong="String(scene.deviceIds.length)"
         subtitle="dispositivi"
         editable
-        @edit="navigateTo(`/progetti/${projectId}/scene/${scene.id}`)"
+        @edit="goForward(`/progetti/${projectId}/scene/${scene.id}`)"
       >
         <template #icon>
           <IconBadge :size="32"><SceneIcon :icon="scene.icon" /></IconBadge>
         </template>
       </ListItem>
 
-      <Button variant="secondary" @click="navigateTo(`/progetti/${projectId}/scene/nuova`)">+ Nuova scena</Button>
+      <Button variant="secondary" @click="goForward(`/progetti/${projectId}/scene/nuova`)">+ Nuova scena</Button>
     </div>
   </div>
 </template>

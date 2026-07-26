@@ -58,7 +58,7 @@ defineEmits<{ click: [MouseEvent] }>()
 
 .btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(39, 57, 69, 0.35);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .btn.primary {
@@ -67,7 +67,7 @@ defineEmits<{ click: [MouseEvent] }>()
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: #1c2a33;
+  background: var(--color-primary-hover);
 }
 
 .btn.primary:disabled {
@@ -83,7 +83,7 @@ defineEmits<{ click: [MouseEvent] }>()
 }
 
 .btn.secondary:hover:not(:disabled) {
-  background: #f5f5f5;
+  background: var(--color-surface-alt);
 }
 
 .btn.secondary:disabled {
@@ -93,14 +93,14 @@ defineEmits<{ click: [MouseEvent] }>()
 
 .btn.system {
   height: 48px;
-  background: #e2e2e2;
+  background: var(--color-chip-active);
   color: var(--color-primary);
   border-radius: var(--radius-card);
   font-weight: 400;
 }
 
 .btn.system:hover:not(:disabled) {
-  background: #d6d6d6;
+  background: var(--color-chip-hover);
 }
 
 .btn.ghost {
@@ -126,7 +126,7 @@ defineEmits<{ click: [MouseEvent] }>()
 }
 
 .btn.secondary .btn-spinner {
-  border-color: rgba(39, 57, 69, 0.2);
+  border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
   border-top-color: var(--color-primary);
 }
 

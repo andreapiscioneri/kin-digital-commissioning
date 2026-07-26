@@ -2,10 +2,10 @@
 const route = useRoute()
 const projectId = route.params.id as string
 const { levels } = useLevelsStore(projectId)
-const { goClose, goForward } = useNavDirection()
+const { goBack, goClose, goForward } = useNavStack()
 
 function openLevel(id: string) {
-  navigateTo(`/progetti/${projectId}/livelli/${id}`)
+  goForward(`/progetti/${projectId}/livelli/${id}`)
 }
 
 function onContinue() {
@@ -16,7 +16,7 @@ function onContinue() {
 <template>
   <div class="screen">
     <StatusBar />
-    <AppHeader title="Livelli progetto" leading="back" trailing="close" @back="navigateTo(`/progetti/${projectId}`)" @close="goClose(`/progetti/${projectId}`)" />
+    <AppHeader title="Creazione livelli" leading="back" trailing="close" @back="goBack(`/progetti/${projectId}`)" @close="goClose(`/progetti/${projectId}`)" />
 
     <div class="body">
       <EmptyState v-if="levels.length === 0" variant="card" title="Nessun livello creato" subtitle="Aggiungi almeno un livello per proseguire con la configurazione del progetto.">

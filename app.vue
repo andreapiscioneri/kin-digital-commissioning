@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { direction, transitionName } = useNavDirection()
+const { direction, transitionName } = useNavStack()
 
 function resetDirection() {
   direction.value = 'forward'
@@ -35,7 +35,7 @@ function resetDirection() {
   .app-shell {
     align-items: center;
     padding: 32px 0;
-    background: #e5e5e5;
+    background: var(--color-outer-frame);
   }
 
   .phone-frame {
@@ -43,7 +43,7 @@ function resetDirection() {
     min-height: 812px;
     height: 812px;
     border-radius: 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-frame);
     overflow: hidden;
   }
 }
