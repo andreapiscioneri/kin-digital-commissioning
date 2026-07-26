@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ProvisionedDevice } from '~/composables/useDeviceCatalog'
+
 const route = useRoute()
 const projectId = route.params.id as string
 const deviceId = route.params.deviceId as string
@@ -8,6 +10,8 @@ const { goBack } = useNavStack()
 const device = getDevice(deviceId)
 
 const name = ref(device?.name || '')
+const nameTouched = ref(false)
+const nameError = computed(() => (nameTouched.value && !name.value.trim() ? 'Campo obbligatorio' : ''))
 const minBrightness = ref(20)
 const maxBrightness = ref(70)
 const powerOnBehaviour = ref('last')
@@ -23,7 +27,7 @@ function identify() {
 
 function nextDeviceOrFinish() {
   const list = provisionedDevices.value
-  const idx = list.findIndex((d) => d.id === deviceId)
+  const idx = list.findIndex((d: ProvisionedDevice) => d.id === deviceId)
   const next = list[idx + 1]
   const nextParam = (route.query.next as string) || ''
   const suffix = nextParam ? `?next=${encodeURIComponent(nextParam)}` : ''
@@ -56,7 +60,7 @@ function save() {
         <StatusPill tone="success">Disponibile</StatusPill>
       </div>
 
-      <TextField v-model="name" label="Nome dispositivo" required />
+      <TextField v-model="name" label="Nome dispositivo" required :error="nameError" @blur="nameTouched = true" />
 
       <div class="identify-block">
         <p class="identify-title">Individua dispositivo</p>
@@ -140,7 +144,7 @@ function save() {
     </div>
 
     <div class="footer">
-      <Button variant="primary" @click="save">Salva</Button>
+      <Button variant="primary" :disabled="!name.trim()" @click="save">Salva</Button>
     </div>
     </template>
   </div>

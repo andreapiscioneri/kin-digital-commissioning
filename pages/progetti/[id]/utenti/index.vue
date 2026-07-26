@@ -81,7 +81,7 @@ function inviteAnother() {
       <AppHeader title="Invito collaboratori" leading="back" trailing="close" @back="screen = 'intro'" @close="goToNextStep" />
       <div class="body">
         <p class="lead">Inserisci l'indirizzo email e il ruolo dell'utente che vuoi invitare.</p>
-        <TextField v-model="email" label="Email" type="email" placeholder="Inserisci qui l'email" />
+        <TextField v-model="email" label="Email" type="email" placeholder="Inserisci qui l'email" required :error="emailError" @blur="emailTouched = true" />
         <SelectField v-model="role" label="Ruolo" placeholder="Seleziona il ruolo" :options="roleOptions" />
       </div>
       <div class="footer">

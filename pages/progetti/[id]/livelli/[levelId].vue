@@ -7,9 +7,12 @@ const { goBack, goBackTo } = useNavStack()
 
 const level = getLevel(levelId)
 const name = ref(level?.name || '')
+const nameTouched = ref(false)
 const subLevels = ref(level?.subLevels || 0)
 const hasPlan = ref(level?.hasPlan || false)
 const showUploadSheet = ref(false)
+
+const nameError = computed(() => (nameTouched.value && !name.value.trim() ? 'Campo obbligatorio' : ''))
 
 function choosePlanSource() {
   hasPlan.value = true
@@ -37,7 +40,7 @@ function save() {
           </span>
         </div>
 
-        <TextField v-model="name" label="Nome livello" required />
+        <TextField v-model="name" label="Nome livello" required :error="nameError" @blur="nameTouched = true" />
 
         <p class="hint">Ogni livello può essere suddiviso in sottolivelli, come uffici, corridoi, reparti o magazzini.</p>
 
@@ -49,7 +52,7 @@ function save() {
     </div>
 
     <div class="footer">
-      <Button variant="primary" @click="save">Salva</Button>
+      <Button variant="primary" :disabled="!name.trim()" @click="save">Salva</Button>
     </div>
 
     <BottomSheet v-model="showUploadSheet" title="Caricamento planimetria">

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { ProvisionedDevice } from '~/composables/useDeviceCatalog'
+
 const route = useRoute()
 const projectId = route.params.id as string
 const groupId = route.params.groupId as string
@@ -20,7 +22,7 @@ const overrideTime2 = ref(group?.overrideTime || '10 min')
 const deviceCount = computed(() => group?.deviceIds.length || 0)
 const primaryDeviceType = computed(() => {
   if (!group) return 'Lampada'
-  const first = provisionedDevices.value.find((d) => d.id === group.deviceIds[0])
+  const first = provisionedDevices.value.find((d: ProvisionedDevice) => d.id === group.deviceIds[0])
   return first?.type || 'Lampada'
 })
 

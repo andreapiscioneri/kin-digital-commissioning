@@ -1,9 +1,12 @@
 <script setup lang="ts">
 const { direction, transitionName } = useNavStack()
+const { cookieChoice, notificationsChoice, acceptCookies, rejectCookies, grantNotifications, denyNotifications } = useSystemPrompts()
 
 function resetDirection() {
   direction.value = 'forward'
 }
+
+const showNotificationsPrompt = computed(() => cookieChoice.value !== 'pending' && notificationsChoice.value === 'pending')
 </script>
 
 <template>
@@ -11,6 +14,23 @@ function resetDirection() {
     <NuxtRouteAnnouncer />
     <div class="phone-frame">
       <NuxtPage :transition="{ name: transitionName, mode: 'out-in', onAfterEnter: resetDirection }" />
+
+      <CookieBanner :model-value="cookieChoice === 'pending'" @accept="acceptCookies" @reject="rejectCookies" />
+
+      <AlertDialog
+        :model-value="showNotificationsPrompt"
+        title="Attiva le notifiche push"
+        description="Ricevi aggiornamenti su sincronizzazioni, inviti dei collaboratori e stato dei tuoi progetti."
+        :closable="false"
+      >
+        <template #icon>
+          <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 2a5 5 0 00-5 5v3l-1.5 3h13L15 10V7a5 5 0 00-5-5zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </template>
+        <div class="dialog-btn-row">
+          <Button variant="ghost" @click="denyNotifications">Non ora</Button>
+          <Button variant="primary" @click="grantNotifications">Attiva</Button>
+        </div>
+      </AlertDialog>
     </div>
   </div>
 </template>
@@ -82,5 +102,18 @@ function resetDirection() {
 .page-close-leave-to {
   opacity: 0;
   transform: scale(0.97);
+}
+
+.dialog-btn-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.dialog-btn-row .btn {
+  width: auto;
+  flex: 1;
 }
 </style>

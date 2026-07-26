@@ -8,7 +8,7 @@ export interface Level {
 export function useLevelsStore(projectId: string) {
   const allLevels = useState<Record<string, Level[]>>('dc-levels', () => ({}))
 
-  const levels = computed({
+  const levels = computed<Level[]>({
     get: () => allLevels.value[projectId] || [],
     set: (val: Level[]) => {
       allLevels.value = { ...allLevels.value, [projectId]: val }
@@ -25,11 +25,11 @@ export function useLevelsStore(projectId: string) {
   }
 
   function updateLevel(id: string, patch: Partial<Level>) {
-    levels.value = levels.value.map((l) => (l.id === id ? { ...l, ...patch } : l))
+    levels.value = levels.value.map((l: Level) => (l.id === id ? { ...l, ...patch } : l))
   }
 
   function getLevel(id: string) {
-    return levels.value.find((l) => l.id === id)
+    return levels.value.find((l: Level) => l.id === id)
   }
 
   return { levels, createLevels, updateLevel, getLevel }

@@ -9,6 +9,8 @@ const showInterrupt = ref(false)
 const showLocationPermission = ref(false)
 const showAddressSheet = ref(false)
 const addressSearch = ref('')
+const nameTouched = ref(false)
+const nameError = computed(() => (nameTouched.value && !newProjectDraft.value.name.trim() ? 'Campo obbligatorio' : ''))
 
 const categoryOptions: { value: ProjectCategory; label: string }[] = [
   { value: 'Office', label: 'Office' },
@@ -84,7 +86,7 @@ function onContinue() {
     <AppHeader :title="headerTitle" leading="back" trailing="close" @back="goBack('/progetti/nuovo')" @close="showInterrupt = true" />
 
     <div class="body">
-      <TextField v-model="newProjectDraft.name" label="Nome progetto" required placeholder="Nome progetto" />
+      <TextField v-model="newProjectDraft.name" label="Nome progetto" required placeholder="Nome progetto" :error="nameError" @blur="nameTouched = true" />
       <SelectField v-model="newProjectDraft.category" label="Tipologia progetto" :options="categoryOptions" />
 
       <SectionHeader title="Indirizzo" :divider="false" class="centered-title" />

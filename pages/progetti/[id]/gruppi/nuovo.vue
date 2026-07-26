@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DeviceType } from '~/composables/useDeviceCatalog'
+import type { DeviceType, ProvisionedDevice } from '~/composables/useDeviceCatalog'
 
 const route = useRoute()
 const projectId = route.params.id as string
@@ -8,17 +8,19 @@ const { createGroup } = useGroupsStore(projectId)
 const { goBack, goClose } = useNavStack()
 
 const name = ref('')
+const nameTouched = ref(false)
+const nameError = computed(() => (nameTouched.value && !name.value.trim() ? 'Campo obbligatorio' : ''))
 const expandedType = ref<DeviceType | null>(null)
 const selectedDeviceIds = ref<Set<string>>(new Set())
 
 const deviceTypes: DeviceType[] = ['Lampada', 'Sensore', 'Pulsantiera']
 
 function devicesOfType(type: DeviceType) {
-  return provisionedDevices.value.filter((d) => d.type === type)
+  return provisionedDevices.value.filter((d: ProvisionedDevice) => d.type === type)
 }
 
 function selectedCount(type: DeviceType) {
-  return devicesOfType(type).filter((d) => selectedDeviceIds.value.has(d.id)).length
+  return devicesOfType(type).filter((d: ProvisionedDevice) => selectedDeviceIds.value.has(d.id)).length
 }
 
 function toggleExpand(type: DeviceType) {
@@ -47,7 +49,7 @@ function onContinue() {
     <AppHeader title="Nuovo gruppo" leading="back" trailing="close" @back="goBack(`/progetti/${projectId}`)" @close="goClose(`/progetti/${projectId}`)" />
 
     <div class="body">
-      <TextField v-model="name" label="Nome gruppo" required placeholder="Inserisci nome gruppo" />
+      <TextField v-model="name" label="Nome gruppo" required placeholder="Inserisci nome gruppo" :error="nameError" @blur="nameTouched = true" />
       <p class="hint">Selezionare i dispositivi in base alle zone oppure per tipologia.</p>
 
       <div class="type-list">

@@ -47,7 +47,7 @@ function openScan() {
       <Transition name="menu-panel" appear>
         <aside v-if="modelValue" class="menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
           <div class="menu-top">
-            <IconButton aria-label="Chiudi" @click="close">
+            <IconButton ariaLabel="Chiudi" @click="close">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
             </IconButton>
           </div>

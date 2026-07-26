@@ -26,7 +26,7 @@ const MOCK_DEVICES: DiscoveredDevice[] = [
 export function useDeviceCatalog(projectId: string) {
   const allProvisioned = useState<Record<string, ProvisionedDevice[]>>('dc-provisioned-devices', () => ({}))
 
-  const provisionedDevices = computed({
+  const provisionedDevices = computed<ProvisionedDevice[]>({
     get: () => allProvisioned.value[projectId] || [],
     set: (val: ProvisionedDevice[]) => {
       allProvisioned.value = { ...allProvisioned.value, [projectId]: val }
@@ -47,11 +47,11 @@ export function useDeviceCatalog(projectId: string) {
   }
 
   function getDevice(id: string) {
-    return provisionedDevices.value.find((d) => d.id === id)
+    return provisionedDevices.value.find((d: ProvisionedDevice) => d.id === id)
   }
 
   function updateDevice(id: string, patch: Partial<ProvisionedDevice>) {
-    provisionedDevices.value = provisionedDevices.value.map((d) => (d.id === id ? { ...d, ...patch } : d))
+    provisionedDevices.value = provisionedDevices.value.map((d: ProvisionedDevice) => (d.id === id ? { ...d, ...patch } : d))
   }
 
   return { provisionedDevices, scanDevices, provisionDevices, getDevice, updateDevice }

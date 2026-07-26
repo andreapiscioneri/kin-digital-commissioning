@@ -13,7 +13,7 @@ export interface Scene {
 export function useScenesStore(projectId: string) {
   const allScenes = useState<Record<string, Scene[]>>('dc-scenes', () => ({}))
 
-  const scenes = computed({
+  const scenes = computed<Scene[]>({
     get: () => allScenes.value[projectId] || [],
     set: (val: Scene[]) => {
       allScenes.value = { ...allScenes.value, [projectId]: val }
@@ -37,11 +37,11 @@ export function useScenesStore(projectId: string) {
   }
 
   function getScene(id: string) {
-    return scenes.value.find((s) => s.id === id)
+    return scenes.value.find((s: Scene) => s.id === id)
   }
 
   function updateScene(id: string, patch: Partial<Scene>) {
-    scenes.value = scenes.value.map((s) => (s.id === id ? { ...s, ...patch } : s))
+    scenes.value = scenes.value.map((s: Scene) => (s.id === id ? { ...s, ...patch } : s))
   }
 
   return { scenes, createScene, getScene, updateScene }

@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { ProvisionedDevice } from '~/composables/useDeviceCatalog'
+import type { Group } from '~/composables/useGroupsStore'
+
 const route = useRoute()
 const projectId = route.params.id as string
 const { provisionedDevices } = useDeviceCatalog(projectId)
@@ -10,6 +13,8 @@ type Screen = 'intro' | 'form' | 'icon-picker' | 'select-devices' | 'personalizz
 const screen = ref<Screen>('intro')
 
 const name = ref('')
+const nameTouched = ref(false)
+const nameError = computed(() => (nameTouched.value && !name.value.trim() ? 'Campo obbligatorio' : ''))
 const icon = ref('bulb')
 const selectDeviceTab = ref<'zone' | 'dispositivi' | 'gruppi'>('zone')
 const selectedDeviceIds = ref<Set<string>>(new Set())
@@ -23,17 +28,17 @@ const corridorTimeAfter = ref('00h 00m 05s')
 const targetMode = ref<'tutti' | 'singolo'>('tutti')
 
 const zones = computed(() => {
-  const set = new Set(provisionedDevices.value.map((d) => d.zone))
+  const set = new Set<string>(provisionedDevices.value.map((d: ProvisionedDevice) => d.zone))
   return Array.from(set)
 })
 
 function devicesInZone(zone: string) {
-  return provisionedDevices.value.filter((d) => d.zone === zone)
+  return provisionedDevices.value.filter((d: ProvisionedDevice) => d.zone === zone)
 }
 
 const deviceTypes = ['Lampada', 'Sensore', 'Pulsantiera'] as const
 function devicesOfType(type: string) {
-  return provisionedDevices.value.filter((d) => d.type === type)
+  return provisionedDevices.value.filter((d: ProvisionedDevice) => d.type === type)
 }
 
 function toggleExpand(key: string) {
@@ -48,11 +53,11 @@ function toggleDevice(id: string) {
 }
 
 function toggleGroupDevices(groupId: string) {
-  const group = groups.value.find((g) => g.id === groupId)
+  const group = groups.value.find((g: Group) => g.id === groupId)
   if (!group) return
   const next = new Set(selectedDeviceIds.value)
-  const allSelected = group.deviceIds.every((id) => next.has(id))
-  group.deviceIds.forEach((id) => (allSelected ? next.delete(id) : next.add(id)))
+  const allSelected = group.deviceIds.every((id: string) => next.has(id))
+  group.deviceIds.forEach((id: string) => (allSelected ? next.delete(id) : next.add(id)))
   selectedDeviceIds.value = next
 }
 
@@ -118,7 +123,7 @@ function updateSceneParams(sceneId: string) {
         <p class="scene-form-title">Scegli l'icona e il nome della scena che vuoi creare</p>
 
         <div class="scene-name-field">
-          <TextField v-model="name" label="Nome scena" required placeholder="Inserisci il nome" />
+          <TextField v-model="name" label="Nome scena" required placeholder="Inserisci il nome" :error="nameError" @blur="nameTouched = true" />
         </div>
 
         <p class="scene-form-caption">Seleziona i dispositivi che vuoi gestire con questa scena e personalizza il loro comportamento</p>
@@ -161,7 +166,7 @@ function updateSceneParams(sceneId: string) {
           <div v-for="zone in zones" :key="zone" class="type-block">
             <SelectableRow
               :label="zone"
-              :caption="`${devicesInZone(zone).filter(d => selectedDeviceIds.has(d.id)).length}/${devicesInZone(zone).length} dispositivi`"
+              :caption="`${devicesInZone(zone).filter((d: ProvisionedDevice) => selectedDeviceIds.has(d.id)).length}/${devicesInZone(zone).length} dispositivi`"
               select-type="checkbox"
               expandable
               :expanded="expandedKey === zone"
@@ -199,7 +204,7 @@ function updateSceneParams(sceneId: string) {
             :label="g.name"
             :caption="`${g.deviceIds.length} dispositivi`"
             select-type="checkbox"
-            :selected="g.deviceIds.every((id) => selectedDeviceIds.has(id))"
+            :selected="g.deviceIds.every((id: string) => selectedDeviceIds.has(id))"
             @click="toggleGroupDevices(g.id)"
           />
           <p v-if="groups.length === 0" class="hint">Nessun gruppo creato.</p>

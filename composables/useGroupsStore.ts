@@ -12,7 +12,7 @@ export interface Group {
 export function useGroupsStore(projectId: string) {
   const allGroups = useState<Record<string, Group[]>>('dc-groups', () => ({}))
 
-  const groups = computed({
+  const groups = computed<Group[]>({
     get: () => allGroups.value[projectId] || [],
     set: (val: Group[]) => {
       allGroups.value = { ...allGroups.value, [projectId]: val }
@@ -35,11 +35,11 @@ export function useGroupsStore(projectId: string) {
   }
 
   function getGroup(id: string) {
-    return groups.value.find((g) => g.id === id)
+    return groups.value.find((g: Group) => g.id === id)
   }
 
   function updateGroup(id: string, patch: Partial<Group>) {
-    groups.value = groups.value.map((g) => (g.id === id ? { ...g, ...patch } : g))
+    groups.value = groups.value.map((g: Group) => (g.id === id ? { ...g, ...patch } : g))
   }
 
   return { groups, createGroup, getGroup, updateGroup }

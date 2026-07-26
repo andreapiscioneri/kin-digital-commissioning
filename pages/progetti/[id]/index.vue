@@ -18,7 +18,7 @@ const tabs = [
   { value: 'gruppi', label: 'Gruppi' }
 ]
 
-watch(activeTab, (tab) => {
+watch(activeTab, (tab: string) => {
   router.replace({ query: { ...route.query, tab } })
 })
 </script>
@@ -34,10 +34,10 @@ watch(activeTab, (tab) => {
           <p class="greeting">Bentornato, Marco</p>
         </div>
         <div class="actions">
-          <IconButton aria-label="Notifiche" @click="goForward('/account/notifiche')">
+          <IconButton ariaLabel="Notifiche" @click="goForward('/account/notifiche')">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2a5 5 0 00-5 5v3l-1.5 3h13L15 10V7a5 5 0 00-5-5zM8 16a2 2 0 004 0" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
           </IconButton>
-          <IconButton aria-label="Menu" @click="menuOpen = true">
+          <IconButton ariaLabel="Menu" @click="menuOpen = true">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
           </IconButton>
         </div>

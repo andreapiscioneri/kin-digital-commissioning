@@ -69,7 +69,7 @@ function goToNewProject() {
     </template>
 
     <template v-else-if="!hasAnyProject || demoState === 'empty'">
-      <GreetingHeader @menu="sideMenuOpen = true" />
+      <GreetingHeader @menu="sideMenuOpen = true" @notifications="goForward('/account/notifiche')" />
       <div class="empty-body">
         <img src="/images/empty-projects.jpg" alt="" class="empty-image" />
         <EmptyState
@@ -84,7 +84,7 @@ function goToNewProject() {
     </template>
 
     <template v-else>
-      <GreetingHeader :notification-count="2" @menu="sideMenuOpen = true" />
+      <GreetingHeader :notification-count="2" @menu="sideMenuOpen = true" @notifications="goForward('/account/notifiche')" />
 
       <div class="tabs">
         <button type="button" class="tab" :class="{ active: activeTab === 'preferiti' }" @click="activeTab = 'preferiti'">

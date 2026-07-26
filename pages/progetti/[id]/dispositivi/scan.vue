@@ -24,7 +24,7 @@ const visibleDevices = computed(() => {
   let list = found.value
   if (search.value.trim()) {
     const q = search.value.trim().toLowerCase()
-    list = list.filter((d) => d.code.toLowerCase().includes(q))
+    list = list.filter((d: DiscoveredDevice) => d.code.toLowerCase().includes(q))
   }
   return list
 })
@@ -62,7 +62,7 @@ function applyFilters() {
 }
 
 function addToZone() {
-  const ids = Array.from(selected.value)
+  const ids = Array.from<string>(selected.value)
   const provisioned = provisionDevices(ids, zone)
   const next = (route.query.next as string) || `/progetti/${projectId}?tab=gruppi`
   if (provisioned.length > 0) {

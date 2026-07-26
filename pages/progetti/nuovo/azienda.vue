@@ -8,11 +8,22 @@ const { goBack, goClose } = useNavStack()
 const showEnableInstaller = ref(!installerRoleEnabled.value)
 const formVisible = ref(installerRoleEnabled.value)
 const showInterrupt = ref(false)
+const companyNameTouched = ref(false)
+const vatTouched = ref(false)
+
+const isVatValid = computed(() => /^\d{11}$/.test(companyInfoDraft.value.vatNumber.trim()))
+const companyNameError = computed(() => (companyNameTouched.value && !companyInfoDraft.value.companyName.trim() ? 'Campo obbligatorio' : ''))
+const vatError = computed(() => {
+  if (!vatTouched.value) return ''
+  if (!companyInfoDraft.value.vatNumber.trim()) return 'Campo obbligatorio'
+  if (!isVatValid.value) return 'Inserisci una Partita IVA valida (11 cifre)'
+  return ''
+})
 
 const canContinue = computed(
   () =>
     !!companyInfoDraft.value.companyName.trim() &&
-    !!companyInfoDraft.value.vatNumber.trim() &&
+    isVatValid.value &&
     !!companyInfoDraft.value.companyAddress.trim()
 )
 
@@ -46,8 +57,8 @@ function onContinue() {
 
     <div v-if="formVisible" class="body">
       <p class="section-label">Informazioni aggiuntive</p>
-      <TextField v-model="companyInfoDraft.companyName" label="Nome azienda" required variant="boxed" placeholder="Inserisci nome azienda" />
-      <TextField v-model="companyInfoDraft.vatNumber" label="Partita IVA" required variant="boxed" placeholder="Inserisci nome" />
+      <TextField v-model="companyInfoDraft.companyName" label="Nome azienda" required variant="boxed" placeholder="Inserisci nome azienda" :error="companyNameError" @blur="companyNameTouched = true" />
+      <TextField v-model="companyInfoDraft.vatNumber" label="Partita IVA" required variant="boxed" placeholder="Inserisci nome" :error="vatError" @blur="vatTouched = true" />
       <SelectField
         v-model="companyInfoDraft.companyAddress"
         label="Indirizzo azienda"
