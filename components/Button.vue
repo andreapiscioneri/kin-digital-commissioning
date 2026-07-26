@@ -2,6 +2,7 @@
 withDefaults(
   defineProps<{
     variant?: 'primary' | 'secondary' | 'ghost' | 'system'
+    size?: 'default' | 'lg'
     type?: 'button' | 'submit'
     disabled?: boolean
     loading?: boolean
@@ -9,6 +10,7 @@ withDefaults(
   }>(),
   {
     variant: 'primary',
+    size: 'default',
     type: 'button',
     disabled: false,
     loading: false,
@@ -23,7 +25,7 @@ defineEmits<{ click: [MouseEvent] }>()
   <button
     :type="type"
     class="btn"
-    :class="[variant, { 'is-loading': loading }]"
+    :class="[variant, size, { 'is-loading': loading }]"
     :disabled="disabled || loading"
     :aria-label="ariaLabel"
     :aria-busy="loading"
@@ -61,9 +63,16 @@ defineEmits<{ click: [MouseEvent] }>()
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
+.btn.lg {
+  height: 64px;
+  font-size: var(--font-size-button-lg);
+  font-weight: 600;
+}
+
 .btn.primary {
   background: var(--color-accent);
   color: #ffffff;
+  box-shadow: var(--shadow-fab);
 }
 
 .btn.primary:hover:not(:disabled) {

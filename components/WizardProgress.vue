@@ -37,7 +37,7 @@ const percent = computed(() => (props.current / props.total) * 100)
 
 .wizard-progress-fill {
   height: 100%;
-  background: var(--color-primary);
+  background: var(--color-accent);
   transition: width var(--duration-base) var(--ease-standard);
 }
 </style>

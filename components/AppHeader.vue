@@ -59,7 +59,7 @@ const emit = defineEmits<{ back: []; close: [] }>()
   margin: 0;
   text-align: center;
   font-size: var(--font-size-h2);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary);
   white-space: nowrap;
   overflow: hidden;

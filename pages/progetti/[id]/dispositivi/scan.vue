@@ -98,7 +98,7 @@ function addToZone() {
             </div>
           </div>
           <div class="footer">
-            <Button variant="primary" @click="startScan">Avvia scansione Bluetooth</Button>
+            <Button variant="primary" size="lg" @click="startScan">Avvia scansione Bluetooth</Button>
           </div>
         </div>
       </div>
@@ -278,8 +278,10 @@ function addToZone() {
 
 .title {
   margin: 0;
-  font-size: var(--font-size-h1);
-  font-weight: 600;
+  font-size: var(--font-size-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: var(--line-height-tight);
   color: #ffffff;
 }
 

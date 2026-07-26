@@ -1,12 +1,23 @@
 <script setup lang="ts">
 import type { ProjectCategory, ProjectSyncStatus } from '~/composables/useProjectsStore'
 
-defineProps<{ category: ProjectCategory; syncStatus: ProjectSyncStatus }>()
+const props = defineProps<{ category: ProjectCategory; syncStatus: ProjectSyncStatus }>()
+
+const categoryTone: Record<ProjectCategory, 'accent' | 'blue' | 'beige' | 'teal' | 'purple'> = {
+  Office: 'blue',
+  Industry: 'beige',
+  'Sport indoor': 'teal',
+  Retail: 'purple',
+  Relamping: 'accent',
+  Altro: 'accent'
+}
+
+const tone = computed(() => categoryTone[props.category] ?? 'accent')
 </script>
 
 <template>
   <span class="project-icon">
-    <IconBadge :size="40">
+    <IconBadge :size="40" :tone="tone">
       <svg v-if="category === 'Office'" width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4" /><path d="M7 6V4.5A1.5 1.5 0 018.5 3h3A1.5 1.5 0 0113 4.5V6" stroke="currentColor" stroke-width="1.4" /><path d="M2 10.5h16" stroke="currentColor" stroke-width="1.4" /></svg>
       <svg v-else-if="category === 'Industry'" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 17V9l4 3V9l4 3V9l4 3V4l4 3v10H2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></svg>
       <svg v-else-if="category === 'Sport indoor'" width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.4" /><path d="M10 3v14M3 10h14" stroke="currentColor" stroke-width="1.4" /></svg>

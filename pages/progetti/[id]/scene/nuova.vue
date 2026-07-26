@@ -275,8 +275,10 @@ function updateSceneParams(sceneId: string) {
 
 .title {
   margin: 0;
-  font-size: var(--font-size-h1);
-  font-weight: 600;
+  font-size: var(--font-size-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: var(--line-height-tight);
   color: var(--color-primary);
 }
 

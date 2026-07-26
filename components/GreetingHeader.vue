@@ -28,24 +28,25 @@ defineEmits<{ menu: []; notifications: [] }>()
 .greeting-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px var(--space-page-x) 16px;
-  background: var(--color-surface-alt);
-  border-bottom: 1px solid var(--color-border);
+  gap: 14px;
+  padding: 18px var(--space-page-x) 20px;
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-accent-soft) 130%);
+  border-bottom: 1px solid var(--color-border-secondary);
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--color-avatar-bg);
-  color: var(--color-primary);
+  background: var(--color-surface);
+  color: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: var(--font-size-small);
+  font-weight: 700;
+  font-size: var(--font-size-body);
   flex-shrink: 0;
+  box-shadow: 0 0 0 2px var(--color-accent);
 }
 
 .greeting-text {
@@ -56,8 +57,10 @@ defineEmits<{ menu: []; notifications: [] }>()
 }
 
 .greeting-title {
-  font-size: var(--font-size-h2);
-  font-weight: 600;
+  font-size: var(--font-size-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: var(--line-height-tight);
   color: var(--color-primary);
 }
 

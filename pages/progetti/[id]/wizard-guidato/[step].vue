@@ -171,9 +171,9 @@ function skipDevices() {
 .placeholder-icon {
   width: 100px;
   height: 100px;
-  border-radius: var(--radius-card);
-  background: var(--color-surface-alt);
-  color: var(--color-text-secondary);
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -182,8 +182,10 @@ function skipDevices() {
 
 .title {
   margin: 0;
-  font-size: var(--font-size-h1);
-  font-weight: 600;
+  font-size: var(--font-size-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: var(--line-height-tight);
   color: var(--color-primary);
 }
 

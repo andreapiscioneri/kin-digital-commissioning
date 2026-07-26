@@ -21,7 +21,7 @@ const { goClose } = useNavStack()
       <p class="subtitle">Il progetto è stato configurato correttamente, ora è pronto per essere utilizzato.</p>
     </div>
     <div class="footer">
-      <Button variant="primary" @click="goClose(`/progetti/${projectId}`)">Vai alla dashboard</Button>
+      <Button variant="primary" size="lg" @click="goClose(`/progetti/${projectId}`)">Vai alla dashboard</Button>
     </div>
   </div>
 </template>
@@ -83,8 +83,10 @@ const { goClose } = useNavStack()
 
 .title {
   margin: 0;
-  font-size: var(--font-size-h1);
-  font-weight: 600;
+  font-size: var(--font-size-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: var(--line-height-tight);
   color: var(--color-primary);
 }
 

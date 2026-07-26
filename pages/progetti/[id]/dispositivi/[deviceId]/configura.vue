@@ -144,7 +144,7 @@ function save() {
     </div>
 
     <div class="footer">
-      <Button variant="primary" :disabled="!name.trim()" @click="save">Salva</Button>
+      <Button variant="primary" size="lg" :disabled="!name.trim()" @click="save">Salva</Button>
     </div>
     </template>
   </div>

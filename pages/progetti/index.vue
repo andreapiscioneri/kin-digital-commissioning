@@ -79,7 +79,7 @@ function goToNewProject() {
         />
       </div>
       <div class="bottom-cta">
-        <Button variant="primary" @click="goToNewProject">Crea nuovo progetto</Button>
+        <Button variant="primary" size="lg" @click="goToNewProject">Crea nuovo progetto</Button>
       </div>
     </template>
 

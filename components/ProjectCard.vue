@@ -37,8 +37,9 @@ defineEmits<{ open: []; menu: [] }>()
   flex-direction: column;
   gap: 8px;
   padding: 14px 16px;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   background: var(--color-surface);
   cursor: pointer;
 }
@@ -52,7 +53,7 @@ defineEmits<{ open: []; menu: [] }>()
 .project-name {
   flex: 1;
   font-size: var(--font-size-label);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary);
 }
 

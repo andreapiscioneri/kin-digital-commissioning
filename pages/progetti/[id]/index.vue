@@ -30,7 +30,11 @@ watch(activeTab, (tab: string) => {
     <header class="dashboard-header">
       <div class="header-row">
         <div class="welcome">
-          <p class="company">{{ project?.name }}</p>
+          <div class="company-row">
+            <p class="company">{{ project?.name }}</p>
+            <StatusPill v-if="project?.connectionStatus === 'online'" tone="success">Online</StatusPill>
+            <StatusPill v-else-if="project?.connectionStatus === 'fault'" tone="error">Fault</StatusPill>
+          </div>
           <p class="greeting">Bentornato, Marco</p>
         </div>
         <div class="actions">
@@ -132,28 +136,47 @@ watch(activeTab, (tab: string) => {
 }
 
 .dashboard-header {
-  background: var(--color-surface);
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-accent-soft) 140%);
   padding-top: 8px;
+  border-bottom: 1px solid var(--color-border-secondary);
 }
 
 .header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px 16px;
+  padding: 10px 20px 20px;
+}
+
+.company-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .company {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: var(--font-size-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: var(--line-height-tight);
   margin: 0;
   color: var(--color-primary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .greeting {
   margin: 4px 0 0;
   font-size: var(--font-size-small);
   color: var(--color-text-secondary);
+}
+
+.welcome {
+  flex: 1;
+  min-width: 0;
 }
 
 .actions {
