@@ -10,6 +10,7 @@ type Screen = 'intro' | 'form' | 'success'
 const screen = ref<Screen>('intro')
 
 const email = ref('')
+const emailTouched = ref(false)
 const role = ref<CollaboratorRole | ''>('')
 const showConfirm = ref(false)
 const lastInvited = ref({ email: '', role: '' as CollaboratorRole | '' })
@@ -20,7 +21,15 @@ const roleOptions: { value: CollaboratorRole; label: string }[] = [
   { value: 'End user', label: 'End user' }
 ]
 
-const canInvite = computed(() => !!email.value.trim() && !!role.value)
+const isEmailValid = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim()))
+const emailError = computed(() => {
+  if (!emailTouched.value) return ''
+  if (!email.value.trim()) return 'Campo obbligatorio'
+  if (!isEmailValid.value) return 'Inserisci un indirizzo email valido'
+  return ''
+})
+
+const canInvite = computed(() => isEmailValid.value && !!role.value)
 
 function goToNextStep() {
   navigateTo(`/progetti/${projectId}/dispositivi/scan`)

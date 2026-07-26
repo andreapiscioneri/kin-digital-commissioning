@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   colorMode: {
     classPrefix: '',
     classSuffix: '-mode',
-    preference: 'system',
+    preference: 'light',
     fallback: 'light',
     storageKey: 'kinsync-color-mode'
   },

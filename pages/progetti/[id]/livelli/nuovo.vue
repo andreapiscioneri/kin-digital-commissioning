@@ -2,7 +2,7 @@
 const route = useRoute()
 const projectId = route.params.id as string
 const { createLevels } = useLevelsStore(projectId)
-const { goClose, goForward } = useNavStack()
+const { goClose } = useNavStack()
 
 type Screen = 'config' | 'modalita' | 'intro' | 'stepper' | 'guidata-intro' | 'guidata-stepper'
 const screen = ref<Screen>('config')
@@ -23,12 +23,12 @@ function onModalitaContinue() {
 
 function onStepperContinue() {
   createLevels(count.value)
-  goForward(`/progetti/${projectId}/livelli`)
+  goClose(`/progetti/${projectId}/livelli`)
 }
 
 function onGuidataStepperContinue() {
   createLevels(count.value)
-  goForward(`/progetti/${projectId}/wizard-guidato/1`)
+  goClose(`/progetti/${projectId}/wizard-guidato/1`)
 }
 </script>
 
