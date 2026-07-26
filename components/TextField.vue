@@ -83,7 +83,7 @@ function onInput(e: Event) {
 }
 
 .field.is-focused .field-input {
-  border-bottom-color: var(--color-border-focus);
+  border-bottom-color: var(--color-accent);
   border-bottom-width: 2px;
   padding-bottom: 7px;
 }
@@ -104,7 +104,7 @@ function onInput(e: Event) {
 }
 
 .field.boxed.is-focused .field-input {
-  border-color: var(--color-border-focus);
+  border-color: var(--color-accent);
   border-width: 1px;
   padding: 13px 14px;
 }

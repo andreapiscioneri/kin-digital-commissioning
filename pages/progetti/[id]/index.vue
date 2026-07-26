@@ -180,7 +180,7 @@ watch(activeTab, (tab: string) => {
   gap: 4px;
   font-size: var(--font-size-small);
   font-weight: 500;
-  color: var(--color-primary);
+  color: var(--color-accent);
   cursor: pointer;
 }
 

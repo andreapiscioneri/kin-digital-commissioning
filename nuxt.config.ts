@@ -2,21 +2,13 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/google-fonts', '@nuxtjs/color-mode'],
+  modules: ['@nuxtjs/color-mode'],
   colorMode: {
     classPrefix: '',
     classSuffix: '-mode',
     preference: 'light',
     fallback: 'light',
     storageKey: 'kinsync-color-mode'
-  },
-  googleFonts: {
-    families: {
-      'Work Sans': [400, 500, 600, 700]
-    },
-    display: 'swap',
-    download: true,
-    inject: true
   },
   css: ['~/assets/css/main.css'],
   app: {

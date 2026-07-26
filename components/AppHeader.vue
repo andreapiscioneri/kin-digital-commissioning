@@ -16,14 +16,14 @@ const emit = defineEmits<{ back: []; close: [] }>()
 <template>
   <header class="app-header" :class="{ 'no-divider': !divider, inverted }">
     <button v-if="leading === 'back'" type="button" class="icon-btn" aria-label="Indietro" @click="emit('back')">
-      <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8h17M1 8l6-6M1 8l6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8h17M1 8l6-6M1 8l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
     <span v-else class="icon-spacer" />
 
     <h1 class="app-header-title">{{ title }}</h1>
 
     <button v-if="trailing === 'close'" type="button" class="icon-btn" aria-label="Chiudi" @click="emit('close')">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
     </button>
     <span v-else class="icon-spacer" />
   </header>

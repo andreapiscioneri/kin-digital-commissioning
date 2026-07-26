@@ -35,9 +35,8 @@ function open(path: string) {
 }
 
 function openScan() {
-  if (!props.projectId) return
   close()
-  goForward(`/progetti/${props.projectId}/dispositivi/scan`)
+  goForward(props.projectId ? `/scan-qr?projectId=${props.projectId}` : '/scan-qr')
 }
 </script>
 
@@ -68,12 +67,16 @@ function openScan() {
           </div>
 
           <div class="menu-footer">
-            <Button variant="secondary" :disabled="!projectId" @click="openScan">
+            <Button variant="secondary" @click="openScan">
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="6" height="6" stroke="currentColor" stroke-width="1.3" /><rect x="12" y="2" width="6" height="6" stroke="currentColor" stroke-width="1.3" /><rect x="2" y="12" width="6" height="6" stroke="currentColor" stroke-width="1.3" /><path d="M12 12h2.5M16 12h2M12 16h2M16 15v3h2" stroke="currentColor" stroke-width="1.3" /></svg>
               Scan QR Code
             </Button>
             <p class="menu-version">Versione in uso: 0.0.000</p>
-            <p class="menu-made-by">Made by <strong>GEWISS</strong> · KINsync</p>
+            <p class="menu-made-by">
+              Made by
+              <img src="/images/gewiss-logo.png" alt="Gewiss" class="menu-made-by-logo" />
+              · KINsync
+            </p>
           </div>
         </aside>
       </Transition>
@@ -157,8 +160,16 @@ function openScan() {
 
 .menu-made-by {
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-size: var(--font-size-small);
   color: var(--color-text-secondary);
+}
+
+.menu-made-by-logo {
+  height: 12px;
+  width: auto;
 }
 
 .menu-overlay-enter-active,

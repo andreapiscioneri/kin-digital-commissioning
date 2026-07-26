@@ -1,6 +1,102 @@
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-LightItalic.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-RegularItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-MediumItalic.otf') format('opentype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-SemiboldItalic.otf') format('opentype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-Black.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Graphik';
+  src: url('~/assets/fonts/Graphik/Graphik-BlackItalic.otf') format('opentype');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   /* Typography */
-  --font-family: 'Work Sans', sans-serif;
+  --font-family: 'Graphik', sans-serif;
   --font-size-h1: 24px;
   --font-size-h2: 20px;
   --font-size-label: 16px;
@@ -31,59 +127,67 @@
   --duration-slow: 400ms;
 }
 
-/* Colors — campionati dal Design System GEWISS (Figma 03WMGiqYwwpcw7dAocXVHp) */
+/* Colors — Design System GEWISS reale (palette Hierarchy: Orange/6, Grey/7, Neutral/White) */
 .light-mode {
-  --color-bg: #fafafa;
+  --color-bg: #fafafa; /* Grey/1 */
   --color-surface: #ffffff;
-  --color-surface-alt: #f0f0f0;
-  --color-chip-active: #e2e2e2;
-  --color-chip-hover: #d6d6d6;
-  --color-avatar-bg: #d9d9d9;
-  --color-ink: #111111;
-  --color-primary: #273945;
-  --color-primary-hover: #1c2a33;
-  --color-primary-disabled: rgba(39, 57, 69, 0.3);
-  --color-text-secondary: #929292;
-  --color-text-muted: #6b7280;
-  --color-border: #c6c6c6;
-  --color-border-secondary: #caced8;
-  --color-border-focus: #273945;
-  --color-error: #eb5160;
-  --color-success: #3ecd88;
-  --color-warning: #f2a93b;
-  --color-focus-ring: rgba(39, 57, 69, 0.35);
+  --color-surface-alt: #f5f5f6; /* Grey/2 */
+  --color-chip-active: #e9e8e8; /* Grey/3 — variante neutra (bottone system) */
+  --color-chip-hover: #d7d5d6; /* Grey/4 */
+  --color-avatar-bg: #e9e8e8; /* Grey/3 */
+  --color-ink: #3c3839; /* Primary/Grey/7 — testo */
+  --color-primary: #3c3839;
+  --color-primary-hover: #262322;
+  --color-primary-disabled: rgba(60, 56, 57, 0.3);
+  --color-accent: #db3700; /* Primary/Orange/6 — azioni/brand */
+  --color-accent-hover: #a32900; /* Orange/7 */
+  --color-accent-soft: #fff6f2; /* Orange/1 */
+  --color-accent-disabled: #d7d5d6; /* Grey/4 */
+  --color-text-secondary: #747272; /* Grey/6 */
+  --color-text-muted: #a4a3a4; /* Grey/5 */
+  --color-border: #d7d5d6; /* Grey/4 */
+  --color-border-secondary: #e9e8e8; /* Grey/3 */
+  --color-border-focus: #db3700;
+  --color-error: #a91422; /* Status/Red/3 */
+  --color-success: #207e51; /* Status/Green/3 */
+  --color-warning: #f48457; /* Orange/4 */
+  --color-focus-ring: rgba(219, 55, 0, 0.35);
   --color-outer-frame: #e5e5e5;
-  --shadow-fab: 0 8px 20px rgba(0, 0, 0, 0.2);
-  --shadow-frame: 0 20px 60px rgba(0, 0, 0, 0.25);
-  --shadow-menu: -10px 0 30px rgba(0, 0, 0, 0.15);
-  --overlay-scrim: rgba(17, 17, 17, 0.35);
+  --shadow-fab: 0 0 8px rgba(0, 0, 0, 0.3); /* float-shadow */
+  --shadow-frame: 0 0 20px 2px rgba(0, 0, 0, 0.3); /* modal-shadow */
+  --shadow-menu: 0 5px 10px rgba(0, 0, 0, 0.1); /* bottom-shadow */
+  --overlay-scrim: rgba(60, 56, 57, 0.45);
 }
 
 .dark-mode {
-  --color-bg: #14181b;
-  --color-surface: #1c2228;
-  --color-surface-alt: #262d33;
-  --color-chip-active: #313940;
-  --color-chip-hover: #3a434b;
-  --color-avatar-bg: #313940;
-  --color-ink: #fafafa;
-  --color-primary: #2f8eff;
-  --color-primary-hover: #5aa4ff;
-  --color-primary-disabled: rgba(47, 142, 255, 0.3);
-  --color-text-secondary: #9aa3ab;
-  --color-text-muted: #7c8892;
-  --color-border: #33393f;
-  --color-border-secondary: #3a434b;
-  --color-border-focus: #2f8eff;
-  --color-error: #f27b86;
-  --color-success: #6ecfa6;
-  --color-warning: #f8c971;
-  --color-focus-ring: rgba(47, 142, 255, 0.4);
-  --color-outer-frame: #0b0d0f;
-  --shadow-fab: 0 8px 20px rgba(0, 0, 0, 0.5);
-  --shadow-frame: 0 20px 60px rgba(0, 0, 0, 0.6);
-  --shadow-menu: -10px 0 30px rgba(0, 0, 0, 0.4);
-  --overlay-scrim: rgba(0, 0, 0, 0.55);
+  --color-bg: #201d1c;
+  --color-surface: #2a2624;
+  --color-surface-alt: #35302e;
+  --color-chip-active: #3f3835;
+  --color-chip-hover: #4a423e;
+  --color-avatar-bg: #3f3835;
+  --color-ink: #fafafa; /* Grey/1 */
+  --color-primary: #fafafa;
+  --color-primary-hover: #e9e8e8;
+  --color-primary-disabled: rgba(250, 250, 250, 0.3);
+  --color-accent: #e84e0f; /* Orange/5 — più chiaro per contrasto su fondo scuro */
+  --color-accent-hover: #f48457; /* Orange/4 */
+  --color-accent-soft: rgba(232, 78, 15, 0.16);
+  --color-accent-disabled: #4a423e;
+  --color-text-secondary: #a4a3a4; /* Grey/5 */
+  --color-text-muted: #747272; /* Grey/6 */
+  --color-border: #4a423e;
+  --color-border-secondary: #3f3835;
+  --color-border-focus: #e84e0f;
+  --color-error: #d7192b; /* Red/2 — più leggibile su fondo scuro */
+  --color-success: #3ecd88; /* Green/2 */
+  --color-warning: #f48457;
+  --color-focus-ring: rgba(232, 78, 15, 0.4);
+  --color-outer-frame: #0f0d0c;
+  --shadow-fab: 0 0 8px rgba(0, 0, 0, 0.6);
+  --shadow-frame: 0 0 20px 2px rgba(0, 0, 0, 0.7);
+  --shadow-menu: 0 5px 10px rgba(0, 0, 0, 0.3);
+  --overlay-scrim: rgba(0, 0, 0, 0.6);
 }
 
 * {

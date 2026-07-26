@@ -51,7 +51,8 @@ const emit = defineEmits<{ 'update:modelValue': [string] }>()
 }
 
 .segment.active {
-  background: var(--color-chip-active);
+  background: var(--color-accent);
+  color: #ffffff;
   font-weight: 500;
 }
 </style>

@@ -51,6 +51,10 @@ function onChange(e: Event) {
   background: var(--color-surface);
 }
 
+.field-box:focus-within {
+  border-color: var(--color-accent);
+}
+
 .field-select {
   width: 100%;
   height: 48px;

@@ -62,32 +62,33 @@ defineEmits<{ click: [MouseEvent] }>()
 }
 
 .btn.primary {
-  background: var(--color-primary);
+  background: var(--color-accent);
   color: #ffffff;
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
+  background: var(--color-accent-hover);
 }
 
 .btn.primary:disabled {
-  background: var(--color-primary-disabled);
+  background: var(--color-accent-disabled);
   color: #ffffff;
   cursor: not-allowed;
 }
 
 .btn.secondary {
   background: var(--color-surface);
-  color: var(--color-primary);
-  border: 1px solid var(--color-border);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
 }
 
 .btn.secondary:hover:not(:disabled) {
-  background: var(--color-surface-alt);
+  background: var(--color-accent-soft);
 }
 
 .btn.secondary:disabled {
   color: var(--color-text-secondary);
+  border-color: var(--color-border);
   cursor: not-allowed;
 }
 

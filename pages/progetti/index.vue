@@ -210,9 +210,9 @@ function goToNewProject() {
 }
 
 .tab.active {
-  color: var(--color-primary);
+  color: var(--color-accent);
   font-weight: 600;
-  box-shadow: inset 0 -2px 0 var(--color-primary);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
 }
 
 .toolbar {
@@ -292,7 +292,7 @@ function goToNewProject() {
   height: 52px;
   border-radius: 50%;
   border: none;
-  background: var(--color-primary);
+  background: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;

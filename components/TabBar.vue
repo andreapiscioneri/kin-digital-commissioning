@@ -37,8 +37,8 @@ defineEmits<{ 'update:modelValue': [string] }>()
 }
 
 .tab.active {
-  color: var(--color-primary);
+  color: var(--color-accent);
   font-weight: 600;
-  box-shadow: inset 0 -2px 0 var(--color-primary);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
 }
 </style>

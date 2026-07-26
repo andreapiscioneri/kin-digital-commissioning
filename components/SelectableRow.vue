@@ -19,7 +19,7 @@ const emit = defineEmits<{ click: []; toggleExpand: [] }>()
   <div class="row" :class="{ disabled }" @click="!disabled && emit('click')">
     <span v-if="selectType === 'radio'" class="mark radio" :class="{ checked: selected }" aria-hidden="true" />
     <span v-else-if="selectType === 'checkbox'" class="mark checkbox" :class="{ checked: selected }" aria-hidden="true">
-      <svg v-if="selected" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <svg v-if="selected" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </span>
 
     <span v-if="$slots.icon" class="row-icon"><slot name="icon" /></span>
@@ -36,9 +36,9 @@ const emit = defineEmits<{ click: []; toggleExpand: [] }>()
       :class="{ expanded }"
       @click.stop="emit('toggleExpand')"
     >
-      <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
-    <svg v-else-if="selectType === 'none'" class="chevron-static" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    <svg v-else-if="selectType === 'none'" class="chevron-static" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
   </div>
 </template>
 
@@ -72,7 +72,7 @@ const emit = defineEmits<{ click: []; toggleExpand: [] }>()
 }
 
 .mark.radio.checked {
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
 }
 
 .mark.radio.checked::after {
@@ -80,7 +80,7 @@ const emit = defineEmits<{ click: []; toggleExpand: [] }>()
   position: absolute;
   inset: 4px;
   border-radius: 50%;
-  background: var(--color-primary);
+  background: var(--color-accent);
 }
 
 .mark.checkbox {
