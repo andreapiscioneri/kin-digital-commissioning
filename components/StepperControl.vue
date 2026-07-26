@@ -88,7 +88,7 @@ function inc() {
 
 .stepper-btn.plus {
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-surface);
 }
 
 .stepper-btn:disabled {

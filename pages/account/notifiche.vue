@@ -1,17 +1,8 @@
 <script setup lang="ts">
 const { goBack } = useNavStack()
+const { notifications, markAllRead } = useNotificationsStore()
 
-interface Notification {
-  id: string
-  title: string
-  description: string
-  time: string
-}
-
-const notifications: Notification[] = [
-  { id: 'n1', title: 'Sincronizzazione completata', description: 'Il progetto "Rossi SpA" è stato sincronizzato correttamente.', time: '2 ore fa' },
-  { id: 'n2', title: 'Nuovo collaboratore', description: 'Hai invitato un nuovo Installer al progetto "Paladozza".', time: 'Ieri' }
-]
+markAllRead()
 </script>
 
 <template>

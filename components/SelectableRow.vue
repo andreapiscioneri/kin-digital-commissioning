@@ -19,7 +19,7 @@ const emit = defineEmits<{ click: []; toggleExpand: [] }>()
   <div class="row" :class="{ disabled }" @click="!disabled && emit('click')">
     <span v-if="selectType === 'radio'" class="mark radio" :class="{ checked: selected }" aria-hidden="true" />
     <span v-else-if="selectType === 'checkbox'" class="mark checkbox" :class="{ checked: selected }" aria-hidden="true">
-      <svg v-if="selected" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <svg v-if="selected" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="var(--color-surface)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </span>
 
     <span v-if="$slots.icon" class="row-icon"><slot name="icon" /></span>

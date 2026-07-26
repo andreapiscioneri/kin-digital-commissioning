@@ -100,7 +100,7 @@ function inviteAnother() {
       <AppHeader title="" leading="back" trailing="none" @back="goToNextStep" />
       <div class="body centered">
         <span class="success-icon">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="6" y="12" width="36" height="26" rx="3" stroke="currentColor" stroke-width="1.4" /><path d="M6 14l18 14 18-14" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><circle cx="36" cy="34" r="10" fill="var(--color-primary)" /><path d="M31 34l3.5 3.5L41 30" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="6" y="12" width="36" height="26" rx="3" stroke="currentColor" stroke-width="1.4" /><path d="M6 14l18 14 18-14" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><circle cx="36" cy="34" r="10" fill="var(--color-primary)" /><path d="M31 34l3.5 3.5L41 30" stroke="var(--color-surface)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
         </span>
         <h1 class="title">Email inviata</h1>
         <p class="subtitle">L'email a {{ lastInvited.email }} è stata inviata con successo.</p>

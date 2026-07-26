@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import type { ProjectCategory } from '~/composables/useProjectsStore'
+import type { Project, ProjectCategory, ProjectConnectionStatus } from '~/composables/useProjectsStore'
 
 const { projects, isOnline, toggleFavorite, removeProject } = useProjectsStore()
+const { notifications, unreadCount, markAllRead } = useNotificationsStore()
 const route = useRoute()
 const router = useRouter()
 const { goForward } = useNavStack()
+const showNotifications = ref(false)
+
+function openNotifications() {
+  showNotifications.value = true
+  markAllRead()
+}
 
 // Stato demo per rivedere Offline / Empty state senza dover svuotare i dati reali:
 // ?demo=offline oppure ?demo=empty sull'URL.
@@ -15,20 +22,42 @@ const search = ref('')
 const activeCategory = ref<ProjectCategory | null>(null)
 const menuOpenFor = ref<string | null>(null)
 const sideMenuOpen = ref(false)
+const showFilters = ref(false)
+const showSort = ref(false)
+const sortBy = ref<'name' | 'lastSync'>('name')
 
 const categories: ProjectCategory[] = ['Office', 'Industry', 'Sport indoor', 'Retail']
+
+const connectionFilters: { value: ProjectConnectionStatus; label: string }[] = [
+  { value: 'online', label: 'Online' },
+  { value: 'fault', label: 'Con fault' },
+  { value: 'none', label: 'Non connesso' }
+]
+const filterConnection = ref<Record<ProjectConnectionStatus, boolean>>({ online: true, fault: true, none: true })
+const activeFilterCount = computed(() => Object.values(filterConnection.value).filter((v) => !v).length)
 
 const visibleProjects = computed(() => {
   let list = projects.value.filter((p) => !p.deleted)
   if (activeTab.value === 'preferiti') list = list.filter((p) => p.favorite)
   if (activeTab.value === 'eliminati') list = projects.value.filter((p) => p.deleted)
   if (activeCategory.value) list = list.filter((p) => p.category === activeCategory.value)
+  list = list.filter((p) => filterConnection.value[p.connectionStatus])
   if (search.value.trim()) {
     const q = search.value.trim().toLowerCase()
     list = list.filter((p) => p.name.toLowerCase().includes(q))
   }
-  return list
+  const sorted = [...list]
+  if (sortBy.value === 'name') {
+    sorted.sort((a, b) => a.name.localeCompare(b.name))
+  } else {
+    sorted.sort((a: Project, b: Project) => b.lastSync.split('/').reverse().join('').localeCompare(a.lastSync.split('/').reverse().join('')))
+  }
+  return sorted
 })
+
+function resetFilters() {
+  connectionFilters.forEach((f) => { filterConnection.value[f.value] = true })
+}
 
 const hasAnyProject = computed(() => projects.value.some((p) => !p.deleted))
 const menuProject = computed(() => projects.value.find((p) => p.id === menuOpenFor.value) || null)
@@ -69,7 +98,7 @@ function goToNewProject() {
     </template>
 
     <template v-else-if="!hasAnyProject || demoState === 'empty'">
-      <GreetingHeader @menu="sideMenuOpen = true" @notifications="goForward('/account/notifiche')" />
+      <GreetingHeader :notification-count="unreadCount" @menu="sideMenuOpen = true" @notifications="openNotifications" />
       <div class="empty-body">
         <img src="/images/empty-projects.jpg" alt="" class="empty-image" />
         <EmptyState
@@ -84,7 +113,7 @@ function goToNewProject() {
     </template>
 
     <template v-else>
-      <GreetingHeader :notification-count="2" @menu="sideMenuOpen = true" @notifications="goForward('/account/notifiche')" />
+      <GreetingHeader :notification-count="unreadCount" @menu="sideMenuOpen = true" @notifications="openNotifications" />
 
       <div class="tabs">
         <button type="button" class="tab" :class="{ active: activeTab === 'preferiti' }" @click="activeTab = 'preferiti'">
@@ -100,10 +129,11 @@ function goToNewProject() {
           <input v-model="search" type="search" placeholder="Cerca progetto" />
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" /><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
         </div>
-        <button type="button" class="toolbar-icon" aria-label="Filtra">
+        <button type="button" class="toolbar-icon" :class="{ active: activeFilterCount > 0 }" aria-label="Filtra" @click="showFilters = true">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 5h16l-6 7.5V19l-4 2v-8.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" /></svg>
+          <span v-if="activeFilterCount > 0" class="filter-badge">{{ activeFilterCount }}</span>
         </button>
-        <button type="button" class="toolbar-icon" aria-label="Ordina">
+        <button type="button" class="toolbar-icon" aria-label="Ordina" @click="showSort = true">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 5h12M6 10h8M8 15h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
         </button>
       </div>
@@ -145,6 +175,43 @@ function goToNewProject() {
         <button type="button" class="sheet-action" @click="menuOpenFor = null">Aggiungi utenti</button>
         <button type="button" class="sheet-action danger" @click="removeProject(menuProject.id); menuOpenFor = null">Cancella progetto</button>
       </template>
+    </BottomSheet>
+
+    <BottomSheet v-model="showFilters" title="Filtri">
+      <p class="sheet-section-title">STATO CONNESSIONE</p>
+      <CheckboxRow
+        v-for="f in connectionFilters"
+        :key="f.value"
+        v-model="filterConnection[f.value]"
+        :label="f.label"
+      />
+      <div class="sheet-footer">
+        <Button variant="ghost" @click="resetFilters">Reimposta</Button>
+        <Button variant="primary" @click="showFilters = false">Applica</Button>
+      </div>
+    </BottomSheet>
+
+    <BottomSheet v-model="showSort" title="Ordina per">
+      <SelectableRow label="Nome (A-Z)" select-type="radio" :selected="sortBy === 'name'" @click="sortBy = 'name'; showSort = false" />
+      <SelectableRow label="Ultima sincronizzazione" select-type="radio" :selected="sortBy === 'lastSync'" @click="sortBy = 'lastSync'; showSort = false" />
+    </BottomSheet>
+
+    <BottomSheet v-model="showNotifications" title="Notifiche">
+      <EmptyState v-if="notifications.length === 0" variant="centered" title="Nessun avviso" subtitle="Le notifiche relative ai tuoi progetti compariranno qui.">
+        <template #icon>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        </template>
+      </EmptyState>
+      <div v-for="item in notifications" v-else :key="item.id" class="notification-row">
+        <IconBadge :size="36">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        </IconBadge>
+        <div class="notification-text">
+          <p class="notification-title">{{ item.title }}</p>
+          <p class="notification-description">{{ item.description }}</p>
+          <p class="notification-time">{{ item.time }}</p>
+        </div>
+      </div>
     </BottomSheet>
   </div>
 </template>
@@ -255,6 +322,7 @@ function goToNewProject() {
 }
 
 .toolbar-icon {
+  position: relative;
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -267,6 +335,44 @@ function goToNewProject() {
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+.toolbar-icon.active {
+  color: var(--color-accent);
+}
+
+.filter-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
+.sheet-section-title {
+  margin: 8px 0;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.sheet-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.sheet-footer .btn {
+  flex: 1;
 }
 
 .chips {
@@ -352,5 +458,42 @@ function goToNewProject() {
 
 .sheet-action.danger {
   color: var(--color-error);
+}
+
+.notification-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.notification-row:last-child {
+  border-bottom: none;
+}
+
+.notification-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.notification-description {
+  margin: 2px 0 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.notification-time {
+  margin: 6px 0 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  opacity: 0.7;
 }
 </style>

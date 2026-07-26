@@ -173,6 +173,10 @@
   --color-teal-soft: #e0f1f1;
   --color-purple: #4f267d;
   --color-purple-soft: #ddcbf0;
+  --color-lime: #6e7a00;
+  --color-lime-soft: #ebf2ba;
+  --color-purple-2: #6f36b2;
+  --color-blue-2: #68aeca;
 }
 
 .dark-mode {
@@ -215,6 +219,10 @@
   --color-teal-soft: rgba(121, 201, 205, 0.18);
   --color-purple: #b590e0;
   --color-purple-soft: rgba(111, 54, 178, 0.28);
+  --color-lime: #c4d438;
+  --color-lime-soft: rgba(196, 212, 56, 0.18);
+  --color-purple-2: #9163d1;
+  --color-blue-2: #68aeca;
 }
 
 * {

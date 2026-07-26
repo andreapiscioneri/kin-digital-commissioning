@@ -117,7 +117,7 @@ function updateSceneParams(sceneId: string) {
         <button type="button" class="icon-picker-trigger" @click="screen = 'icon-picker'">
           <SceneIcon :icon="icon" :size="28" />
           <span class="icon-edit-badge">
-            <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M11.3 1.8l2.9 2.9L4.9 14 1.5 14.5 2 11.1z" stroke="#fff" stroke-width="1.3" stroke-linejoin="round" /></svg>
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M11.3 1.8l2.9 2.9L4.9 14 1.5 14.5 2 11.1z" stroke="var(--color-surface)" stroke-width="1.3" stroke-linejoin="round" /></svg>
           </span>
         </button>
         <p class="scene-form-title">Scegli l'icona e il nome della scena che vuoi creare</p>
