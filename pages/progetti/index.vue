@@ -155,7 +155,7 @@ function goToNewProject() {
 
       <div class="tabs">
         <button type="button" class="tab" :class="{ active: activeTab === 'preferiti' }" @click="activeTab = 'preferiti'">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.5 5.5L18 8l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.5 5.5L18 8l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
           Preferiti
         </button>
         <button type="button" class="tab" :class="{ active: activeTab === 'tutti' }" @click="activeTab = 'tutti'">Tutti gli impianti</button>
@@ -298,40 +298,44 @@ function goToNewProject() {
 }
 
 .bottom-cta {
-  padding: 16px var(--space-page-x) 24px;
+  padding: 16px var(--space-page-x) 88px;
 }
 
 .tabs {
   display: flex;
-  gap: 20px;
-  padding: 16px var(--space-page-x) 12px;
-  border-bottom: 1px solid var(--color-border);
+  gap: 6px;
+  padding: 14px var(--space-page-x);
+  overflow-x: auto;
 }
 
 .tab {
   display: flex;
   align-items: center;
   gap: 6px;
-  border: none;
-  background: transparent;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+  background: var(--color-surface-alt);
   color: var(--color-text-secondary);
   font-family: var(--font-family);
   font-size: var(--font-size-small);
-  padding: 0 0 10px;
+  font-weight: 500;
+  padding: 9px 14px;
+  border-radius: 999px;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .tab.active {
-  color: var(--color-accent);
+  background: var(--color-primary);
+  color: var(--color-surface);
   font-weight: 600;
-  box-shadow: inset 0 -2px 0 var(--color-accent);
 }
 
 .toolbar {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px var(--space-page-x) 0;
+  padding: 0 var(--space-page-x);
 }
 
 .search-box {
@@ -343,10 +347,10 @@ function goToNewProject() {
 
 .search-box input {
   width: 100%;
-  height: 44px;
-  border: 1px solid var(--color-border-secondary);
-  border-radius: var(--radius-button);
-  padding: 0 40px 0 16px;
+  height: 48px;
+  border: none;
+  border-radius: 18px;
+  padding: 0 44px 0 18px;
   font-size: var(--font-size-body);
   font-family: var(--font-family);
   color: var(--color-primary);
@@ -356,21 +360,21 @@ function goToNewProject() {
 
 .search-box input:focus {
   outline: none;
-  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent);
 }
 
 .search-box svg {
   position: absolute;
-  right: 12px;
+  right: 14px;
   color: var(--color-text-secondary);
   pointer-events: none;
 }
 
 .toolbar-icon {
   position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   background: var(--color-surface);
   box-shadow: var(--shadow-card);
   border: none;
@@ -423,7 +427,7 @@ function goToNewProject() {
 .chips {
   display: flex;
   gap: 8px;
-  padding: 12px var(--space-page-x);
+  padding: 14px var(--space-page-x);
   overflow-x: auto;
 }
 
@@ -432,8 +436,8 @@ function goToNewProject() {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 0 var(--space-page-x) 90px;
+  gap: 14px;
+  padding: 4px var(--space-page-x) 154px;
 }
 
 .no-results {
@@ -446,17 +450,17 @@ function goToNewProject() {
 .fab {
   position: absolute;
   right: 20px;
-  bottom: 24px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
+  bottom: 88px;
+  width: 56px;
+  height: 56px;
+  border-radius: 20px;
   border: none;
-  background: var(--color-accent);
+  background: linear-gradient(145deg, var(--color-accent) 0%, #ff7a3d 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: var(--shadow-fab);
+  box-shadow: 0 10px 24px -6px rgba(219, 55, 0, 0.5);
 }
 
 .wifi-off-icon {

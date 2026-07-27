@@ -5,6 +5,7 @@ import type { DiscoveredDevice } from '~/composables/useDeviceCatalog'
 const route = useRoute()
 const projectId = route.params.id as string
 const zone = (route.query.zona as string) || 'Ufficio 1.1'
+const levelId = route.query.levelId as string | undefined
 const { scanDevices, provisionDevices } = useDeviceCatalog(projectId)
 const { bluetoothEnabled } = useCommissioningFlow()
 const { goClose, goForward } = useNavStack()
@@ -96,7 +97,7 @@ function applyFilters() {
 
 function addToZone() {
   const devices = found.value.filter((d: DiscoveredDevice) => selected.value.has(d.id))
-  const provisioned = provisionDevices(devices, zone)
+  const provisioned = provisionDevices(devices, zone, levelId)
   const next = (route.query.next as string) || `/progetti/${projectId}?tab=gruppi`
   if (provisioned.length > 0) {
     goForward(`/progetti/${projectId}/dispositivi/${provisioned[0].id}/configura?next=${encodeURIComponent(next)}`)

@@ -15,6 +15,8 @@ const showNotificationsPrompt = computed(() => cookieChoice.value !== 'pending' 
     <div class="phone-frame">
       <NuxtPage :transition="{ name: transitionName, mode: 'out-in', onAfterEnter: resetDirection }" />
 
+      <BottomNavBar />
+
       <CookieBanner :model-value="cookieChoice === 'pending'" @accept="acceptCookies" @reject="rejectCookies" />
 
       <AlertDialog

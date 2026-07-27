@@ -37,31 +37,38 @@ defineEmits<{ menu: []; notifications: [] }>()
 
 <style scoped>
 .greeting-header {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 18px var(--space-page-x) 20px;
-  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-accent-soft) 130%);
-  border-bottom: 1px solid var(--color-border-secondary);
+  padding: 22px var(--space-page-x) 26px;
+  overflow: hidden;
+  background:
+    radial-gradient(70% 110% at 0% 100%, rgba(255, 90, 31, 0.35) 0%, rgba(255, 90, 31, 0) 70%),
+    #ffffff;
 }
 
 .avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 0 0 2px var(--color-accent);
-  background: var(--color-accent);
-  color: var(--color-surface);
-  font-size: 0.9rem;
+  background: linear-gradient(145deg, var(--color-accent) 0%, #ff7a3d 100%);
+  box-shadow: 0 6px 16px -4px rgba(219, 55, 0, 0.45);
+  color: #fff;
+  font-size: 1rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
 }
 
 .greeting-text {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -69,9 +76,9 @@ defineEmits<{ menu: []; notifications: [] }>()
 }
 
 .greeting-title {
-  font-size: var(--font-size-display);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   line-height: var(--line-height-tight);
   color: var(--color-primary);
 }
@@ -83,10 +90,13 @@ defineEmits<{ menu: []; notifications: [] }>()
 
 .icon-btn {
   position: relative;
-  width: 32px;
-  height: 32px;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   border: none;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: var(--shadow-card);
   color: var(--color-primary);
   display: flex;
   align-items: center;

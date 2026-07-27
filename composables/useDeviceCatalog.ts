@@ -12,6 +12,7 @@ export interface ProvisionedDevice extends DiscoveredDevice {
   name: string
   levelId?: string
   configured: boolean
+  on?: boolean
 }
 
 const MOCK_DEVICES: DiscoveredDevice[] = [

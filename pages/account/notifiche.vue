@@ -45,7 +45,7 @@ markAllRead()
 .body {
   flex: 1;
   overflow-y: auto;
-  padding: 20px var(--space-page-x) 32px;
+  padding: 20px var(--space-page-x) 88px;
   display: flex;
   flex-direction: column;
   gap: 4px;

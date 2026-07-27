@@ -6,6 +6,7 @@ export interface Project {
   id: string
   name: string
   category: ProjectCategory
+  image: string
   address: string
   city: string
   lastSync: string
@@ -18,12 +19,22 @@ export interface Project {
   deleted: boolean
 }
 
+const categoryImages: Record<ProjectCategory, string> = {
+  Office: '/images/project-office.jpg',
+  Industry: '/images/project-industry.jpg',
+  'Sport indoor': '/images/project-sport.jpg',
+  Retail: '/images/project-retail.jpg',
+  Relamping: '/images/project-generic.jpg',
+  Altro: '/images/project-generic.jpg'
+}
+
 function makeProjects(): Project[] {
   return [
     {
       id: 'verdi-srl',
       name: 'Verdi Srl',
       category: 'Office',
+      image: categoryImages.Office,
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: '12/06/2026',
@@ -38,6 +49,7 @@ function makeProjects(): Project[] {
       id: 'kiko-milano-srl',
       name: 'Kiko Milano Srl',
       category: 'Retail',
+      image: categoryImages.Retail,
       address: 'Via Domenico Bosatelli 1 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: '10/06/2026',
@@ -52,6 +64,7 @@ function makeProjects(): Project[] {
       id: 'beghelli',
       name: 'Beghelli',
       category: 'Industry',
+      image: categoryImages.Industry,
       address: 'Via Mozzeghine, 13/15, 40053',
       city: 'Valsamoggia BO',
       lastSync: '21/06/2026',
@@ -66,6 +79,7 @@ function makeProjects(): Project[] {
       id: 'rossi-spa',
       name: 'Rossi SpA',
       category: 'Office',
+      image: categoryImages.Office,
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: '18/06/2026',
@@ -80,6 +94,7 @@ function makeProjects(): Project[] {
       id: 'paladozza',
       name: 'Paladozza',
       category: 'Sport indoor',
+      image: categoryImages['Sport indoor'],
       address: 'Piazza Manfredi Azzarita, 2, 40122',
       city: 'Bologna BO',
       lastSync: '18/06/2026',
@@ -94,6 +109,7 @@ function makeProjects(): Project[] {
       id: 'miin-cosmetics-bg',
       name: 'Miin Cosmetics BG',
       category: 'Retail',
+      image: categoryImages.Retail,
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: '18/06/2026',
@@ -128,6 +144,7 @@ export function useProjectsStore() {
       id,
       name: input.name,
       category: input.category,
+      image: categoryImages[input.category],
       address: input.address,
       city: input.city,
       lastSync: 'Non sincronizzato',
