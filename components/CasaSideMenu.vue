@@ -72,7 +72,7 @@ function close() {
           <div class="menu-footer">
             <p class="menu-made-by">
               Made by
-              <img src="/images/gewiss-logo.png" alt="Gewiss" class="menu-made-by-logo" />
+              <img src="/images/logo gewiss lightzon .png" alt="Gewiss" class="menu-made-by-logo" />
             </p>
           </div>
         </aside>

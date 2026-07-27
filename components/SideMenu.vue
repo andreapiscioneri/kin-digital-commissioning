@@ -13,17 +13,16 @@ const themeOptions = [
 
 type MenuItem = { label: string; icon: 'user' | 'help' | 'team' | 'bell'; path: string }
 
-const items = computed<MenuItem[]>(() => {
-  const list: MenuItem[] = [
-    { label: 'Dati profilo', icon: 'user', path: '/account/profilo' },
-    { label: 'Assistenza', icon: 'help', path: '/account/assistenza' }
-  ]
-  if (props.projectId) {
-    list.push({ label: 'Team di collaboratori', icon: 'team', path: `/progetti/${props.projectId}/utenti` })
-  }
-  list.push({ label: 'Gestione avvisi', icon: 'bell', path: '/account/notifiche' })
-  return list
-})
+const items = computed<MenuItem[]>(() => [
+  { label: 'Dati profilo', icon: 'user', path: '/account/profilo' },
+  {
+    label: 'Team di collaboratori',
+    icon: 'team',
+    path: props.projectId ? `/progetti/${props.projectId}/utenti` : '/account/profilo'
+  },
+  { label: 'Gestione avvisi', icon: 'bell', path: '/account/notifiche' },
+  { label: 'Assistenza', icon: 'help', path: '/account/assistenza' }
+])
 
 function close() {
   emit('update:modelValue', false)
@@ -72,11 +71,8 @@ function openScan() {
               Scan QR Code
             </Button>
             <p class="menu-version">Versione in uso: 0.0.000</p>
-            <p class="menu-made-by">
-              Made by
-              <img src="/images/gewiss-logo.png" alt="Gewiss" class="menu-made-by-logo" />
-              · KINsync
-            </p>
+            <p class="menu-made-by">Made by</p>
+            <img src="/images/logo gewiss lightzon .png" alt="GEWISS LightZone" class="menu-brand-logo" />
           </div>
         </aside>
       </Transition>
@@ -160,15 +156,12 @@ function openScan() {
 
 .menu-made-by {
   margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 5px;
   font-size: var(--font-size-small);
   color: var(--color-text-secondary);
 }
 
-.menu-made-by-logo {
-  height: 12px;
+.menu-brand-logo {
+  height: 16px;
   width: auto;
 }
 

@@ -9,6 +9,7 @@ const { isNative } = usePlatform()
 
 const showInterrupt = ref(false)
 const showAddressSheet = ref(false)
+const showCategorySheet = ref(false)
 const showLocationPermission = ref(false)
 const locating = ref(false)
 const locationError = ref('')
@@ -16,13 +17,24 @@ const addressSearch = ref('')
 const nameTouched = ref(false)
 const nameError = computed(() => (nameTouched.value && !newProjectDraft.value.name.trim() ? 'Campo obbligatorio' : ''))
 
-const categoryOptions: { value: ProjectCategory; label: string }[] = [
-  { value: 'Office', label: 'Office' },
-  { value: 'Industry', label: 'Industry' },
-  { value: 'Sport indoor', label: 'Sport indoor' },
-  { value: 'Relamping', label: 'Relamping' },
-  { value: 'Altro', label: 'Altro' }
+const categoryOptions: { value: ProjectCategory; label: string; description: string }[] = [
+  { value: 'Office', label: 'Office', description: 'Spazi, ufficio, coworking' },
+  { value: 'Industry', label: 'Industry', description: 'Fabbriche, impianti, industrie' },
+  { value: 'Sport indoor', label: 'Sport indoor', description: 'Palestre, piscine, sport' },
+  { value: 'Relamping', label: 'Relamping', description: 'Aggiornamenti di sistemi' },
+  { value: 'Altro', label: 'Altro', description: 'Altro tipo di progetto' }
 ]
+
+function getCategoryIcon(category: ProjectCategory) {
+  const icons: Record<ProjectCategory, string> = {
+    'Office': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M9 8v2M15 8v2M9 14v2M15 14v2M12 8v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    'Industry': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="10" width="5" height="10" rx="0.5" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="5" width="5" height="15" rx="0.5" stroke="currentColor" stroke-width="1.5"/><rect x="16" y="8" width="5" height="12" rx="0.5" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 20h15" stroke="currentColor" stroke-width="1.5"/></svg>',
+    'Sport indoor': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 13c0-2 2-3 6-3s6 1 6 3v7H6v-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 20v2M15 20v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    'Relamping': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 3h6v2H9V3z" stroke="currentColor" stroke-width="1.5"/><path d="M10 5c-1.5 1-2.5 3-2.5 5.5 0 3.5 2 6.5 5 7.5 3-1 5-4 5-7.5 0-2.5-1-4.5-2.5-5.5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 19h6M8 21h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    'Altro': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M8 9h8M8 13h6M8 17h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+  }
+  return icons[category]
+}
 
 const timezoneOptions = [
   { value: 'Roma: UTC+1', label: 'Roma: UTC+1' },
@@ -56,10 +68,14 @@ function useCurrentLocation() {
 }
 
 function grantLocation() {
-  showLocationPermission.value = false
-  newProjectDraft.value.useCurrentLocation = true
-  newProjectDraft.value.address = 'Via Andrea Rossini 12, Bologna'
-  if (!newProjectDraft.value.timezone) newProjectDraft.value.timezone = 'Roma: UTC+1'
+  locating.value = true
+  setTimeout(() => {
+    newProjectDraft.value.useCurrentLocation = true
+    newProjectDraft.value.address = 'Via Andrea Rossini 12, Bologna'
+    if (!newProjectDraft.value.timezone) newProjectDraft.value.timezone = 'Roma: UTC+1'
+    locating.value = false
+    showLocationPermission.value = false
+  }, 1500)
 }
 
 function denyLocation() {
@@ -96,6 +112,11 @@ function pickAddress(addr: string) {
   showAddressSheet.value = false
 }
 
+function selectCategory(category: ProjectCategory) {
+  newProjectDraft.value.category = category
+  showCategorySheet.value = false
+}
+
 function onContinue() {
   if (!canContinue.value) return
   if (installerRoleEnabled.value) {
@@ -119,7 +140,17 @@ function onContinue() {
 
     <div class="body">
       <TextField v-model="newProjectDraft.name" label="Nome progetto" required placeholder="Nome progetto" :error="nameError" @blur="nameTouched = true" />
-      <SelectField v-model="newProjectDraft.category" label="Tipologia progetto" :options="categoryOptions" />
+      
+      <div class="category-field" @click="showCategorySheet = true">
+        <label class="field-label">Tipologia progetto</label>
+        <div class="category-box">
+          <div v-if="newProjectDraft.category" class="category-value">
+            <span>{{ newProjectDraft.category }}</span>
+          </div>
+          <div v-else class="category-placeholder">Seleziona</div>
+          <svg class="chevron" width="12" height="8" viewBox="0 0 12 8" fill="none" aria-hidden="true"><path d="M1 1.5l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </div>
+      </div>
 
       <SectionHeader title="Indirizzo" :divider="false" class="centered-title" />
 
@@ -164,14 +195,18 @@ function onContinue() {
       v-model="showLocationPermission"
       system
       title=""
-      description="La tua posizione rende più facile trovare l'indirizzo del tuo impianto."
+      :disabled="locating"
     >
       <template #title>
-        Vuoi consentire a <strong>Kin Sync</strong> di utilizzare la tua posizione?
+        <div class="location-permission-content">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="location-icon"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          <span>Vuoi consentire a <strong>Kin Sync</strong> di utilizzare la tua posizione?</span>
+          <p class="location-description">La tua posizione rende più facile trovare l'indirizzo del tuo impianto.</p>
+        </div>
       </template>
-      <Button variant="ios" @click="grantLocation">Consenti una volta</Button>
-      <Button variant="ios" @click="grantLocation">Consenti quando utilizzi l'app</Button>
-      <Button variant="ios" @click="denyLocation"><strong>Non consentire</strong></Button>
+      <Button variant="ios" :disabled="locating" @click="grantLocation">Consenti quando utilizzi l'app</Button>
+      <Button variant="ios" :disabled="locating" @click="grantLocation">Solo questa volta</Button>
+      <Button variant="ios" :disabled="locating" @click="denyLocation"><strong>Non consentire</strong></Button>
     </AlertDialog>
 
     <AlertDialog v-model="showInterrupt" title="Interrompi creazione progetto" description="Sei sicuro di voler interrompere la creazione del tuo progetto?">
@@ -194,6 +229,33 @@ function onContinue() {
       </div>
       <button type="button" class="link-inline">Indirizzo non trovato?</button>
     </BottomSheet>
+
+    <BottomSheet v-model="showCategorySheet" title="Tipologia progetto">
+      <div class="category-list">
+        <button
+          v-for="cat in categoryOptions"
+          :key="cat.value"
+          type="button"
+          class="category-item"
+          :class="{ 'is-selected': newProjectDraft.category === cat.value }"
+          @click="selectCategory(cat.value)"
+        >
+          <span class="category-icon" v-html="getCategoryIcon(cat.value)" />
+          <div class="category-info">
+            <span class="category-label">{{ cat.label }}</span>
+            <span class="category-desc">{{ cat.description }}</span>
+          </div>
+          <svg v-if="newProjectDraft.category === cat.value" width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M18 5L8 15l-4-4" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </BottomSheet>
+
+    <div v-if="locating" class="location-loading-overlay">
+      <div class="location-loader"></div>
+      <p class="location-loading-text">Individuazione posizione…</p>
+    </div>
   </div>
 </template>
 
@@ -288,7 +350,7 @@ function onContinue() {
 .link-inline {
   border: none;
   background: transparent;
-  color: var(--color-primary);
+  color: var(--color-system-link);
   font-weight: 500;
   text-decoration: underline;
   cursor: pointer;
@@ -311,5 +373,166 @@ function onContinue() {
   font-size: var(--font-size-body);
   color: var(--color-primary);
   cursor: pointer;
+}
+
+.category-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.field-label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.category-box {
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-bg);
+}
+
+.category-value {
+  font-size: var(--font-size-body);
+  color: var(--color-text);
+}
+
+.category-placeholder {
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  padding: 16px 0;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: background-color 0.2s;
+}
+
+.category-item:last-child {
+  border-bottom: none;
+}
+
+.category-item:hover {
+  background-color: var(--color-bg-hover, #f5f5f5);
+}
+
+.category-item.is-selected {
+  background-color: var(--color-bg-selected, #f0f0f0);
+}
+
+.category-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.category-icon :deep(svg) {
+  width: 24px;
+  height: 24px;
+}
+
+.category-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.category-label {
+  font-size: var(--font-size-body);
+  font-weight: 500;
+  color: var(--color-text);
+  display: block;
+}
+
+.category-desc {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  display: block;
+}
+
+.location-permission-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.location-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.location-description {
+  margin: 0;
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.location-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 1000;
+}
+
+.location-loader {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3.5px solid var(--color-accent-soft);
+  border-top-color: var(--color-accent);
+  animation: location-spin 0.8s linear infinite;
+}
+
+@keyframes location-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.location-loading-text {
+  margin: 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
 }
 </style>

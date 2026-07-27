@@ -100,7 +100,45 @@ function goToNewProject() {
     <template v-else-if="!hasAnyProject || demoState === 'empty'">
       <GreetingHeader :notification-count="unreadCount" @menu="sideMenuOpen = true" @notifications="openNotifications" />
       <div class="empty-body">
-        <img src="/images/empty-projects.jpg" alt="" class="empty-image" />
+        <svg class="empty-illustration" width="260" height="260" viewBox="20 -100 260 260" fill="none" aria-hidden="true" stroke="currentColor">
+          <!-- pavimento -->
+          <path d="M140 140L40 90 140 40 240 90z" stroke-width="1" opacity="0.6" />
+          <!-- parete sinistra -->
+          <path d="M140 40L40 90 40 0 140 -50z" stroke-width="1" opacity="0.6" />
+          <!-- parete destra -->
+          <path d="M140 40L240 90 240 0 140 -50z" stroke-width="1" opacity="0.6" />
+          <path d="M140 40v-90" stroke-width="1" opacity="0.6" />
+
+          <!-- finestre parete sinistra -->
+          <path d="M125 16L105 26 105 -14.5 125 -24.5z" stroke-width="0.9" opacity="0.7" />
+          <path d="M85 36L65 46 65 5.5 85 -4.5z" stroke-width="0.9" opacity="0.7" />
+          <!-- finestre parete destra -->
+          <path d="M155 16L175 26 175 -14.5 155 -24.5z" stroke-width="0.9" opacity="0.7" />
+          <path d="M195 36L215 46 215 5.5 195 -4.5z" stroke-width="0.9" opacity="0.7" />
+
+          <!-- scrivania 1 -->
+          <path d="M135 132.5L115 122.5 130 115 150 125z" stroke-width="0.9" />
+          <path d="M135 132.5v-15M115 122.5v-15M150 125v-15" stroke-width="0.9" />
+          <path d="M135 117.5L115 107.5 130 100 150 110z" stroke-width="0.9" />
+
+          <!-- scrivania 2 -->
+          <path d="M100 115L80 105 95 97.5 115 107.5z" stroke-width="0.9" />
+          <path d="M100 115v-15M80 105v-15M115 107.5v-15" stroke-width="0.9" />
+          <path d="M100 100L80 90 95 82.5 115 92.5z" stroke-width="0.9" />
+
+          <!-- scrivania 3 -->
+          <path d="M185 107.5L165 97.5 180 90 200 100z" stroke-width="0.9" />
+          <path d="M185 107.5v-15M165 97.5v-15M200 100v-15" stroke-width="0.9" />
+          <path d="M185 92.5L165 82.5 180 75 200 85z" stroke-width="0.9" />
+
+          <!-- lampade a sospensione -->
+          <path d="M130 -30v85M130 55a4 2.5 0 108 0 4 2.5 0 00-8 0" stroke-width="0.9" />
+          <path d="M172 -25v75M172 50a4 2.5 0 108 0 4 2.5 0 00-8 0" stroke-width="0.9" />
+
+          <!-- pianta -->
+          <path d="M46 84c-3-5-2-9 1-11M49 84c3-5 2-10-2-12M47.5 84v-13" stroke-width="0.9" stroke-linecap="round" />
+          <path d="M42 84h11v6h-11z" stroke-width="0.9" />
+        </svg>
         <EmptyState
           variant="centered"
           title=""
@@ -170,10 +208,18 @@ function goToNewProject() {
     <BottomSheet :model-value="!!menuOpenFor" @update:model-value="menuOpenFor = null">
       <template v-if="menuProject">
         <button type="button" class="sheet-action" @click="toggleFavorite(menuProject.id); menuOpenFor = null">
+          <svg v-if="menuProject.favorite" width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.5 5.5L18 8l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M3 3l14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+          <svg v-else width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.5 5.5L18 8l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
           {{ menuProject.favorite ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti' }}
         </button>
-        <button type="button" class="sheet-action" @click="menuOpenFor = null">Aggiungi utenti</button>
-        <button type="button" class="sheet-action danger" @click="removeProject(menuProject.id); menuOpenFor = null">Cancella progetto</button>
+        <button type="button" class="sheet-action" @click="menuOpenFor = null">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="6.5" r="3.5" stroke="currentColor" stroke-width="1.4" /><path d="M1.5 17c1.2-3.5 4-5.5 6.5-5.5s5.3 2 6.5 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M15 4v6M12 7h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+          Aggiungi utenti
+        </button>
+        <button type="button" class="sheet-action danger" @click="removeProject(menuProject.id); menuOpenFor = null">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M8 5V3.5A1.5 1.5 0 019.5 2h1A1.5 1.5 0 0112 3.5V5M15 5v11a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 015 16V5h10z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M8.5 8.5v6M11.5 8.5v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+          Cancella progetto
+        </button>
       </template>
     </BottomSheet>
 
@@ -235,12 +281,11 @@ function goToNewProject() {
   padding: 0 var(--space-page-x);
 }
 
-.empty-image {
+.empty-illustration {
   width: 100%;
   max-width: 280px;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: var(--radius-card);
+  height: auto;
+  color: var(--color-primary);
   margin-bottom: 12px;
 }
 
@@ -441,6 +486,9 @@ function goToNewProject() {
 
 .sheet-action {
   width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   text-align: left;
   padding: 14px 0;
   border: none;
@@ -450,6 +498,15 @@ function goToNewProject() {
   font-size: var(--font-size-body);
   color: var(--color-primary);
   cursor: pointer;
+}
+
+.sheet-action svg {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.sheet-action.danger svg {
+  color: var(--color-error);
 }
 
 .sheet-action:last-child {

@@ -4,10 +4,11 @@ const projectId = route.params.id as string
 const { createLevels } = useLevelsStore(projectId)
 const { goClose } = useNavStack()
 
-type Screen = 'config' | 'modalita' | 'intro' | 'stepper' | 'guidata-intro' | 'guidata-stepper'
+type Screen = 'config' | 'modalita' | 'intro' | 'stepper' | 'sublevels' | 'guidata-intro' | 'guidata-stepper'
 const screen = ref<Screen>('config')
 const modalita = ref<'manuale' | 'guidata' | null>(null)
 const count = ref(0)
+const subLevelsCount = ref(0)
 
 function goDashboard() {
   goClose(`/progetti/${projectId}`)
@@ -22,7 +23,11 @@ function onModalitaContinue() {
 }
 
 function onStepperContinue() {
-  createLevels(count.value)
+  screen.value = 'sublevels'
+}
+
+function onSublevelsContinue() {
+  createLevels(count.value, subLevelsCount.value)
   goClose(`/progetti/${projectId}/livelli`)
 }
 
@@ -34,19 +39,26 @@ function onGuidataStepperContinue() {
 
 <template>
   <div class="screen">
-    <StatusBar />
+    <StatusBar v-if="screen !== 'config' && screen !== 'intro'" />
 
     <template v-if="screen === 'config'">
-      <AppHeader title="Crea nuovo progetto" leading="back" trailing="close" @back="goDashboard" @close="goDashboard" />
-      <div class="body centered">
-        <span class="placeholder-icon">
-          <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><circle cx="8" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" /><path d="M2 17l5.5-5.5L12 16l4-4 6 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
-        </span>
-        <h1 class="title">Configurazione progetto</h1>
-        <p class="subtitle">Nel prossimo passaggio ti mostreremo due modalità di configurazione tra cui scegliere.</p>
-      </div>
-      <div class="footer">
-        <Button variant="primary" @click="screen = 'modalita'">Continua</Button>
+      <div class="intro-bg">
+        <img src="/images/configurazione-progetto-bg.jpg" alt="" class="intro-bg-image" />
+        <div class="intro-bg-overlay" />
+        <div class="intro-content">
+          <StatusBar inverted />
+          <AppHeader title="Configurazione progetto" leading="back" trailing="close" inverted @back="goDashboard" @close="goDashboard" />
+          <div class="body centered">
+            <span class="placeholder-icon">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><circle cx="8" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" /><path d="M2 17l5.5-5.5L12 16l4-4 6 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
+            </span>
+            <h1 class="title">Configurazione progetto</h1>
+            <p class="subtitle">Nel prossimo passaggio ti mostreremo due modalità di configurazione tra cui scegliere.</p>
+          </div>
+          <div class="footer">
+            <Button variant="primary" @click="screen = 'modalita'">Continua</Button>
+          </div>
+        </div>
       </div>
     </template>
 
@@ -54,11 +66,11 @@ function onGuidataStepperContinue() {
       <AppHeader title="Scegli modalità" leading="back" trailing="close" @back="screen = 'config'" @close="goDashboard" />
       <div class="body">
         <p class="lead">Scegli in che modalità creare il tuo progetto:</p>
-        <SelectableRow label="Modalità manuale" select-type="radio" :selected="modalita === 'manuale'" @click="selectModalita('manuale')">
-          <template #icon><IconBadge><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 3a3 3 0 014 4l-9 9-4.5 1.5L4 13z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg></IconBadge></template>
+        <SelectableRow label="Modalità manuale" select-type="corner" :selected="modalita === 'manuale'" @click="selectModalita('manuale')">
+          <template #icon><IconBadge><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 3a3 3 0 014 4l-9 9-4.5 1.5L4 13z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></IconBadge></template>
         </SelectableRow>
-        <SelectableRow label="Modalità guidata" select-type="radio" :selected="modalita === 'guidata'" @click="selectModalita('guidata')">
-          <template #icon><IconBadge><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 5h12M4 10h12M4 15h7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="4" cy="5" r="1" fill="currentColor" /><circle cx="4" cy="10" r="1" fill="currentColor" /><circle cx="4" cy="15" r="1" fill="currentColor" /></svg></IconBadge></template>
+        <SelectableRow label="Modalità guidata" select-type="corner" :selected="modalita === 'guidata'" @click="selectModalita('guidata')">
+          <template #icon><IconBadge><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 5h12M4 10h12M4 15h7" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="4" cy="5" r="1" fill="currentColor" /><circle cx="4" cy="10" r="1" fill="currentColor" /><circle cx="4" cy="15" r="1" fill="currentColor" /></svg></IconBadge></template>
         </SelectableRow>
       </div>
       <div class="footer">
@@ -105,7 +117,16 @@ function onGuidataStepperContinue() {
       <AppHeader title="Crea livelli" leading="back" trailing="close" @back="screen = 'guidata-intro'" @close="goDashboard" />
       <div class="body">
         <p class="field-title">Seleziona il numero di livelli</p>
-        <StepperControl v-model="count" variant="card" />
+        <div class="number-field-wrapper">
+          <TextField
+            v-model.number="count"
+            type="number"
+            placeholder="0"
+            inputmode="numeric"
+            min="0"
+            max="20"
+          />
+        </div>
       </div>
       <div class="footer">
         <Button variant="primary" :disabled="count === 0" @click="onGuidataStepperContinue">Continua</Button>
@@ -113,16 +134,23 @@ function onGuidataStepperContinue() {
     </template>
 
     <template v-else-if="screen === 'intro'">
-      <AppHeader title="Modalità manuale" leading="back" trailing="close" @back="screen = 'modalita'" @close="goDashboard" />
-      <div class="body centered">
-        <span class="placeholder-icon">
-          <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><circle cx="8" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" /><path d="M2 17l5.5-5.5L12 16l4-4 6 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
-        </span>
-        <h1 class="title">Creazione dei livelli</h1>
-        <p class="subtitle">I livelli rappresentano la prima suddivisione del progetto, come Piano Terra, Primo Piano o Esterno.</p>
-      </div>
-      <div class="footer">
-        <Button variant="primary" @click="screen = 'stepper'">Continua</Button>
+      <div class="intro-bg">
+        <img src="/images/309633a9-7774-496e-be4a-b9f8625a7a54.png" alt="" class="intro-bg-image" />
+        <div class="intro-bg-overlay" />
+        <div class="intro-content">
+          <StatusBar inverted />
+          <AppHeader title="Modalità manuale" leading="back" trailing="close" inverted @back="screen = 'modalita'" @close="goDashboard" />
+          <div class="body centered">
+            <span class="placeholder-icon">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><circle cx="8" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" /><path d="M2 17l5.5-5.5L12 16l4-4 6 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
+            </span>
+            <h1 class="title">Creazione dei livelli</h1>
+            <p class="subtitle">I livelli rappresentano la prima suddivisione del progetto, come Piano Terra, Primo Piano o Esterno.</p>
+          </div>
+          <div class="footer">
+            <Button variant="primary" @click="screen = 'stepper'">Continua</Button>
+          </div>
+        </div>
       </div>
     </template>
 
@@ -149,6 +177,17 @@ function onGuidataStepperContinue() {
         <Button variant="primary" :disabled="count === 0" @click="onStepperContinue">Continua</Button>
       </div>
     </template>
+
+    <template v-else-if="screen === 'sublevels'">
+      <AppHeader title="Crea sottolivelli" leading="back" trailing="close" @back="screen = 'stepper'" @close="goDashboard" />
+      <div class="body">
+        <p class="field-title">Seleziona il numero di sottolivelli per ogni livello</p>
+        <StepperControl v-model="subLevelsCount" variant="card" />
+      </div>
+      <div class="footer">
+        <Button variant="primary" :disabled="subLevelsCount === 0" @click="onSublevelsContinue">Continua</Button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -158,6 +197,70 @@ function onGuidataStepperContinue() {
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
+}
+
+.intro-bg {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.intro-bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.08);
+}
+
+.intro-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.3) 40%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  z-index: 1;
+}
+
+.intro-bg > :nth-child(n+3) {
+  position: relative;
+  z-index: 2;
+}
+
+.intro-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  position: relative;
+}
+
+.intro-content .body {
+  padding: 24px var(--space-page-x);
+}
+
+.intro-content .placeholder-icon {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.intro-content .title {
+  color: #fff;
+}
+
+.intro-content .subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.intro-content .footer {
+  z-index: 3;
+  position: relative;
 }
 
 .body {
@@ -210,7 +313,7 @@ function onGuidataStepperContinue() {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid var(--color-border);
+  border: 2.5px solid black;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -318,5 +421,62 @@ function onGuidataStepperContinue() {
 
 .footer {
   padding: 16px var(--space-page-x) 24px;
+}
+
+.intro-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  position: relative;
+}
+
+.intro-content .body {
+  padding: 24px var(--space-page-x);
+}
+
+.intro-content .placeholder-icon {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.intro-content .title {
+  color: #fff;
+}
+
+.intro-content .subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.intro-content .footer {
+  z-index: 3;
+  position: relative;
+}
+
+.number-field-wrapper {
+  margin-top: 16px;
+}
+
+.number-field-wrapper :deep(input) {
+  width: 100%;
+  padding: 16px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  font-size: 18px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.number-field-wrapper :deep(input:focus) {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.skip {
+  margin-top: 16px !important;
+  color: #fff !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
 }
 </style>

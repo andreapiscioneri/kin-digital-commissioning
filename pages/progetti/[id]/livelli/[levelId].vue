@@ -11,12 +11,32 @@ const nameTouched = ref(false)
 const subLevels = ref(level?.subLevels || 0)
 const hasPlan = ref(level?.hasPlan || false)
 const showUploadSheet = ref(false)
+const showCameraPermission = ref(false)
+const takingPhoto = ref(false)
 
 const nameError = computed(() => (nameTouched.value && !name.value.trim() ? 'Campo obbligatorio' : ''))
 
 function choosePlanSource() {
   hasPlan.value = true
   showUploadSheet.value = false
+}
+
+function takePhoto() {
+  showUploadSheet.value = false
+  showCameraPermission.value = true
+}
+
+function grantCamera() {
+  takingPhoto.value = true
+  setTimeout(() => {
+    hasPlan.value = true
+    takingPhoto.value = false
+    showCameraPermission.value = false
+  }, 1200)
+}
+
+function denyCamera() {
+  showCameraPermission.value = false
 }
 
 function save() {
@@ -56,9 +76,27 @@ function save() {
     </div>
 
     <BottomSheet v-model="showUploadSheet" title="Caricamento planimetria">
-      <button type="button" class="sheet-action" @click="choosePlanSource">Scatta una foto</button>
+      <button type="button" class="sheet-action" @click="takePhoto">Scatta una foto</button>
       <button type="button" class="sheet-action" @click="choosePlanSource">Scegli dalla Libreria</button>
     </BottomSheet>
+
+    <AlertDialog v-model="showCameraPermission" system title="" :disabled="takingPhoto">
+      <template #title>
+        <div class="location-permission-content">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="location-icon"><path d="M4 8a2 2 0 012-2h1.2l.6-1.2A1.5 1.5 0 019.15 4h5.7a1.5 1.5 0 011.35.8l.6 1.2H18a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.5" /></svg>
+          <span>"<strong>Kin Sync</strong>" vorrebbe accedere alla tua fotocamera</span>
+          <p class="location-description">Ti consente di personalizzare l'app con le foto della tua fotocamera</p>
+        </div>
+      </template>
+      <Button variant="ios" :disabled="takingPhoto" @click="grantCamera">Consenti una volta</Button>
+      <Button variant="ios" :disabled="takingPhoto" @click="grantCamera">Consenti quando utilizzi l'app</Button>
+      <Button variant="ios" :disabled="takingPhoto" @click="denyCamera"><strong>Non consentire</strong></Button>
+    </AlertDialog>
+
+    <div v-if="takingPhoto" class="location-loading-overlay">
+      <div class="location-loader"></div>
+      <p class="location-loading-text">Apertura fotocamera…</p>
+    </div>
   </div>
 </template>
 
@@ -153,5 +191,55 @@ function save() {
 
 .sheet-action:last-child {
   border-bottom: none;
+}
+
+.location-permission-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.location-icon {
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.location-description {
+  margin: 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.location-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 1000;
+}
+
+.location-loader {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3.5px solid var(--color-accent-soft);
+  border-top-color: var(--color-accent);
+  animation: location-spin 0.8s linear infinite;
+}
+
+.location-loading-text {
+  margin: 0;
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+}
+
+@keyframes location-spin {
+  to { transform: rotate(360deg); }
 }
 </style>

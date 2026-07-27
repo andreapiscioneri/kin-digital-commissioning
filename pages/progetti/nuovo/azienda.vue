@@ -53,7 +53,7 @@ function onContinue() {
 <template>
   <div class="screen">
     <StatusBar />
-    <AppHeader title='Abilita ruolo “Installer”' leading="back" trailing="close" @back="goBack('/progetti/nuovo/dati')" @close="showInterrupt = true" />
+    <AppHeader title='Abilita ruolo "Installer"' leading="back" trailing="close" @back="goBack('/progetti/nuovo/dati')" @close="showInterrupt = true" />
 
     <div v-if="formVisible" class="body">
       <p class="section-label">Informazioni aggiuntive</p>

@@ -253,6 +253,7 @@ function addToZone() {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: grayscale(1) contrast(1.08);
 }
 
 .intro-bg-overlay {

@@ -56,24 +56,27 @@ function inviteAnother() {
 
 <template>
   <div class="screen">
-    <StatusBar />
+    <StatusBar v-if="screen !== 'intro'" />
 
     <template v-if="screen === 'intro'">
-      <AppHeader title="" leading="back" trailing="close" @back="goBack(`/progetti/${projectId}`)" @close="goToNextStep" />
-      <div class="body centered">
-        <svg class="illustration" width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
-          <rect x="30" y="20" width="60" height="100" rx="8" stroke="currentColor" stroke-width="1.3" />
-          <circle cx="60" cy="100" r="3" fill="currentColor" />
-          <path d="M95 60l25-15M120 45l-4 10 10 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" />
-          <circle cx="45" cy="45" r="6" stroke="currentColor" stroke-width="1.2" />
-          <path d="M38 60c1-6 4-9 7-9s6 3 7 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-        </svg>
-        <h1 class="title">Invita i collaboratori</h1>
-        <p class="subtitle">Puoi invitare altri collaboratori che potranno gestire questo progetto</p>
-      </div>
-      <div class="footer">
-        <Button variant="primary" @click="screen = 'form'">Continua</Button>
-        <Button variant="ghost" class="skip" @click="goToNextStep">Salta</Button>
+      <div class="intro-bg">
+        <img src="/images/samuel-angor-oRSrWHrIfAc-unsplash.jpg" alt="" class="intro-bg-image" />
+        <div class="intro-bg-overlay" />
+        <div class="intro-content">
+          <StatusBar inverted />
+          <AppHeader title="" leading="back" trailing="close" inverted @back="goBack(`/progetti/${projectId}`)" @close="goToNextStep" />
+          <div class="body centered">
+            <span class="placeholder-icon">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="6" r="2.5" stroke="currentColor" stroke-width="1.3" /><path d="M2 16c0-1.5 2-3 5-3s5 1.5 5 3v2H2v-2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><circle cx="16" cy="6" r="2.5" stroke="currentColor" stroke-width="1.3" /><path d="M11 16c0-1.5 1.5-3 4-3s4 1.5 4 3v2h-8v-2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
+            </span>
+            <h1 class="title">Invita i collaboratori</h1>
+            <p class="subtitle">Puoi invitare altri collaboratori che potranno gestire questo progetto</p>
+          </div>
+          <div class="footer">
+            <Button variant="primary" @click="screen = 'form'">Continua</Button>
+            <Button variant="ghost" class="skip" @click="goToNextStep">Salta</Button>
+          </div>
+        </div>
       </div>
     </template>
 
@@ -121,6 +124,69 @@ function inviteAnother() {
   background: var(--color-bg);
 }
 
+.intro-bg {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.intro-bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.08);
+}
+
+.intro-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.3) 40%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+  z-index: 1;
+}
+
+.intro-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  position: relative;
+}
+
+.intro-content .body {
+  padding: 24px var(--space-page-x);
+}
+
+.intro-content .placeholder-icon {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.intro-content .title {
+  color: #fff;
+}
+
+.intro-content .subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.intro-content .footer {
+  z-index: 3;
+  position: relative;
+}
+
+.intro-content .skip {
+  color: #fff !important;
+}
+
 .body {
   flex: 1;
   overflow-y: auto;
@@ -138,6 +204,18 @@ function inviteAnother() {
 
 .illustration {
   color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.placeholder-icon {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 8px;
 }
 

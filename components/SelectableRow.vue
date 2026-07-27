@@ -3,7 +3,7 @@ withDefaults(
   defineProps<{
     label: string
     caption?: string
-    selectType?: 'radio' | 'checkbox' | 'none'
+    selectType?: 'radio' | 'checkbox' | 'corner' | 'none'
     selected?: boolean
     disabled?: boolean
     expandable?: boolean
@@ -16,10 +16,13 @@ const emit = defineEmits<{ click: []; toggleExpand: [] }>()
 </script>
 
 <template>
-  <div class="row" :class="{ disabled }" @click="!disabled && emit('click')">
+  <div class="row" :class="{ disabled, 'is-selected-card': selectType === 'corner' && selected }" @click="!disabled && emit('click')">
     <span v-if="selectType === 'radio'" class="mark radio" :class="{ checked: selected }" aria-hidden="true" />
     <span v-else-if="selectType === 'checkbox'" class="mark checkbox" :class="{ checked: selected }" aria-hidden="true">
       <svg v-if="selected" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="var(--color-surface)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    </span>
+    <span v-if="selectType === 'corner' && selected" class="corner-check" aria-hidden="true">
+      <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="var(--color-surface)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </span>
 
     <span v-if="$slots.icon" class="row-icon"><slot name="icon" /></span>
@@ -44,6 +47,7 @@ const emit = defineEmits<{ click: []; toggleExpand: [] }>()
 
 <style scoped>
 .row {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -52,6 +56,24 @@ const emit = defineEmits<{ click: []; toggleExpand: [] }>()
   border-radius: var(--radius-card);
   background: var(--color-surface);
   cursor: pointer;
+}
+
+.row.is-selected-card {
+  border: 1.5px solid var(--color-accent);
+}
+
+.corner-check {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: 2px solid var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .row.disabled {

@@ -15,13 +15,13 @@ export function useLevelsStore(projectId: string) {
     }
   })
 
-  function createLevels(count: number) {
+  function createLevels(count: number, subLevels = 0) {
     const existing = levels.value
     const next = [...existing]
     for (let i = existing.length; i < count; i++) {
-      next.push({ id: `level-${projectId}-${i + 1}-${Date.now()}`, name: `Livello ${i + 1}`, subLevels: 0, hasPlan: false })
+      next.push({ id: `level-${projectId}-${i + 1}-${Date.now()}`, name: `Livello ${i + 1}`, subLevels, hasPlan: false })
     }
-    levels.value = next.slice(0, Math.max(count, existing.length))
+    levels.value = next.slice(0, Math.max(count, existing.length)).map((l: Level) => ({ ...l, subLevels }))
   }
 
   function updateLevel(id: string, patch: Partial<Level>) {

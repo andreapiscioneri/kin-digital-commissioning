@@ -13,6 +13,8 @@ withDefaults(
 )
 
 defineEmits<{ toggle: []; settings: [] }>()
+
+const lightOn = ref(false)
 </script>
 
 <template>
@@ -35,8 +37,8 @@ defineEmits<{ toggle: []; settings: [] }>()
       </span>
     </span>
 
-    <button v-if="showSettings" type="button" class="settings-btn" aria-label="Impostazioni" @click.stop="$emit('settings')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.5" /><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7M18.4 18.4l-1.7-1.7M7.3 7.3L5.6 5.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+    <button v-if="showSettings" type="button" class="settings-btn" :class="{ active: lightOn }" aria-label="Impostazioni" @click.stop="lightOn = !lightOn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5" /><circle cx="12" cy="3" r="1" fill="currentColor" /><circle cx="21" cy="12" r="1" fill="currentColor" /><circle cx="12" cy="21" r="1" fill="currentColor" /><circle cx="3" cy="12" r="1" fill="currentColor" /><circle cx="18" cy="6" r="0.8" fill="currentColor" /><circle cx="18" cy="18" r="0.8" fill="currentColor" /><circle cx="6" cy="18" r="0.8" fill="currentColor" /><circle cx="6" cy="6" r="0.8" fill="currentColor" /></svg>
     </button>
   </div>
 </template>
@@ -55,7 +57,7 @@ defineEmits<{ toggle: []; settings: [] }>()
   width: 20px;
   height: 20px;
   border-radius: var(--radius-checkbox);
-  border: 1.5px solid var(--color-border);
+  border: 1.5px solid #db3700 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -64,8 +66,8 @@ defineEmits<{ toggle: []; settings: [] }>()
 }
 
 .mark.checkbox.checked {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
+  background: #db3700 !important;
+  border-color: #db3700 !important;
 }
 
 .device-text {
@@ -101,5 +103,10 @@ defineEmits<{ toggle: []; settings: [] }>()
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.settings-btn.active {
+  color: #FDB813;
 }
 </style>
