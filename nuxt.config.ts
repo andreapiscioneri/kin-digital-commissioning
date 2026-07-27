@@ -3,6 +3,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   ssr: false,
+  nitro: {
+    // Forza il preset statico ovunque: senza questo, Nitro rileva la variabile
+    // d'ambiente NETLIFY in CI e passa da solo a un preset diverso che scrive
+    // in dist/ invece di .output/public, disallineandosi dal `publish` in
+    // netlify.toml (causa dell'errore "Deploy directory does not exist").
+    preset: 'static'
+  },
   modules: ['@nuxtjs/color-mode'],
   colorMode: {
     classPrefix: '',

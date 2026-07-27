@@ -1,18 +1,29 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ avatarSrc?: string; name?: string; notificationCount?: number }>(), {
-  avatarSrc: '/images/avatar-marco.jpg',
+import { computed } from 'vue'
+
+const props = withDefaults(defineProps<{ name?: string; notificationCount?: number }>(), {
   name: 'Marco',
   notificationCount: 0
 })
+
+const initials = computed(() =>
+  props.name
+    .split(' ')
+    .map((part) => part[0]?.toUpperCase())
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+)
+
 defineEmits<{ menu: []; notifications: [] }>()
 </script>
 
 <template>
   <header class="greeting-header">
-    <img class="avatar" :src="avatarSrc" :alt="name" />
+    <span class="avatar">{{ initials }}</span>
     <span class="greeting-text">
-      <span class="greeting-title">Ciao!</span>
-      <span class="greeting-subtitle">Bentornato, {{ name }}</span>
+      <span class="greeting-title">Benvenuto</span>
+      <span class="greeting-subtitle">Bentornato, {{ props.name }}</span>
     </span>
     <button type="button" class="icon-btn" aria-label="Notifiche" @click="$emit('notifications')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
@@ -38,9 +49,16 @@ defineEmits<{ menu: []; notifications: [] }>()
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  object-fit: cover;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   box-shadow: 0 0 0 2px var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-surface);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
 .greeting-text {

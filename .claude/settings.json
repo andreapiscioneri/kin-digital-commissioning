@@ -12,7 +12,10 @@
       "Bash(cp /private/tmp/claude-501/-Users-andreapiscioneri-Repo-kin-digital-commissioning/9341ef6c-d1e4-4777-8556-c308cf6b4bea/scratchpad/drive_casa.mjs ./drive_casa_tmp.mjs)",
       "Bash(node drive_casa_tmp.mjs)",
       "Bash(cp /private/tmp/claude-501/-Users-andreapiscioneri-Repo-kin-digital-commissioning/9341ef6c-d1e4-4777-8556-c308cf6b4bea/scratchpad/drive_casa2.mjs ./drive_casa2_tmp.mjs)",
-      "Bash(node drive_casa2_tmp.mjs)"
+      "Bash(node drive_casa2_tmp.mjs)",
+      "Bash(lsof -ti:3000 -sTCP:LISTEN)",
+      "Bash(xargs -r kill)",
+      "Bash(pkill -f \"nuxt dev\")"
     ]
   }
 }
