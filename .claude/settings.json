@@ -5,7 +5,14 @@
       "Bash(node test5.mjs)",
       "Bash(node test6.mjs)",
       "Bash(find / -maxdepth 4 -iname \"*Installer Loggato*\")",
-      "Bash(find / -maxdepth 6 -iname \"*GEWISS*\")"
+      "Bash(find / -maxdepth 6 -iname \"*GEWISS*\")",
+      "Bash(curl -s http://localhost:3000/casa)",
+      "Bash(curl -s http://localhost:3000/casa/dispositivi/luci)",
+      "Bash(grep -o \"ssr\\\\|__nuxt\\\\|<div id=\\\\\"__nuxt\\\\\">.\\\\{0,50\\\\}\")",
+      "Bash(cp /private/tmp/claude-501/-Users-andreapiscioneri-Repo-kin-digital-commissioning/9341ef6c-d1e4-4777-8556-c308cf6b4bea/scratchpad/drive_casa.mjs ./drive_casa_tmp.mjs)",
+      "Bash(node drive_casa_tmp.mjs)",
+      "Bash(cp /private/tmp/claude-501/-Users-andreapiscioneri-Repo-kin-digital-commissioning/9341ef6c-d1e4-4777-8556-c308cf6b4bea/scratchpad/drive_casa2.mjs ./drive_casa2_tmp.mjs)",
+      "Bash(node drive_casa2_tmp.mjs)"
     ]
   }
 }

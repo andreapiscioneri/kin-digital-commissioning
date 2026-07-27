@@ -32,7 +32,7 @@ export interface Zone {
   rooms: Room[]
 }
 
-export interface Scene {
+export interface HomeScene {
   id: string
   label: string
   icon: 'yoga' | 'sun' | 'moon'
@@ -267,7 +267,7 @@ export function useHomeStore() {
     { id: 'irrigation', type: 'irrigation', label: 'IRRIGATORE', value: '5min x 2', unit: '', detailLabel: 'Aiuola' }
   ])
 
-  const scenes = useState<Scene[]>('home-scenes', () => [
+  const scenes = useState<HomeScene[]>('home-scenes', () => [
     { id: 'yoga', label: 'Yoga', icon: 'yoga', color: 'purple' },
     { id: 'sveglia', label: 'Sveglia', icon: 'sun', color: 'green' },
     { id: 'sogni-oro', label: "Sogni d'oro", icon: 'moon', color: 'blue' }

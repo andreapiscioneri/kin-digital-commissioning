@@ -6,7 +6,15 @@ defineEmits<{ click: []; expand: [] }>()
 </script>
 
 <template>
-  <button type="button" class="widget-card" :class="{ expanded }" @click="$emit('click')">
+  <div
+    class="widget-card"
+    :class="{ expanded }"
+    role="button"
+    tabindex="0"
+    @click="$emit('click')"
+    @keydown.enter="$emit('click')"
+    @keydown.space.prevent="$emit('click')"
+  >
     <span class="widget-top">
       <span class="widget-icon">
         <svg v-if="widget.type === 'temperature'" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 14.5V5a2 2 0 10-4 0v9.5a4 4 0 104 0z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><circle cx="10" cy="16" r="1.3" fill="currentColor" /></svg>
@@ -22,7 +30,7 @@ defineEmits<{ click: []; expand: [] }>()
     <button v-if="expanded" type="button" class="widget-expand" aria-label="Espandi" @click.stop="$emit('expand')">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
-  </button>
+  </div>
 </template>
 
 <style scoped>
