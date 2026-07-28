@@ -533,15 +533,15 @@ function addDevice() {
     <div class="fab-fan" :class="{ open: showFabFan }" aria-hidden="true">
       <button type="button" class="fab-action fab-action-level" @click="addLevel">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="2.5" width="14" height="15" rx="1.8" stroke="currentColor" stroke-width="1.3" /><path d="M3 7.5h14" stroke="currentColor" stroke-width="1.3" /><path d="M10 10v5M7.5 12.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        <span>+ livello</span>
+        <span>Livello</span>
       </button>
       <button type="button" class="fab-action fab-action-sublevel" @click="addSubLevel">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="4" rx="1.2" stroke="currentColor" stroke-width="1.2" /><rect x="3" y="9" width="14" height="4" rx="1.2" stroke="currentColor" stroke-width="1.2" /><path d="M10 13v4M8 15h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        <span>+ sottolivello</span>
+        <span>Sottolivello</span>
       </button>
       <button type="button" class="fab-action fab-action-device" @click="addDevice">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="6" y="2" width="8" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><path d="M8 6h4M8 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><path d="M10 13.5v3M8.5 15h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        <span>+ dispositivo</span>
+        <span>Dispositivo</span>
       </button>
     </div>
 
