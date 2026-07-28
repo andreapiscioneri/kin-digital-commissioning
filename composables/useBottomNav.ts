@@ -18,8 +18,9 @@ export function useBottomNav() {
     { label: 'Profilo', path: '/account/profilo', icon: 'profile' }
   ])
 
-  const isVisible = computed(() => NAV_PATHS.includes(route.path))
+  const normalizedPath = computed(() => (route.path.length > 1 ? route.path.replace(/\/+$/, '') : route.path))
+  const isVisible = computed(() => NAV_PATHS.includes(normalizedPath.value))
   const showFab = computed(() => isVisible.value)
 
-  return { items, isVisible, showFab }
+  return { items, isVisible, showFab, normalizedPath }
 }

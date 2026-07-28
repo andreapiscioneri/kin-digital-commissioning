@@ -1,12 +1,14 @@
 <script setup lang="ts">
 const { direction, transitionName } = useNavStack()
-const { cookieChoice, notificationsChoice, acceptCookies, rejectCookies, grantNotifications, denyNotifications } = useSystemPrompts()
+const { notificationsChoice, grantNotifications, denyNotifications } = useSystemPrompts()
+
+seedBeghelliIfEmpty('beghelli')
 
 function resetDirection() {
   direction.value = 'forward'
 }
 
-const showNotificationsPrompt = computed(() => cookieChoice.value !== 'pending' && notificationsChoice.value === 'pending')
+const showNotificationsPrompt = computed(() => notificationsChoice.value === 'pending')
 </script>
 
 <template>
@@ -16,8 +18,6 @@ const showNotificationsPrompt = computed(() => cookieChoice.value !== 'pending' 
       <NuxtPage :transition="{ name: transitionName, mode: 'out-in', onAfterEnter: resetDirection }" />
 
       <BottomNavBar />
-
-      <CookieBanner :model-value="cookieChoice === 'pending'" @accept="acceptCookies" @reject="rejectCookies" />
 
       <AlertDialog
         :model-value="showNotificationsPrompt"

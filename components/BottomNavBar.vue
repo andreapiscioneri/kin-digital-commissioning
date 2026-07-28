@@ -1,10 +1,9 @@
 <script setup lang="ts">
-const { items, isVisible, showFab } = useBottomNav()
-const route = useRoute()
+const { items, isVisible, showFab, normalizedPath } = useBottomNav()
 const { goClose, goForward } = useNavStack()
 
 function go(path: string) {
-  if (route.path === path) return
+  if (normalizedPath.value === path) return
   goClose(path)
 }
 
@@ -20,7 +19,7 @@ function openNewProject() {
       :key="item.path"
       type="button"
       class="nav-item"
-      :class="{ active: route.path === item.path }"
+      :class="{ active: normalizedPath === item.path }"
       @click="go(item.path)"
     >
       <span class="nav-icon">
