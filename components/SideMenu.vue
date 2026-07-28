@@ -73,8 +73,7 @@ function openScan() {
               Scan QR Code
             </Button>
             <p class="menu-version">Versione in uso: 0.0.000</p>
-            <p class="menu-made-by">Made by</p>
-            <img src="/images/logo gewiss lightzon .png" alt="GEWISS LightZone" class="menu-brand-logo" />
+            <img src="/images/Kin.png" alt="Kin" class="menu-brand-logo" />
           </div>
         </aside>
       </Transition>
@@ -163,7 +162,7 @@ function openScan() {
 }
 
 .menu-brand-logo {
-  height: 16px;
+  height: 92px;
   width: auto;
 }
 

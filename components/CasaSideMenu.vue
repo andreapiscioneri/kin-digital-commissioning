@@ -70,10 +70,7 @@ function close() {
           </nav>
 
           <div class="menu-footer">
-            <p class="menu-made-by">
-              Made by
-              <img src="/images/logo gewiss lightzon .png" alt="Gewiss" class="menu-made-by-logo" />
-            </p>
+            <img src="/images/Kin.png" alt="Kin" class="menu-made-by-logo" />
           </div>
         </aside>
       </Transition>
@@ -175,7 +172,7 @@ function close() {
 }
 
 .menu-made-by-logo {
-  height: 12px;
+  height: 78px;
   width: auto;
 }
 
