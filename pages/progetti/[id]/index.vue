@@ -1193,10 +1193,10 @@ function addDevice() {
 }
 
 .project-nav {
-  position: fixed;
+  position: absolute;
   left: 12px;
   right: 12px;
-  bottom: env(safe-area-inset-bottom, 0);
+  bottom: calc(8px + env(safe-area-inset-bottom, 0));
   z-index: 4;
   display: flex;
   align-items: stretch;
