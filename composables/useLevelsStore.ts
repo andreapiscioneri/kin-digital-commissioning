@@ -2,6 +2,7 @@ export interface Level {
   id: string
   name: string
   subLevels: number
+  subLevelNames: string[]
   hasPlan: boolean
 }
 
@@ -19,7 +20,7 @@ export function useLevelsStore(projectId: string) {
     const existing = levels.value
     const next = [...existing]
     for (let i = existing.length; i < count; i++) {
-      next.push({ id: `level-${projectId}-${i + 1}-${Date.now()}`, name: `Livello ${i + 1}`, subLevels, hasPlan: false })
+      next.push({ id: `level-${projectId}-${i + 1}-${Date.now()}`, name: `Livello ${i + 1}`, subLevels, subLevelNames: [], hasPlan: false })
     }
     levels.value = next.slice(0, Math.max(count, existing.length)).map((l: Level) => ({ ...l, subLevels }))
   }

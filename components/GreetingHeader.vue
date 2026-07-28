@@ -43,9 +43,7 @@ defineEmits<{ menu: []; notifications: [] }>()
   gap: 14px;
   padding: 22px var(--space-page-x) 26px;
   overflow: hidden;
-  background:
-    radial-gradient(70% 110% at 0% 100%, rgba(255, 90, 31, 0.35) 0%, rgba(255, 90, 31, 0) 70%),
-    #ffffff;
+  background: var(--color-surface);
 }
 
 .avatar {
@@ -58,8 +56,8 @@ defineEmits<{ menu: []; notifications: [] }>()
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: linear-gradient(145deg, var(--color-accent) 0%, #ff7a3d 100%);
-  box-shadow: 0 6px 16px -4px rgba(219, 55, 0, 0.45);
+  background: linear-gradient(145deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  box-shadow: 0 6px 16px -4px var(--color-focus-ring);
   color: #fff;
   font-size: 1rem;
   font-weight: 700;
@@ -95,7 +93,7 @@ defineEmits<{ menu: []; notifications: [] }>()
   height: 40px;
   border-radius: 12px;
   border: none;
-  background: rgba(255, 255, 255, 0.75);
+  background: color-mix(in srgb, var(--color-surface) 75%, transparent);
   box-shadow: var(--shadow-card);
   color: var(--color-primary);
   display: flex;

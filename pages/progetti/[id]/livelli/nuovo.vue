@@ -1,85 +1,63 @@
 <script setup lang="ts">
 const route = useRoute()
 const projectId = route.params.id as string
-const { createLevels } = useLevelsStore(projectId)
-const { goClose } = useNavStack()
+const { levels, createLevels } = useLevelsStore(projectId)
+const { goBackTo, goClose, goForward } = useNavStack()
+const { creationMode } = useCommissioningFlow()
 
-type Screen = 'config' | 'modalita' | 'intro' | 'stepper' | 'sublevels' | 'guidata-intro' | 'guidata-stepper'
-const screen = ref<Screen>('config')
-const modalita = ref<'manuale' | 'guidata' | null>(null)
-const count = ref(0)
-const subLevelsCount = ref(0)
+type Screen = 'intro' | 'stepper' | 'guidata-intro' | 'guidata-stepper' | 'ai-intro' | 'ai-stepper'
+const validScreens: Screen[] = ['intro', 'stepper', 'guidata-intro', 'guidata-stepper', 'ai-intro', 'ai-stepper']
+const screenFromQuery = typeof route.query.screen === 'string' && validScreens.includes(route.query.screen as Screen)
+  ? route.query.screen as Screen
+  : null
+const screen = ref<Screen>(
+  screenFromQuery ?? (creationMode.value === 'guidata' ? 'guidata-intro' : creationMode.value === 'ai' ? 'ai-intro' : 'intro')
+)
+const screenDirection = ref<'forward' | 'back'>('forward')
+const screenTransition = computed(() => `page-${screenDirection.value}`)
+const count = ref(levels.value.length)
 
 function goDashboard() {
   goClose(`/progetti/${projectId}`)
 }
 
-function selectModalita(value: 'manuale' | 'guidata') {
-  modalita.value = value
+function goToModeSelection() {
+  goBackTo('/progetti/nuovo/modalita?screen=modalita')
 }
 
-function onModalitaContinue() {
-  screen.value = modalita.value === 'guidata' ? 'guidata-intro' : 'intro'
+function goForwardScreen(next: Screen) {
+  screenDirection.value = 'forward'
+  screen.value = next
+}
+
+function goBackScreen(next: Screen) {
+  screenDirection.value = 'back'
+  screen.value = next
 }
 
 function onStepperContinue() {
-  screen.value = 'sublevels'
-}
-
-function onSublevelsContinue() {
-  createLevels(count.value, subLevelsCount.value)
-  goClose(`/progetti/${projectId}/livelli`)
+  createLevels(count.value)
+  goForward(`/progetti/${projectId}/livelli`)
 }
 
 function onGuidataStepperContinue() {
   createLevels(count.value)
-  goClose(`/progetti/${projectId}/wizard-guidato/1`)
+  goForward(`/progetti/${projectId}/wizard-guidato/1`)
+}
+
+function onAiStepperContinue() {
+  createLevels(count.value)
+  goForward(`/progetti/${projectId}/livelli`)
 }
 </script>
 
 <template>
   <div class="screen">
-    <StatusBar v-if="screen !== 'config' && screen !== 'intro'" />
-
-    <template v-if="screen === 'config'">
-      <div class="intro-bg">
-        <img src="/images/configurazione-progetto-bg.jpg" alt="" class="intro-bg-image" />
-        <div class="intro-bg-overlay" />
-        <div class="intro-content">
-          <StatusBar inverted />
-          <AppHeader title="Configurazione progetto" leading="back" trailing="close" inverted @back="goDashboard" @close="goDashboard" />
-          <div class="body centered">
-            <span class="placeholder-icon">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><circle cx="8" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" /><path d="M2 17l5.5-5.5L12 16l4-4 6 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
-            </span>
-            <h1 class="title">Configurazione progetto</h1>
-            <p class="subtitle">Nel prossimo passaggio ti mostreremo due modalità di configurazione tra cui scegliere.</p>
-          </div>
-          <div class="footer">
-            <Button variant="primary" @click="screen = 'modalita'">Continua</Button>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <template v-else-if="screen === 'modalita'">
-      <AppHeader title="Scegli modalità" leading="back" trailing="close" @back="screen = 'config'" @close="goDashboard" />
-      <div class="body">
-        <p class="lead">Scegli in che modalità creare il tuo progetto:</p>
-        <SelectableRow label="Modalità manuale" select-type="corner" :selected="modalita === 'manuale'" @click="selectModalita('manuale')">
-          <template #icon><IconBadge><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12 3a3 3 0 014 4l-9 9-4.5 1.5L4 13z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg></IconBadge></template>
-        </SelectableRow>
-        <SelectableRow label="Modalità guidata" select-type="corner" :selected="modalita === 'guidata'" @click="selectModalita('guidata')">
-          <template #icon><IconBadge><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M4 5h12M4 10h12M4 15h7" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="4" cy="5" r="1" fill="currentColor" /><circle cx="4" cy="10" r="1" fill="currentColor" /><circle cx="4" cy="15" r="1" fill="currentColor" /></svg></IconBadge></template>
-        </SelectableRow>
-      </div>
-      <div class="footer">
-        <Button variant="primary" :disabled="!modalita" @click="onModalitaContinue">Continua</Button>
-      </div>
-    </template>
-
-    <template v-else-if="screen === 'guidata-intro'">
-      <AppHeader title="Modalità guidata" leading="back" trailing="close" @back="screen = 'modalita'" @close="goDashboard" />
+    <Transition :name="screenTransition" mode="out-in">
+    <div :key="screen" class="screen-body">
+    <template v-if="screen === 'guidata-intro'">
+      <StatusBar />
+      <AppHeader title="Modalità guidata" leading="back" trailing="close" @back="goToModeSelection" @close="goDashboard" />
       <div class="body">
         <h1 class="title left">Crea la struttura del progetto</h1>
         <p class="subtitle left">Ti guideremo passo dopo passo nella configurazione del tuo progetto.</p>
@@ -109,12 +87,13 @@ function onGuidataStepperContinue() {
         </ol>
       </div>
       <div class="footer">
-        <Button variant="primary" @click="screen = 'guidata-stepper'">Continua</Button>
+        <Button variant="primary" @click="goForwardScreen('guidata-stepper')">Continua</Button>
       </div>
     </template>
 
     <template v-else-if="screen === 'guidata-stepper'">
-      <AppHeader title="Crea livelli" leading="back" trailing="close" @back="screen = 'guidata-intro'" @close="goDashboard" />
+      <StatusBar />
+      <AppHeader title="Crea livelli" leading="back" trailing="close" @back="goBackScreen('guidata-intro')" @close="goDashboard" />
       <div class="body">
         <p class="field-title">Seleziona il numero di livelli</p>
         <div class="number-field-wrapper">
@@ -133,13 +112,37 @@ function onGuidataStepperContinue() {
       </div>
     </template>
 
+    <template v-else-if="screen === 'ai-intro'">
+      <StatusBar />
+      <AppHeader title="Modalità AI" leading="back" trailing="close" @back="goToModeSelection" @close="goDashboard" />
+      <div class="body">
+        <h1 class="title left">Lascia fare all'AI</h1>
+        <p class="subtitle left">Analizzeremo le informazioni del progetto per suggerirti una struttura di livelli, che potrai rivedere e confermare.</p>
+      </div>
+      <div class="footer">
+        <Button variant="primary" @click="goForwardScreen('ai-stepper')">Continua</Button>
+      </div>
+    </template>
+
+    <template v-else-if="screen === 'ai-stepper'">
+      <StatusBar />
+      <AppHeader title="Livelli suggeriti" leading="back" trailing="close" @back="goBackScreen('ai-intro')" @close="goDashboard" />
+      <div class="body">
+        <p class="field-title">Rivedi il numero di livelli suggerito</p>
+        <StepperControl v-model="count" variant="card" />
+      </div>
+      <div class="footer">
+        <Button variant="primary" :disabled="count === 0" @click="onAiStepperContinue">Continua</Button>
+      </div>
+    </template>
+
     <template v-else-if="screen === 'intro'">
       <div class="intro-bg">
         <img src="/images/309633a9-7774-496e-be4a-b9f8625a7a54.png" alt="" class="intro-bg-image" />
         <div class="intro-bg-overlay" />
         <div class="intro-content">
           <StatusBar inverted />
-          <AppHeader title="Modalità manuale" leading="back" trailing="close" inverted @back="screen = 'modalita'" @close="goDashboard" />
+          <AppHeader title="Modalità manuale" leading="back" trailing="close" inverted @back="goToModeSelection" @close="goDashboard" />
           <div class="body centered">
             <span class="placeholder-icon">
               <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><circle cx="8" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" /><path d="M2 17l5.5-5.5L12 16l4-4 6 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
@@ -148,14 +151,15 @@ function onGuidataStepperContinue() {
             <p class="subtitle">I livelli rappresentano la prima suddivisione del progetto, come Piano Terra, Primo Piano o Esterno.</p>
           </div>
           <div class="footer">
-            <Button variant="primary" @click="screen = 'stepper'">Continua</Button>
+            <Button variant="primary" @click="goForwardScreen('stepper')">Continua</Button>
           </div>
         </div>
       </div>
     </template>
 
     <template v-else-if="screen === 'stepper'">
-      <AppHeader title="Creazione livelli" leading="back" trailing="close" @back="screen = 'intro'" @close="goDashboard" />
+      <StatusBar />
+      <AppHeader title="Creazione livelli" leading="back" trailing="close" @back="goBackScreen('intro')" @close="goDashboard" />
       <div class="body">
         <p class="field-title">Seleziona il numero di livelli</p>
         <StepperControl v-model="count" variant="card" />
@@ -177,17 +181,8 @@ function onGuidataStepperContinue() {
         <Button variant="primary" :disabled="count === 0" @click="onStepperContinue">Continua</Button>
       </div>
     </template>
-
-    <template v-else-if="screen === 'sublevels'">
-      <AppHeader title="Crea sottolivelli" leading="back" trailing="close" @back="screen = 'stepper'" @close="goDashboard" />
-      <div class="body">
-        <p class="field-title">Seleziona il numero di sottolivelli per ogni livello</p>
-        <StepperControl v-model="subLevelsCount" variant="card" />
-      </div>
-      <div class="footer">
-        <Button variant="primary" :disabled="subLevelsCount === 0" @click="onSublevelsContinue">Continua</Button>
-      </div>
-    </template>
+    </div>
+    </Transition>
   </div>
 </template>
 
@@ -197,6 +192,13 @@ function onGuidataStepperContinue() {
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
+}
+
+.screen-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .intro-bg {
@@ -213,7 +215,7 @@ function onGuidataStepperContinue() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(1.08);
+  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
 }
 
 .intro-bg-overlay {

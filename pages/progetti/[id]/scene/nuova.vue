@@ -6,11 +6,18 @@ const route = useRoute()
 const projectId = route.params.id as string
 const { provisionedDevices } = useDeviceCatalog(projectId)
 const { groups } = useGroupsStore(projectId)
-const { scenes, createScene } = useScenesStore(projectId)
+const { scenes, createScene, getScene, updateScene } = useScenesStore(projectId)
 const { goBack, goClose, goForward } = useNavStack()
 
 type Screen = 'intro' | 'form' | 'icon-picker' | 'select-devices' | 'personalizza'
-const screen = ref<Screen>('intro')
+const sceneIdFromQuery = computed(() => (typeof route.query.sceneId === 'string' ? route.query.sceneId : ''))
+const editingScene = computed(() => (sceneIdFromQuery.value ? getScene(sceneIdFromQuery.value) || null : null))
+const isEditing = computed(() => !!editingScene.value)
+const editHydrated = ref(false)
+
+const screen = ref<Screen>(sceneIdFromQuery.value ? 'form' : 'intro')
+const screenDirection = ref<'forward' | 'back'>('forward')
+const screenTransition = computed(() => `page-${screenDirection.value}`)
 
 const name = ref('')
 const nameTouched = ref(false)
@@ -63,58 +70,105 @@ function toggleGroupDevices(groupId: string) {
 
 const canContinueDevices = computed(() => selectedDeviceIds.value.size > 0)
 
-function save() {
-  const isFirstScene = scenes.value.length === 0
-  const scene = createScene(name.value, icon.value, Array.from(selectedDeviceIds.value))
-  updateSceneParams(scene.id)
-  if (isFirstScene) {
-    goClose(`/progetti/${projectId}/completato`)
-  } else {
-    goClose(`/progetti/${projectId}/scene`)
-  }
+watch(sceneIdFromQuery, () => {
+  editHydrated.value = false
+})
+
+watch(
+  editingScene,
+  (scene) => {
+    if (!scene || editHydrated.value) return
+    name.value = scene.name
+    icon.value = scene.icon
+    selectedDeviceIds.value = new Set(scene.deviceIds)
+    brightness.value = scene.brightness
+    colorTemp.value = scene.colorTemp
+    automaticSensor.value = scene.automaticSensor
+    corridorDimmer.value = scene.corridorDimmer
+    corridorTimeAfter.value = scene.corridorTimeAfter
+    screen.value = 'form'
+    editHydrated.value = true
+  },
+  { immediate: true }
+)
+
+function goToScreen(nextScreen: Screen, direction: 'forward' | 'back' = 'forward') {
+  screenDirection.value = direction
+  screen.value = nextScreen
 }
 
-function updateSceneParams(sceneId: string) {
-  const { updateScene } = useScenesStore(projectId)
-  updateScene(sceneId, {
+function backFromForm() {
+  if (isEditing.value) {
+    goClose(`/progetti/${projectId}?tab=scene`)
+    return
+  }
+  goToScreen('intro', 'back')
+}
+
+function save() {
+  const nextName = name.value.trim()
+  const deviceIds = Array.from(selectedDeviceIds.value)
+  if (!nextName || deviceIds.length === 0) return
+
+  const patch = {
+    name: nextName,
+    icon: icon.value,
+    deviceIds,
     brightness: brightness.value,
     colorTemp: colorTemp.value,
     automaticSensor: automaticSensor.value,
     corridorDimmer: corridorDimmer.value,
     corridorTimeAfter: corridorTimeAfter.value
-  })
+  }
+
+  if (editingScene.value) {
+    updateScene(editingScene.value.id, patch)
+  } else {
+    const scene = createScene(nextName, icon.value, deviceIds)
+    updateScene(scene.id, patch)
+  }
+  goClose(`/progetti/${projectId}?tab=scene`)
 }
 </script>
 
 <template>
   <div class="screen">
-    <StatusBar />
+    <Transition :name="screenTransition" mode="out-in">
+      <div :key="screen" class="screen-body">
 
     <template v-if="screen === 'intro'">
-      <AppHeader title="" leading="back" trailing="close" @back="goClose(`/progetti/${projectId}`)" @close="goClose(`/progetti/${projectId}`)" />
-      <div class="body centered">
-        <svg class="illustration" width="140" height="120" viewBox="0 0 140 120" fill="none" aria-hidden="true">
-          <rect x="20" y="20" width="40" height="70" rx="6" stroke="currentColor" stroke-width="1.2" />
-          <rect x="30" y="35" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1" />
-          <rect x="42" y="35" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1" />
-          <rect x="30" y="47" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1" />
-          <rect x="42" y="47" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1" />
-          <circle cx="100" cy="45" r="16" stroke="currentColor" stroke-width="1.2" />
-          <path d="M94 60h12M96 64h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-        </svg>
-        <h1 class="title">Configura scene</h1>
-        <p class="subtitle">Crea scene per richiamare combinazioni di impostazioni di illuminazione con un solo tocco.</p>
-      </div>
-      <div class="footer">
-        <Button variant="primary" @click="screen = 'form'">Continua</Button>
-        <Button variant="ghost" class="skip" @click="goClose(`/progetti/${projectId}`)">Salta</Button>
+      <div class="intro-bg">
+        <img src="/images/james-yarema-zdjZ4kCaJaY-unsplash.jpg" alt="" class="intro-bg-image" />
+        <div class="intro-bg-overlay" />
+        <div class="intro-content">
+          <StatusBar inverted />
+          <AppHeader title="" leading="back" trailing="close" inverted @back="goClose(`/progetti/${projectId}`)" @close="goClose(`/progetti/${projectId}`)" />
+          <div class="body centered">
+            <svg class="illustration" width="140" height="120" viewBox="0 0 140 120" fill="none" aria-hidden="true">
+              <rect x="20" y="20" width="40" height="70" rx="6" stroke="currentColor" stroke-width="1.2" />
+              <rect x="30" y="35" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1" />
+              <rect x="42" y="35" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1" />
+              <rect x="30" y="47" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1" />
+              <rect x="42" y="47" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1" />
+              <circle cx="100" cy="45" r="16" stroke="currentColor" stroke-width="1.2" />
+              <path d="M94 60h12M96 64h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+            <h1 class="title">Configura scene</h1>
+            <p class="subtitle">Crea scene per richiamare combinazioni di impostazioni di illuminazione con un solo tocco.</p>
+          </div>
+          <div class="footer">
+            <Button variant="primary" @click="goToScreen('form', 'forward')">Continua</Button>
+            <Button variant="ghost" class="skip" @click="goClose(`/progetti/${projectId}`)">Salta</Button>
+          </div>
+        </div>
       </div>
     </template>
 
     <template v-else-if="screen === 'form'">
-      <AppHeader title="Nuova scena" leading="back" trailing="close" @back="screen = 'intro'" @close="goClose(`/progetti/${projectId}`)" />
+      <StatusBar />
+      <AppHeader :title="isEditing ? 'Modifica scena' : 'Nuova scena'" leading="back" trailing="close" @back="backFromForm" @close="goClose(`/progetti/${projectId}?tab=scene`)" />
       <div class="body centered">
-        <button type="button" class="icon-picker-trigger" @click="screen = 'icon-picker'">
+        <button type="button" class="icon-picker-trigger" @click="goToScreen('icon-picker', 'forward')">
           <SceneIcon :icon="icon" :size="28" />
           <span class="icon-edit-badge">
             <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M11.3 1.8l2.9 2.9L4.9 14 1.5 14.5 2 11.1z" stroke="var(--color-surface)" stroke-width="1.3" stroke-linejoin="round" /></svg>
@@ -130,18 +184,19 @@ function updateSceneParams(sceneId: string) {
 
         <div class="devices-block">
           <p class="field-label">Dispositivi controllati</p>
-          <Button variant="secondary" @click="screen = 'select-devices'">
+          <Button variant="secondary" @click="goToScreen('select-devices', 'forward')">
             {{ selectedDeviceIds.size > 0 ? `${selectedDeviceIds.size} dispositivi selezionati` : 'Seleziona dispositivi' }}
           </Button>
         </div>
       </div>
-      <div class="footer">
-        <Button variant="primary" :disabled="!name.trim() || selectedDeviceIds.size === 0" @click="screen = 'personalizza'">Salva modifiche</Button>
+      <div class="footer footer-surface">
+        <Button variant="primary" :disabled="!name.trim() || selectedDeviceIds.size === 0" @click="goToScreen('personalizza', 'forward')">Continua</Button>
       </div>
     </template>
 
     <template v-else-if="screen === 'icon-picker'">
-      <AppHeader title="Seleziona icona" leading="back" trailing="none" @back="screen = 'form'" />
+      <StatusBar />
+      <AppHeader title="Seleziona icona" leading="back" trailing="none" @back="goToScreen('form', 'back')" />
       <div class="icon-grid">
         <button
           v-for="i in ['sun','moon','star','home','glass','fast-forward','umbrella','coffee','music','heart','lock','bulb-off','bulb','grid','cloud']"
@@ -149,7 +204,7 @@ function updateSceneParams(sceneId: string) {
           type="button"
           class="icon-grid-item"
           :class="{ active: icon === i }"
-          @click="icon = i; screen = 'form'"
+          @click="icon = i; goToScreen('form', 'back')"
         >
           <SceneIcon :icon="i" :size="22" />
         </button>
@@ -157,7 +212,8 @@ function updateSceneParams(sceneId: string) {
     </template>
 
     <template v-else-if="screen === 'select-devices'">
-      <AppHeader title="Seleziona dispositivi" leading="back" trailing="none" @back="screen = 'form'" />
+      <StatusBar />
+      <AppHeader title="Seleziona dispositivi" leading="back" trailing="none" @back="goToScreen('form', 'back')" />
       <div class="body">
         <p class="scene-form-caption">Puoi selezionare i dispositivi per zona, tipologia di dispositivo o gruppi.</p>
         <SegmentedControl v-model="selectDeviceTab" :options="[{ value: 'zone', label: 'Zone' }, { value: 'dispositivi', label: 'Dispositivi' }, { value: 'gruppi', label: 'Gruppi' }]" />
@@ -210,13 +266,14 @@ function updateSceneParams(sceneId: string) {
           <p v-if="groups.length === 0" class="hint">Nessun gruppo creato.</p>
         </template>
       </div>
-      <div class="footer">
-        <Button variant="primary" :disabled="!canContinueDevices" @click="screen = 'form'">Continua</Button>
+      <div class="footer footer-surface">
+        <Button variant="primary" :disabled="!canContinueDevices" @click="goToScreen('form', 'back')">Continua</Button>
       </div>
     </template>
 
     <template v-else-if="screen === 'personalizza'">
-      <AppHeader title="Personalizza scene" leading="back" trailing="close" @back="screen = 'form'" @close="goClose(`/progetti/${projectId}`)" />
+      <StatusBar />
+      <AppHeader title="Personalizza scene" leading="back" trailing="close" @back="goToScreen('form', 'back')" @close="goClose(`/progetti/${projectId}`)" />
       <div class="body">
         <p class="scene-form-caption">Crea e gestisci le tue scene, personalizzando il comportamento dei dispositivi loro attivazione.</p>
 
@@ -239,10 +296,12 @@ function updateSceneParams(sceneId: string) {
         <LinkRow title="Assign scene to push button" caption="Lorem ipsum dolor sit amet, consectetur adipiscing elit." />
         <LinkRow title="Assign scene to user" caption="Lorem ipsum dolor sit amet, consectetur adipiscing elit." :divider="false" />
       </div>
-      <div class="footer">
-        <Button variant="primary" @click="save">Salva</Button>
+      <div class="footer footer-surface">
+        <Button variant="primary" @click="save">Salva modifiche</Button>
       </div>
     </template>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -254,8 +313,16 @@ function updateSceneParams(sceneId: string) {
   background: var(--color-bg);
 }
 
+.screen-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -289,14 +356,76 @@ function updateSceneParams(sceneId: string) {
 }
 
 .footer {
-  padding: 16px var(--space-page-x) 24px;
+  padding: 16px var(--space-page-x) calc(24px + env(safe-area-inset-bottom, 0));
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
+.footer-surface {
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+}
+
 .skip {
   align-self: center;
+}
+
+.intro-bg {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.intro-bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
+}
+
+.intro-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.3) 40%,
+    rgba(0, 0, 0, 0.8) 100%
+  );
+}
+
+.intro-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  position: relative;
+}
+
+.intro-content .illustration {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.intro-content .title {
+  color: #fff;
+}
+
+.intro-content .subtitle {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.intro-content .footer {
+  z-index: 3;
+  position: relative;
+}
+
+.intro-content .skip {
+  color: #fff;
 }
 
 .icon-picker-trigger {

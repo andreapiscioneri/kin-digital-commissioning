@@ -18,8 +18,6 @@ const { goBack, goForward } = useNavStack()
         :title="scene.name"
         :subtitle-strong="String(scene.deviceIds.length)"
         subtitle="dispositivi"
-        editable
-        @edit="goForward(`/progetti/${projectId}/scene/${scene.id}`)"
       >
         <template #icon>
           <IconBadge :size="32"><SceneIcon :icon="scene.icon" /></IconBadge>

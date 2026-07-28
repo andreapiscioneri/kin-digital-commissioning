@@ -3,6 +3,7 @@ import type { Project, ProjectCategory, ProjectConnectionStatus } from '~/compos
 
 const { projects, isOnline, toggleFavorite, removeProject } = useProjectsStore()
 const { notifications, unreadCount, markAllRead } = useNotificationsStore()
+const { installerRoleEnabled } = useCommissioningFlow()
 const route = useRoute()
 const router = useRouter()
 const { goForward } = useNavStack()
@@ -17,7 +18,7 @@ function openNotifications() {
 // ?demo=offline oppure ?demo=empty sull'URL.
 const demoState = computed(() => (route.query.demo as string) || '')
 
-const activeTab = ref<'preferiti' | 'tutti' | 'eliminati'>('preferiti')
+const activeTab = ref<'preferiti' | 'tutti' | 'eliminati'>('tutti')
 const search = ref('')
 const activeCategory = ref<ProjectCategory | null>(null)
 const menuOpenFor = ref<string | null>(null)
@@ -74,6 +75,10 @@ function openProject(id: string) {
 function goToNewProject() {
   goForward('/progetti/nuovo')
 }
+
+function goToInstallerProfile() {
+  goForward('/account/profilo?section=installer')
+}
 </script>
 
 <template>
@@ -99,6 +104,10 @@ function goToNewProject() {
 
     <template v-else-if="!hasAnyProject || demoState === 'empty'">
       <GreetingHeader :notification-count="unreadCount" @menu="sideMenuOpen = true" @notifications="openNotifications" />
+      <div v-if="!installerRoleEnabled" class="installer-banner">
+        <p>Solo il ruolo <strong>Installer</strong> può creare progetti.</p>
+        <button type="button" class="installer-banner-link" @click="goToInstallerProfile">Abilita il ruolo per iniziare</button>
+      </div>
       <div class="empty-body">
         <svg class="empty-illustration" width="260" height="260" viewBox="20 -100 260 260" fill="none" aria-hidden="true" stroke="currentColor">
           <!-- pavimento -->
@@ -153,6 +162,11 @@ function goToNewProject() {
     <template v-else>
       <GreetingHeader :notification-count="unreadCount" @menu="sideMenuOpen = true" @notifications="openNotifications" />
 
+      <div v-if="!installerRoleEnabled" class="installer-banner">
+        <p>Solo il ruolo <strong>Installer</strong> può creare progetti.</p>
+        <button type="button" class="installer-banner-link" @click="goToInstallerProfile">Abilita il ruolo per iniziare</button>
+      </div>
+
       <div class="tabs">
         <button type="button" class="tab" :class="{ active: activeTab === 'preferiti' }" @click="activeTab = 'preferiti'">
           <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.5 5.5L18 8l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
@@ -197,10 +211,6 @@ function goToNewProject() {
           @menu="menuOpenFor = project.id"
         />
       </div>
-
-      <button type="button" class="fab" aria-label="Nuovo progetto" @click="goToNewProject">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="#fff" stroke-width="1.8" stroke-linecap="round" /></svg>
-      </button>
     </template>
 
     <SideMenu v-model="sideMenuOpen" />
@@ -271,6 +281,35 @@ function goToNewProject() {
   position: relative;
 }
 
+.installer-banner {
+  margin: 0 var(--space-page-x) 4px;
+  padding: 12px 16px;
+  border-radius: var(--radius-card);
+  background: var(--color-accent-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.installer-banner p {
+  margin: 0;
+  font-size: var(--font-size-small);
+  color: var(--color-primary);
+}
+
+.installer-banner-link {
+  align-self: flex-start;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .empty-body {
   flex: 1;
   display: flex;
@@ -326,8 +365,8 @@ function goToNewProject() {
 }
 
 .tab.active {
-  background: var(--color-primary);
-  color: var(--color-surface);
+  background: var(--color-accent);
+  color: #ffffff;
   font-weight: 600;
 }
 
@@ -445,22 +484,6 @@ function goToNewProject() {
   padding: 40px 0;
   color: var(--color-text-secondary);
   font-size: var(--font-size-body);
-}
-
-.fab {
-  position: absolute;
-  right: 20px;
-  bottom: 88px;
-  width: 56px;
-  height: 56px;
-  border-radius: 20px;
-  border: none;
-  background: linear-gradient(145deg, var(--color-accent) 0%, #ff7a3d 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 10px 24px -6px rgba(219, 55, 0, 0.5);
 }
 
 .wifi-off-icon {

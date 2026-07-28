@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import { BleClient, type ScanResult } from '@capacitor-community/bluetooth-le'
-import type { DiscoveredDevice } from '~/composables/useDeviceCatalog'
+import type { DiscoveredDevice, ProvisionedDevice } from '~/composables/useDeviceCatalog'
 
 const route = useRoute()
 const projectId = route.params.id as string
 const zone = (route.query.zona as string) || 'Ufficio 1.1'
 const levelId = route.query.levelId as string | undefined
-const { scanDevices, provisionDevices } = useDeviceCatalog(projectId)
+const backDestination = computed(() => (route.query.back as string) || `/progetti/${projectId}`)
+const { scanDevices, provisionDevices, provisionedDevices } = useDeviceCatalog(projectId)
+const { getLevel } = useLevelsStore(projectId)
 const { bluetoothEnabled } = useCommissioningFlow()
-const { goClose, goForward } = useNavStack()
+const { goBack, goBackTo, goClose, goForward } = useNavStack()
 const { isNative } = usePlatform()
 
-type Screen = 'intro' | 'scanning'
+const levelName = computed(() => (levelId ? getLevel(levelId)?.name : undefined))
+
+type Screen = 'intro' | 'scanning' | 'verifica'
 const screen = ref<Screen>('intro')
 const found = ref<DiscoveredDevice[]>([])
 const selected = ref<Set<string>>(new Set())
@@ -19,15 +23,32 @@ const showFilters = ref(false)
 const showBluetoothOff = ref(false)
 const search = ref('')
 
-const filterTypes = ref<Record<string, boolean>>({ Lampada: true, Pulsantiere: true, Sensore: true })
+const filterTypes = ref<Record<string, boolean>>({ Lampada: true, Pulsantiera: true, Sensore: true })
 const includeConfigured = ref(true)
-const signalRange = ref(70)
+const appliedFilters = ref({ types: { ...filterTypes.value }, includeConfigured: true, signalRange: 100 })
+const signalRange = ref(100)
+
+const alreadyConfiguredIds = computed(() => new Set(provisionedDevices.value.map((d: ProvisionedDevice) => d.id)))
+
+const filterChips = computed(() => {
+  const chips: string[] = []
+  const uncheckedTypes = Object.entries(appliedFilters.value.types).filter(([, v]) => !v).map(([k]) => k)
+  if (uncheckedTypes.length > 0) chips.push(`Escluso: ${uncheckedTypes.join(', ')}`)
+  if (!appliedFilters.value.includeConfigured) chips.push('Solo non configurati')
+  if (appliedFilters.value.signalRange < 100) chips.push(`Fino a -${appliedFilters.value.signalRange}dBm`)
+  return chips
+})
 
 const visibleDevices = computed(() => {
   let list = found.value
   if (search.value.trim()) {
     const q = search.value.trim().toLowerCase()
     list = list.filter((d: DiscoveredDevice) => d.code.toLowerCase().includes(q))
+  }
+  list = list.filter((d: DiscoveredDevice) => appliedFilters.value.types[d.type])
+  list = list.filter((d: DiscoveredDevice) => Math.abs(d.rssi) <= appliedFilters.value.signalRange)
+  if (!appliedFilters.value.includeConfigured) {
+    list = list.filter((d: DiscoveredDevice) => !alreadyConfiguredIds.value.has(d.id))
   }
   return list
 })
@@ -85,6 +106,7 @@ function retryBluetooth() {
 }
 
 function toggle(id: string) {
+  if (alreadyConfiguredIds.value.has(id)) return
   const next = new Set(selected.value)
   if (next.has(id)) next.delete(id)
   else next.add(id)
@@ -92,18 +114,47 @@ function toggle(id: string) {
 }
 
 function applyFilters() {
+  appliedFilters.value = {
+    types: { ...filterTypes.value },
+    includeConfigured: includeConfigured.value,
+    signalRange: signalRange.value
+  }
   showFilters.value = false
 }
 
-function addToZone() {
-  const devices = found.value.filter((d: DiscoveredDevice) => selected.value.has(d.id))
+const detectedSelected = computed(() => found.value.filter((d: DiscoveredDevice) => selected.value.has(d.id)))
+
+function goToVerifica() {
+  screen.value = 'verifica'
+}
+
+function retryVerifica() {
+  screen.value = 'scanning'
+  startScan()
+}
+
+function confirmDevices() {
+  const devices = detectedSelected.value
   const provisioned = provisionDevices(devices, zone, levelId)
   const next = (route.query.next as string) || `/progetti/${projectId}?tab=gruppi`
+  const returnsToWizard = next.includes('/wizard-guidato/')
   if (provisioned.length > 0) {
     goForward(`/progetti/${projectId}/dispositivi/${provisioned[0].id}/configura?next=${encodeURIComponent(next)}`)
   } else {
+    if (returnsToWizard) {
+      goForward(next)
+      return
+    }
     goClose(next)
   }
+}
+
+function backFromIntro() {
+  if (route.query.back) {
+    goBackTo(backDestination.value)
+    return
+  }
+  goBack(backDestination.value)
 }
 </script>
 
@@ -117,7 +168,7 @@ function addToZone() {
         <div class="intro-bg-overlay" />
         <div class="intro-content">
           <StatusBar inverted />
-          <AppHeader title="" leading="back" trailing="close" inverted @back="goClose(`/progetti/${projectId}`)" @close="goClose(`/progetti/${projectId}`)" />
+          <AppHeader title="" leading="back" trailing="close" inverted @back="backFromIntro" @close="goClose(`/progetti/${projectId}`)" />
           <div class="body centered">
             <span class="radar-illustration" aria-hidden="true">
               <span class="radar-ring ring-1" />
@@ -138,8 +189,9 @@ function addToZone() {
       </div>
     </template>
 
-    <template v-else>
+    <template v-else-if="screen === 'scanning'">
       <AppHeader title="Ricerca dispositivi" leading="back" trailing="close" @back="screen = 'intro'" @close="goClose(`/progetti/${projectId}`)" />
+      <p v-if="levelName" class="breadcrumb">{{ levelName }} <span class="breadcrumb-sep">›</span> {{ zone }}</p>
 
       <div class="scan-status">
         <span class="scan-status-text">
@@ -161,6 +213,10 @@ function addToZone() {
         </button>
       </div>
 
+      <div v-if="filterChips.length > 0" class="filter-chips">
+        <span v-for="chip in filterChips" :key="chip" class="filter-chip">{{ chip }}</span>
+      </div>
+
       <div class="body">
         <template v-if="visibleDevices.length > 0">
           <p class="section-caption">Dispositivi trovati</p>
@@ -173,6 +229,7 @@ function addToZone() {
               :type="d.type"
               :rssi="d.rssi"
               :selected="selected.has(d.id)"
+              :configured="alreadyConfiguredIds.has(d.id)"
               @toggle="toggle(d.id)"
             />
           </div>
@@ -187,7 +244,23 @@ function addToZone() {
       </div>
 
       <div class="footer">
-        <Button variant="primary" :disabled="selected.size === 0" @click="addToZone">Aggiungi in “{{ zone }}”</Button>
+        <Button variant="primary" :disabled="selected.size === 0" @click="goToVerifica">Aggiungi in “{{ zone }}”</Button>
+      </div>
+    </template>
+
+    <template v-else-if="screen === 'verifica'">
+      <AppHeader title="Verifica dispositivi" leading="back" trailing="close" @back="screen = 'scanning'" @close="goClose(`/progetti/${projectId}`)" />
+      <div class="body centered">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.3" /><path d="M8 12.5l2.5 2.5L16 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <p class="lead">Sono stati rilevati {{ detectedSelected.length }} dei {{ selected.size }} dispositivi selezionati.</p>
+        <p class="subtitle">I dispositivi non rilevati potrebbero essere fuori portata o non più raggiungibili via Bluetooth.</p>
+        <p class="subtitle">Se necessario, esegui una nuova scansione prima di continuare.</p>
+      </div>
+      <div class="footer">
+        <div class="dialog-btn-row">
+          <Button variant="ghost" @click="retryVerifica">Riprova</Button>
+          <Button variant="primary" @click="confirmDevices">Continua</Button>
+        </div>
       </div>
     </template>
 
@@ -207,10 +280,10 @@ function addToZone() {
       <p class="sheet-section-title">DISPOSITIVI</p>
       <CheckboxRow v-model="includeConfigured" label="Includi dispositivi già configurati" />
       <CheckboxRow v-model="filterTypes.Lampada" label="Lampada" />
-      <CheckboxRow v-model="filterTypes.Pulsantiere" label="Pulsantiere" />
+      <CheckboxRow v-model="filterTypes.Pulsantiera" label="Pulsantiere" />
       <CheckboxRow v-model="filterTypes.Sensore" label="Sensore" />
       <p class="sheet-section-title">POTENZA SEGNALE</p>
-      <SliderField v-model="signalRange" unit="dBm" />
+      <SliderField v-model="signalRange" label="Fino a" :min="30" :max="100" :step="5" unit="dBm" />
       <Button variant="primary" @click="applyFilters">Applica</Button>
     </BottomSheet>
   </div>
@@ -254,7 +327,7 @@ function addToZone() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(1.08);
+  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
 }
 
 .intro-bg-overlay {
@@ -478,5 +551,38 @@ function addToZone() {
   font-weight: 600;
   color: var(--color-text-secondary);
   letter-spacing: 0.03em;
+}
+
+.breadcrumb {
+  margin: 8px var(--space-page-x) 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.breadcrumb-sep {
+  margin: 0 4px;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px var(--space-page-x) 0;
+}
+
+.filter-chip {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: var(--font-size-small);
+  font-weight: 500;
+}
+
+.lead {
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  color: var(--color-primary);
 }
 </style>

@@ -130,7 +130,7 @@ function confirmInterrupt() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(1.08);
+  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
 }
 
 .intro-bg-overlay {

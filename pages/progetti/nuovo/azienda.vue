@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import type { ProjectCategory } from '~/composables/useProjectsStore'
-
-const { newProjectDraft, companyInfoDraft, installerRoleEnabled } = useCommissioningFlow()
-const { createProject } = useProjectsStore()
-const { goBack, goClose } = useNavStack()
+const { companyInfoDraft, installerRoleEnabled } = useCommissioningFlow()
+const { goBack, goClose, goForward } = useNavStack()
 
 const showEnableInstaller = ref(!installerRoleEnabled.value)
 const formVisible = ref(installerRoleEnabled.value)
@@ -40,13 +37,7 @@ function cancelEnableInstaller() {
 function onContinue() {
   if (!canContinue.value) return
   installerRoleEnabled.value = true
-  const project = createProject({
-    name: newProjectDraft.value.name,
-    category: newProjectDraft.value.category as ProjectCategory,
-    address: newProjectDraft.value.address,
-    city: ''
-  })
-  goClose(`/progetti/${project.id}/livelli/nuovo`)
+  goForward('/progetti/nuovo/modalita')
 }
 </script>
 

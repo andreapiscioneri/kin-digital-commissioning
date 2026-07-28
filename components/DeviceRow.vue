@@ -8,8 +8,9 @@ withDefaults(
     rssi?: number
     selected?: boolean
     showSettings?: boolean
+    configured?: boolean
   }>(),
-  { rssi: undefined, selected: false, showSettings: true }
+  { rssi: undefined, selected: false, showSettings: true, configured: false }
 )
 
 defineEmits<{ toggle: []; settings: [] }>()
@@ -18,7 +19,7 @@ const lightOn = ref(false)
 </script>
 
 <template>
-  <div class="device-row" @click="$emit('toggle')">
+  <div class="device-row" :class="{ 'is-configured': configured }" @click="!configured && $emit('toggle')">
     <span class="mark checkbox" :class="{ checked: selected }" aria-hidden="true">
       <svg v-if="selected" width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l3 3 5-6" stroke="var(--color-surface)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </span>
@@ -31,13 +32,14 @@ const lightOn = ref(false)
 
     <span class="device-text">
       <span class="device-code">{{ code }}</span>
-      <span v-if="rssi !== undefined" class="device-rssi">
+      <span v-if="configured" class="device-configured-tag">Già configurato</span>
+      <span v-else-if="rssi !== undefined" class="device-rssi">
         <svg width="12" height="10" viewBox="0 0 14 10" fill="none"><rect x="0" y="6" width="2.5" height="4" rx="0.5" fill="currentColor" /><rect x="4" y="4" width="2.5" height="6" rx="0.5" fill="currentColor" /><rect x="8" y="2" width="2.5" height="8" rx="0.5" fill="currentColor" /><rect x="11.5" y="0" width="2.5" height="10" rx="0.5" fill="currentColor" opacity="0.3" /></svg>
         {{ rssi }} dBm
       </span>
     </span>
 
-    <button v-if="showSettings" type="button" class="settings-btn" :class="{ active: lightOn }" aria-label="Impostazioni" @click.stop="lightOn = !lightOn">
+    <button v-if="showSettings && !configured" type="button" class="settings-btn" :class="{ active: lightOn }" aria-label="Impostazioni" @click.stop="lightOn = !lightOn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5" /><circle cx="12" cy="3" r="1" fill="currentColor" /><circle cx="21" cy="12" r="1" fill="currentColor" /><circle cx="12" cy="21" r="1" fill="currentColor" /><circle cx="3" cy="12" r="1" fill="currentColor" /><circle cx="18" cy="6" r="0.8" fill="currentColor" /><circle cx="18" cy="18" r="0.8" fill="currentColor" /><circle cx="6" cy="18" r="0.8" fill="currentColor" /><circle cx="6" cy="6" r="0.8" fill="currentColor" /></svg>
     </button>
   </div>
@@ -108,5 +110,16 @@ const lightOn = ref(false)
 
 .settings-btn.active {
   color: #FDB813;
+}
+
+.device-row.is-configured {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.device-configured-tag {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  font-style: italic;
 }
 </style>

@@ -9,18 +9,16 @@ const { goClose } = useNavStack()
 <template>
   <div class="screen">
     <StatusBar />
-    <div class="hero">
-      <img src="/images/wizard-complete-bg.jpg" alt="" class="hero-image" />
-      <div class="hero-overlay" />
-      <button type="button" class="hero-back" aria-label="Indietro" @click="goClose(`/progetti/${projectId}`)">
+    <div class="top-bar">
+      <button type="button" class="back-btn" aria-label="Indietro" @click="goClose(`/progetti/${projectId}`)">
         <svg width="20" height="16" viewBox="0 0 20 16" fill="none"><path d="M1 8h17M1 8l6-6M1 8l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </button>
-      <span class="hero-check" aria-hidden="true">
-        <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-      </span>
     </div>
     <div class="body">
-      <h1 class="title">Configurazione “{{ project?.name }}” completata</h1>
+      <span class="check-badge" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M4 10.5l4 4 8-9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </span>
+      <h1 class="title">{{ project?.name ? `Configurazione “${project.name}” completata` : 'Configurazione completata' }}</h1>
       <p class="subtitle">Il progetto è stato configurato correttamente, ora è pronto per essere utilizzato.</p>
     </div>
     <div class="footer">
@@ -37,49 +35,26 @@ const { goClose } = useNavStack()
   background: var(--color-bg);
 }
 
-.hero {
-  position: relative;
-  height: 42%;
+.top-bar {
   flex-shrink: 0;
-  overflow: hidden;
+  padding: 12px var(--space-page-x) 0;
 }
 
-.hero-image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: grayscale(1) contrast(1.08);
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(17, 17, 17, 0.15) 0%, var(--color-bg) 100%);
-}
-
-.hero-back {
-  position: absolute;
-  top: 44px;
-  left: var(--space-page-x);
+.back-btn {
   width: 36px;
   height: 36px;
   border: none;
   border-radius: 50%;
-  background: rgba(17, 17, 17, 0.35);
-  color: #ffffff;
+  background: var(--color-surface-alt);
+  color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
 }
 
-.hero-check {
-  position: absolute;
-  left: 50%;
-  bottom: 12px;
-  transform: translate(-50%, 50%);
+.check-badge {
+  flex-shrink: 0;
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -88,6 +63,7 @@ const { goClose } = useNavStack()
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-fab);
+  margin-bottom: 4px;
 }
 
 .body {

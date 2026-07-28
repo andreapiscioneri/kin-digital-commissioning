@@ -5,7 +5,7 @@ const route = useRoute()
 const projectId = route.params.id as string
 const deviceId = route.params.deviceId as string
 const { getDevice, updateDevice, provisionedDevices } = useDeviceCatalog(projectId)
-const { goBack } = useNavStack()
+const { goBack, goClose, goForward } = useNavStack()
 
 const device = getDevice(deviceId)
 
@@ -30,11 +30,16 @@ function nextDeviceOrFinish() {
   const idx = list.findIndex((d: ProvisionedDevice) => d.id === deviceId)
   const next = list[idx + 1]
   const nextParam = (route.query.next as string) || ''
+  const returnsToWizard = nextParam.includes('/wizard-guidato/')
   const suffix = nextParam ? `?next=${encodeURIComponent(nextParam)}` : ''
   if (next) {
-    navigateTo(`/progetti/${projectId}/dispositivi/${next.id}/configura${suffix}`)
+    goForward(`/progetti/${projectId}/dispositivi/${next.id}/configura${suffix}`)
   } else {
-    navigateTo(nextParam || `/progetti/${projectId}?tab=gruppi`)
+    if (returnsToWizard) {
+      goForward(nextParam)
+      return
+    }
+    goClose(nextParam || `/progetti/${projectId}?tab=gruppi`)
   }
 }
 

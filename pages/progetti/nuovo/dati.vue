@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { Geolocation } from '@capacitor/geolocation'
+import { projectImageOptions } from '~/composables/useProjectsStore'
 import type { ProjectCategory } from '~/composables/useProjectsStore'
 
 const { newProjectDraft, installerRoleEnabled } = useCommissioningFlow()
-const { createProject } = useProjectsStore()
 const { goBack, goClose, goForward } = useNavStack()
 const { isNative } = usePlatform()
 
 const showInterrupt = ref(false)
 const showAddressSheet = ref(false)
 const showCategorySheet = ref(false)
+const showImageSheet = ref(false)
+const imageInput = ref<HTMLInputElement | null>(null)
 const showLocationPermission = ref(false)
 const locating = ref(false)
 const locationError = ref('')
@@ -31,7 +33,8 @@ function getCategoryIcon(category: ProjectCategory) {
     'Industry': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="10" width="5" height="10" rx="0.5" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="5" width="5" height="15" rx="0.5" stroke="currentColor" stroke-width="1.5"/><rect x="16" y="8" width="5" height="12" rx="0.5" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 20h15" stroke="currentColor" stroke-width="1.5"/></svg>',
     'Sport indoor': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 13c0-2 2-3 6-3s6 1 6 3v7H6v-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 20v2M15 20v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
     'Relamping': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 3h6v2H9V3z" stroke="currentColor" stroke-width="1.5"/><path d="M10 5c-1.5 1-2.5 3-2.5 5.5 0 3.5 2 6.5 5 7.5 3-1 5-4 5-7.5 0-2.5-1-4.5-2.5-5.5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 19h6M8 21h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
-    'Altro': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M8 9h8M8 13h6M8 17h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+    'Altro': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M8 9h8M8 13h6M8 17h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    Retail: ''
   }
   return icons[category]
 }
@@ -49,6 +52,7 @@ const addressSuggestions = [
 ]
 
 const headerTitle = computed(() => (newProjectDraft.value.useCurrentLocation ? 'Dati progetto' : 'Creazione progetto'))
+const previewProjectImage = computed(() => newProjectDraft.value.image || '')
 
 const canContinue = computed(() =>
   !!newProjectDraft.value.name.trim() && !!newProjectDraft.value.category && !!newProjectDraft.value.address.trim()
@@ -117,19 +121,34 @@ function selectCategory(category: ProjectCategory) {
   showCategorySheet.value = false
 }
 
+function pickProjectImage(image: string) {
+  newProjectDraft.value.image = image
+  showImageSheet.value = false
+}
+
+function openDeviceImagePicker() {
+  imageInput.value?.click()
+}
+
+function onProjectImageSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    if (typeof reader.result === 'string') {
+      newProjectDraft.value.image = reader.result
+      showImageSheet.value = false
+    }
+  }
+  reader.readAsDataURL(file)
+  input.value = ''
+}
+
 function onContinue() {
   if (!canContinue.value) return
-  if (installerRoleEnabled.value) {
-    const project = createProject({
-      name: newProjectDraft.value.name,
-      category: newProjectDraft.value.category as ProjectCategory,
-      address: newProjectDraft.value.address,
-      city: ''
-    })
-    goClose(`/progetti/${project.id}/livelli/nuovo`)
-  } else {
-    goForward('/progetti/nuovo/azienda')
-  }
+  goForward(installerRoleEnabled.value ? '/progetti/nuovo/modalita' : '/progetti/nuovo/azienda')
 }
 </script>
 
@@ -140,6 +159,18 @@ function onContinue() {
 
     <div class="body">
       <TextField v-model="newProjectDraft.name" label="Nome progetto" required placeholder="Nome progetto" :error="nameError" @blur="nameTouched = true" />
+
+      <div class="image-field">
+        <label class="field-label">Immagine progetto</label>
+        <button type="button" class="image-picker" @click="showImageSheet = true">
+          <img v-if="previewProjectImage" :src="previewProjectImage" alt="Anteprima immagine progetto" class="image-preview" />
+          <span v-else class="image-preview-placeholder" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="3" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.4" /><circle cx="7" cy="8" r="1.6" stroke="currentColor" stroke-width="1.4" /><path d="M3.5 14l4-4 3 3 3-3 2.5 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </span>
+          <span class="image-picker-text">{{ previewProjectImage ? 'Modifica immagine' : 'Seleziona immagine' }}</span>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M12 3a3 3 0 014 4l-9 9-4.5 1.5L4 13z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
+        </button>
+      </div>
       
       <div class="category-field" @click="showCategorySheet = true">
         <label class="field-label">Tipologia progetto</label>
@@ -182,6 +213,7 @@ function onContinue() {
         />
       </div>
 
+      <TextField v-model="newProjectDraft.floor" label="Piano" placeholder="ad es. Piano Terra" />
       <TextField v-model="newProjectDraft.note" label="Note" placeholder="ad es. Capanno S03" />
       <SelectField v-model="newProjectDraft.timezone" label="Fuso orario" :options="timezoneOptions" placeholder="-" />
     </div>
@@ -251,6 +283,36 @@ function onContinue() {
         </button>
       </div>
     </BottomSheet>
+
+    <BottomSheet v-model="showImageSheet" title="Immagine progetto">
+      <button type="button" class="image-upload-btn" @click="openDeviceImagePicker">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 3v9M6.5 6.5L10 3l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><rect x="3" y="12" width="14" height="5" rx="1.5" stroke="currentColor" stroke-width="1.5" /></svg>
+        Carica da dispositivo
+      </button>
+      <div class="image-option-grid">
+        <button
+          v-for="image in projectImageOptions"
+          :key="image"
+          type="button"
+          class="image-option"
+          :class="{ selected: newProjectDraft.image === image }"
+          @click="pickProjectImage(image)"
+        >
+          <img :src="image" alt="" />
+          <span class="image-option-check" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10.5 3L4.8 8.7 1.8 5.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </span>
+        </button>
+      </div>
+    </BottomSheet>
+
+    <input
+      ref="imageInput"
+      type="file"
+      accept="image/*"
+      class="hidden-file-input"
+      @change="onProjectImageSelected"
+    />
 
     <div v-if="locating" class="location-loading-overlay">
       <div class="location-loader"></div>
@@ -381,6 +443,121 @@ function onContinue() {
   gap: 6px;
   width: 100%;
   cursor: pointer;
+}
+
+.image-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.image-picker {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.image-preview {
+  width: 68px;
+  height: 52px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
+}
+
+.image-picker-text {
+  flex: 1;
+  font-size: var(--font-size-small);
+}
+
+.image-preview-placeholder {
+  width: 68px;
+  height: 52px;
+  border-radius: 8px;
+  border: 1px dashed var(--color-border-secondary);
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.image-option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.image-upload-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px dashed var(--color-border-secondary);
+  background: var(--color-surface-alt);
+  color: var(--color-primary);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.image-option {
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.image-option img {
+  width: 100%;
+  height: 92px;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
+}
+
+.image-option.selected {
+  border-color: var(--color-accent);
+}
+
+.image-option-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+
+.image-option.selected .image-option-check {
+  opacity: 1;
+}
+
+.hidden-file-input {
+  display: none;
 }
 
 .field-label {

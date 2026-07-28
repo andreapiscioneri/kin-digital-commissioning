@@ -1,11 +1,15 @@
 <script setup lang="ts">
-const { items, isVisible } = useBottomNav()
+const { items, isVisible, showFab } = useBottomNav()
 const route = useRoute()
-const { goClose } = useNavStack()
+const { goClose, goForward } = useNavStack()
 
 function go(path: string) {
   if (route.path === path) return
   goClose(path)
+}
+
+function openNewProject() {
+  goForward('/progetti/nuovo')
 }
 </script>
 
@@ -22,10 +26,15 @@ function go(path: string) {
       <span class="nav-icon">
         <svg v-if="item.icon === 'dashboard'" width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.5" /><rect x="11" y="2" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.5" /><rect x="2" y="11" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.5" /><rect x="11" y="11" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.5" /></svg>
         <svg v-else-if="item.icon === 'projects'" width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="6" width="16" height="11" rx="1.5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="M7 6V4.5A1.5 1.5 0 018.5 3h3A1.5 1.5 0 0113 4.5V6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
-        <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        <svg v-else-if="item.icon === 'notifications'" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+        <svg v-else width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="6" r="3" stroke="currentColor" stroke-width="1.4" /><path d="M3.5 17c1.2-3.2 3.8-5 6.5-5s5.3 1.8 6.5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
         <span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
       </span>
       <span class="nav-label">{{ item.label }}</span>
+    </button>
+
+    <button v-if="showFab" type="button" class="nav-fab" aria-label="Nuovo progetto" @click="openNewProject">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="#fff" stroke-width="1.8" stroke-linecap="round" /></svg>
     </button>
   </nav>
 </template>
@@ -41,10 +50,10 @@ function go(path: string) {
   align-items: stretch;
   height: 64px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.82);
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
   backdrop-filter: blur(14px) saturate(180%);
   -webkit-backdrop-filter: blur(14px) saturate(180%);
-  box-shadow: 0 12px 28px -10px rgba(17, 17, 17, 0.22), 0 0 0 1px rgba(17, 17, 17, 0.04);
+  box-shadow: var(--shadow-menu);
 }
 
 .nav-item {
@@ -96,5 +105,23 @@ function go(path: string) {
 .nav-label {
   font-size: 11px;
   font-weight: 500;
+}
+
+.nav-fab {
+  position: absolute;
+  left: 50%;
+  top: -22px;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 4px solid var(--color-bg);
+  background: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-fab);
+  z-index: 51;
 }
 </style>

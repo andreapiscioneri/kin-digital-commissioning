@@ -4,6 +4,7 @@ export interface Collaborator {
   id: string
   email: string
   role: CollaboratorRole
+  active: boolean
 }
 
 export function useCollaboratorsStore(projectId: string) {
@@ -16,8 +17,8 @@ export function useCollaboratorsStore(projectId: string) {
     }
   })
 
-  function invite(email: string, role: CollaboratorRole) {
-    collaborators.value = [...collaborators.value, { id: `collab-${Date.now()}`, email, role }]
+  function invite(email: string, role: CollaboratorRole, active = false) {
+    collaborators.value = [...collaborators.value, { id: `collab-${Date.now()}`, email, role, active }]
   }
 
   return { collaborators, invite }

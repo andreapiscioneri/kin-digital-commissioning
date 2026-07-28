@@ -11,7 +11,7 @@ const themeOptions = [
   { value: 'system', label: 'Sistema' }
 ]
 
-type MenuItem = { label: string; icon: 'user' | 'help' | 'team' | 'bell'; path: string }
+type MenuItem = { label: string; icon: 'user' | 'help' | 'team' | 'bell' | 'battery'; path: string }
 
 const items = computed<MenuItem[]>(() => [
   { label: 'Dati profilo', icon: 'user', path: '/account/profilo' },
@@ -21,6 +21,7 @@ const items = computed<MenuItem[]>(() => [
     path: props.projectId ? `/progetti/${props.projectId}/utenti` : '/account/profilo'
   },
   { label: 'Gestione avvisi', icon: 'bell', path: '/account/notifiche' },
+  { label: 'Autonomia', icon: 'battery', path: '/account/autonomia' },
   { label: 'Assistenza', icon: 'help', path: '/account/assistenza' }
 ])
 
@@ -55,6 +56,7 @@ function openScan() {
               <svg v-if="item.icon === 'user'" width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="6.5" r="3.5" stroke="currentColor" stroke-width="1.4" /><path d="M3 17c1.2-3.5 4-5.5 7-5.5s5.8 2 7 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
               <svg v-else-if="item.icon === 'help'" width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.4" /><path d="M7.8 8a2.2 2.2 0 114 1.3c-.7.6-1.3 1-1.3 2.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="10" cy="14.5" r="0.9" fill="currentColor" /></svg>
               <svg v-else-if="item.icon === 'team'" width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="6.5" r="3" stroke="currentColor" stroke-width="1.4" /><path d="M1.5 17c1-3 3-4.7 5.5-4.7S11.5 14 12.5 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><circle cx="14.5" cy="7" r="2.4" stroke="currentColor" stroke-width="1.4" /><path d="M13 12.6c2.2.2 3.7 1.7 4.5 4.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
+              <svg v-else-if="item.icon === 'battery'" width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="1.5" y="6" width="14" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4" /><path d="M17.5 8.5v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M9 8l-2.2 3.2h2.6L7.2 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" /></svg>
               <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
               <span>{{ item.label }}</span>
             </button>

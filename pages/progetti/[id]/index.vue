@@ -1,45 +1,60 @@
 <script setup lang="ts">
+import type { ProvisionedDevice } from '~/composables/useDeviceCatalog'
+import type { Level } from '~/composables/useLevelsStore'
+import { projectImageOptions } from '~/composables/useProjectsStore'
+
 const route = useRoute()
 const router = useRouter()
 const projectId = route.params.id as string
-const { projects } = useProjectsStore()
+const { projects, updateProject } = useProjectsStore()
 const { levels } = useLevelsStore(projectId)
 const { provisionedDevices, updateDevice } = useDeviceCatalog(projectId)
+const { collaborators } = useCollaboratorsStore(projectId)
 const { groups } = useGroupsStore(projectId)
-const { scenes } = useScenesStore(projectId)
+const { scenes, updateScene, removeScene } = useScenesStore(projectId)
 const { goBack, goForward } = useNavStack()
+
+seedBeghelliIfEmpty(projectId)
 
 const project = computed(() => projects.value.find((p) => p.id === projectId))
 const activeTab = ref((route.query.tab as string) || 'livelli')
 const menuOpen = ref(false)
 const showAddSheet = ref(false)
+const showImageSheet = ref(false)
+const imageInput = ref<HTMLInputElement | null>(null)
+const renamingSceneId = ref<string | null>(null)
+const renameSceneValue = ref('')
 
 const tabs = [
   { value: 'livelli', label: 'Progetto', icon: 'project' },
   { value: 'dispositivi', label: 'Dispositivi', icon: 'devices' },
   { value: 'scene', label: 'Scene', icon: 'scene' },
-  { value: 'diagnostica', label: 'Diagnostica', icon: 'diagnostics' }
+  { value: 'collaboratori', label: 'Collaboratori', icon: 'users' }
 ]
+
+function selectTab(tab: string) {
+  activeTab.value = tab
+}
 
 watch(activeTab, (tab: string) => {
   router.replace({ query: { ...route.query, tab } })
 })
 
-const totalSubLevels = computed(() => levels.value.reduce((sum, l) => sum + l.subLevels, 0))
+const totalSubLevels = computed(() => levels.value.reduce((sum: number, l: Level) => sum + l.subLevels, 0))
 
 const selectedLevelId = ref('')
 watch(
   levels,
-  (list) => {
+  (list: Level[]) => {
     if (!selectedLevelId.value && list.length > 0) selectedLevelId.value = list[0].id
   },
   { immediate: true }
 )
 
-const selectedLevel = computed(() => levels.value.find((l) => l.id === selectedLevelId.value))
+const selectedLevel = computed(() => levels.value.find((l: Level) => l.id === selectedLevelId.value))
 
 const devicesForSelectedLevel = computed(() =>
-  provisionedDevices.value.filter((d) => d.levelId === selectedLevelId.value)
+  provisionedDevices.value.filter((d: ProvisionedDevice) => d.levelId === selectedLevelId.value)
 )
 
 const zonesForSelectedLevel = computed(() => {
@@ -48,7 +63,19 @@ const zonesForSelectedLevel = computed(() => {
     if (!map.has(device.zone)) map.set(device.zone, [])
     map.get(device.zone)!.push(device)
   }
-  return Array.from(map.entries()).map(([zone, devices]) => ({ zone, devices }))
+
+  const configuredZones = selectedLevel.value?.subLevelNames?.length
+    ? [...selectedLevel.value.subLevelNames]
+    : selectedLevel.value?.name
+      ? [selectedLevel.value.name]
+      : []
+
+  const knownZones = configuredZones.map((zone) => ({ zone, devices: map.get(zone) || [] }))
+  const extraZones = Array.from(map.entries())
+    .filter(([zone]) => !configuredZones.includes(zone))
+    .map(([zone, devices]) => ({ zone, devices }))
+
+  return [...knownZones, ...extraZones]
 })
 
 function deviceIdLabel(d: { id: string; type: string }) {
@@ -57,8 +84,67 @@ function deviceIdLabel(d: { id: string; type: string }) {
   return `ID ${prefix}:${suffix}`
 }
 
+function collaboratorInitial(email: string) {
+  const initial = email.trim().charAt(0)
+  return initial ? initial.toUpperCase() : '?'
+}
+
+function openSceneEditor(sceneId: string) {
+  goForward(`/progetti/${projectId}/scene/nuova?sceneId=${sceneId}`)
+}
+
+function startInlineRename(scene: { id: string; name: string }) {
+  renamingSceneId.value = scene.id
+  renameSceneValue.value = scene.name
+}
+
+function commitInlineRename(sceneId: string) {
+  const nextName = renameSceneValue.value.trim()
+  if (!nextName) return
+  updateScene(sceneId, { name: nextName })
+  renamingSceneId.value = null
+  renameSceneValue.value = ''
+}
+
+function cancelInlineRename() {
+  renamingSceneId.value = null
+  renameSceneValue.value = ''
+}
+
+function deleteSceneFromProject(sceneId: string) {
+  removeScene(sceneId)
+  if (renamingSceneId.value === sceneId) {
+    cancelInlineRename()
+  }
+}
+
 function toggleDevice(id: string, on: boolean) {
   updateDevice(id, { on })
+}
+
+function replaceProjectImage(image: string) {
+  updateProject(projectId, { image })
+  showImageSheet.value = false
+}
+
+function openDeviceImagePicker() {
+  imageInput.value?.click()
+}
+
+function onProjectImageSelected(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    if (typeof reader.result === 'string') {
+      updateProject(projectId, { image: reader.result })
+      showImageSheet.value = false
+    }
+  }
+  reader.readAsDataURL(file)
+  input.value = ''
 }
 </script>
 
@@ -80,7 +166,16 @@ function toggleDevice(id: string, on: boolean) {
           </button>
         </div>
       </div>
-      <p class="hero-title">{{ project?.name }}</p>
+      <div class="hero-bottom-row">
+        <span class="hero-title-group">
+          <p class="hero-title">{{ project?.name }}</p>
+          <span v-if="project?.category" class="hero-category-badge">{{ project.category }}</span>
+        </span>
+        <button type="button" class="hero-image-edit" aria-label="Cambia immagine progetto" @click="showImageSheet = true">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M12 3a3 3 0 014 4l-9 9-4.5 1.5L4 13z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
+          Modifica immagine
+        </button>
+      </div>
     </div>
 
     <div class="stats-card">
@@ -101,6 +196,21 @@ function toggleDevice(id: string, on: boolean) {
         <span class="stat-label">Dispositivi</span>
         <span class="stat-value">{{ provisionedDevices.length }}</span>
       </div>
+      <span class="stat-divider" />
+      <div class="stat-col">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="6.5" r="3" stroke="currentColor" stroke-width="1.3" /><path d="M1.5 17c1-3 3-4.7 5.5-4.7S11.5 14 12.5 17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><circle cx="14.5" cy="7" r="2.4" stroke="currentColor" stroke-width="1.3" /><path d="M13 12.6c2.2.2 3.7 1.7 4.5 4.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        <span class="stat-label">Collaboratori</span>
+        <div v-if="collaborators.length > 0" class="collaborator-avatar-stack">
+          <span
+            v-for="collaborator in collaborators"
+            :key="collaborator.id"
+            class="collaborator-avatar-mini"
+            :class="{ 'is-active': collaborator.active }"
+            :title="collaborator.email"
+          >{{ collaboratorInitial(collaborator.email) }}</span>
+        </div>
+        <span v-else class="stat-value">0</span>
+      </div>
     </div>
     <p class="last-sync">Ultima sincronizzazione: {{ project?.lastSync }}</p>
 
@@ -108,16 +218,10 @@ function toggleDevice(id: string, on: boolean) {
       <section class="scenes">
         <SectionHeader title="Scenari" :divider="false" />
         <div class="scene-icon-row">
-          <button
-            v-for="scene in scenes"
-            :key="scene.id"
-            type="button"
-            class="scene-icon-item"
-            @click="goForward(`/progetti/${projectId}/scene/${scene.id}`)"
-          >
+          <div v-for="scene in scenes" :key="scene.id" class="scene-icon-item">
             <span class="scene-icon-circle"><SceneIcon :icon="scene.icon" :size="20" /></span>
             <span class="scene-icon-label">{{ scene.name }}</span>
-          </button>
+          </div>
           <button type="button" class="scene-icon-item" @click="goForward(`/progetti/${projectId}/scene/nuova`)">
             <span class="scene-icon-circle new">
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
@@ -232,6 +336,32 @@ function toggleDevice(id: string, on: boolean) {
           </template>
         </template>
 
+        <template v-else-if="activeTab === 'collaboratori'">
+          <template v-if="collaborators.length === 0">
+            <EmptyState variant="card" title="Nessun collaboratore invitato" subtitle="Invita collaboratori per condividere la gestione del progetto.">
+              <Button variant="secondary" @click="goForward(`/progetti/${projectId}/utenti`)">+ Invita collaboratori</Button>
+            </EmptyState>
+          </template>
+          <template v-else>
+            <div class="collaborators-list">
+              <div v-for="collaborator in collaborators" :key="collaborator.id" class="collaborator-row">
+                <span class="collaborator-avatar">{{ collaboratorInitial(collaborator.email) }}</span>
+                <span class="collaborator-content">
+                  <span class="collaborator-topline">
+                    <span class="collaborator-email">{{ collaborator.email }}</span>
+                    <span class="collaborator-status" :class="{ online: collaborator.active, offline: !collaborator.active }">
+                      <span class="collaborator-status-dot" />
+                      {{ collaborator.active ? 'Online' : 'Offline' }}
+                    </span>
+                  </span>
+                  <span class="collaborator-role">{{ collaborator.role }}</span>
+                </span>
+              </div>
+            </div>
+            <Button variant="secondary" @click="goForward(`/progetti/${projectId}/utenti`)">+ Invita collaboratori</Button>
+          </template>
+        </template>
+
         <template v-else-if="activeTab === 'scene'">
           <template v-if="scenes.length === 0">
             <EmptyState variant="card" title="Nessuno scenario creato" subtitle="Crea uno scenario per controllare più dispositivi con un solo tocco.">
@@ -239,22 +369,68 @@ function toggleDevice(id: string, on: boolean) {
             </EmptyState>
           </template>
           <template v-else>
-            <ListItem
-              v-for="scene in scenes"
-              :key="scene.id"
-              :title="scene.name"
-              :subtitle-strong="String(scene.deviceIds.length)"
-              subtitle="dispositivi"
-              clickable
-              @click="goForward(`/progetti/${projectId}/scene/${scene.id}`)"
-            />
+            <div v-for="scene in scenes" :key="scene.id" class="scene-row">
+              <IconBadge :size="32"><SceneIcon :icon="scene.icon" /></IconBadge>
+
+              <div class="scene-main" @click="startInlineRename(scene)">
+                <template v-if="renamingSceneId === scene.id">
+                  <input
+                    v-model="renameSceneValue"
+                    class="scene-inline-input"
+                    type="text"
+                    maxlength="60"
+                    @click.stop
+                    @keydown.enter.prevent="commitInlineRename(scene.id)"
+                    @keydown.esc.prevent="cancelInlineRename"
+                  >
+                </template>
+                <template v-else>
+                  <span class="scene-name">{{ scene.name }}</span>
+                  <span class="scene-subtitle">{{ scene.deviceIds.length }} dispositivi</span>
+                </template>
+              </div>
+
+              <div class="scene-actions">
+                <button
+                  v-if="renamingSceneId === scene.id"
+                  type="button"
+                  class="scene-action-link"
+                  @click.stop="commitInlineRename(scene.id)"
+                >
+                  Salva
+                </button>
+                <button
+                  v-if="renamingSceneId === scene.id"
+                  type="button"
+                  class="scene-action-link"
+                  @click.stop="cancelInlineRename"
+                >
+                  Annulla
+                </button>
+                <button
+                  v-if="renamingSceneId !== scene.id"
+                  type="button"
+                  class="scene-action-btn"
+                  aria-label="Modifica scenario"
+                  @click.stop="openSceneEditor(scene.id)"
+                >
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M11.3 1.8l2.9 2.9L4.9 14 1.5 14.5 2 11.1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
+                </button>
+                <button
+                  v-if="renamingSceneId !== scene.id"
+                  type="button"
+                  class="scene-action-btn scene-action-delete"
+                  aria-label="Elimina scenario"
+                  @click.stop="deleteSceneFromProject(scene.id)"
+                >
+                  <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M8 5V3.5A1.5 1.5 0 019.5 2h1A1.5 1.5 0 0112 3.5V5M15 5v11a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 015 16V5h10z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M8.5 8.5v6M11.5 8.5v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+                </button>
+              </div>
+            </div>
             <Button variant="secondary" @click="goForward(`/progetti/${projectId}/scene/nuova`)">+ Crea scenario</Button>
           </template>
         </template>
 
-        <template v-else-if="activeTab === 'diagnostica'">
-          <EmptyState variant="card" title="Diagnostica non ancora disponibile" subtitle="Questa funzionalità sarà disponibile in un prossimo aggiornamento." />
-        </template>
       </section>
     </div>
 
@@ -265,10 +441,11 @@ function toggleDevice(id: string, on: boolean) {
         type="button"
         class="project-nav-item"
         :class="{ active: activeTab === tab.value }"
-        @click="activeTab = tab.value"
+        @click="selectTab(tab.value)"
       >
         <svg v-if="tab.icon === 'project'" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.7 2 4 4.7 4 8c0 4.5 6 10 6 10s6-5.5 6-10c0-3.3-2.7-6-6-6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><circle cx="10" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4" /></svg>
         <svg v-else-if="tab.icon === 'devices'" width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" /><rect x="11" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" /><rect x="2" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" /><rect x="11" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" /></svg>
+        <svg v-else-if="tab.icon === 'users'" width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.4" /><circle cx="13" cy="7" r="2.2" stroke="currentColor" stroke-width="1.4" /><path d="M3.2 15c.8-2.1 2.2-3.3 3.8-3.3s3 1.2 3.8 3.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M9 15c.8-2.1 2.2-3.3 3.8-3.3s3 1.2 3.8 3.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
         <svg v-else-if="tab.icon === 'scene'" width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.4" /><path d="M10 1v2M10 17v2M1 10h2M17 10h2M4 4l1.5 1.5M14.5 14.5L16 16M16 4l-1.5 1.5M5.5 14.5L4 16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
         <svg v-else width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 15h16M4 15V9l3-2 3 3 4-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
         <span class="project-nav-label">{{ tab.label }}</span>
@@ -280,10 +457,49 @@ function toggleDevice(id: string, on: boolean) {
     </button>
 
     <BottomSheet v-model="showAddSheet" title="Aggiungi">
-      <button type="button" class="sheet-action" @click="showAddSheet = false; goForward(`/progetti/${projectId}/livelli/nuovo`)">Aggiungi livello</button>
-      <button type="button" class="sheet-action" @click="showAddSheet = false; goForward(`/progetti/${projectId}/dispositivi/scan?levelId=${selectedLevelId}`)">Aggiungi dispositivo</button>
-      <button type="button" class="sheet-action" @click="showAddSheet = false; goForward(`/progetti/${projectId}/gruppi/nuovo`)">Crea gruppo</button>
+      <button type="button" class="sheet-action" @click="showAddSheet = false; goForward(`/progetti/${projectId}/livelli/nuovo`)">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="3" y="2.5" width="14" height="15" rx="1.8" stroke="currentColor" stroke-width="1.3" /><path d="M3 7.5h14" stroke="currentColor" stroke-width="1.3" /><path d="M10 10v5M7.5 12.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        Aggiungi livello
+      </button>
+      <button type="button" class="sheet-action" @click="showAddSheet = false; goForward(`/progetti/${projectId}/dispositivi/scan?levelId=${selectedLevelId}`)">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="6" y="2" width="8" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><path d="M8 6h4M8 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><path d="M10 13.5v3M8.5 15h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        Aggiungi dispositivo
+      </button>
+      <button type="button" class="sheet-action" @click="showAddSheet = false; goForward(`/progetti/${projectId}/gruppi/nuovo`)">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.3" /><circle cx="13" cy="7" r="2.2" stroke="currentColor" stroke-width="1.3" /><path d="M3.5 15c.8-2.3 2.3-3.6 3.9-3.6S10.5 12.7 11.3 15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><path d="M8.7 15c.8-2.3 2.3-3.6 3.9-3.6s3.1 1.3 3.9 3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        Crea gruppo
+      </button>
     </BottomSheet>
+
+    <BottomSheet v-model="showImageSheet" title="Immagine progetto">
+      <button type="button" class="image-upload-btn" @click="openDeviceImagePicker">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 3v9M6.5 6.5L10 3l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><rect x="3" y="12" width="14" height="5" rx="1.5" stroke="currentColor" stroke-width="1.5" /></svg>
+        Carica da dispositivo
+      </button>
+      <div class="image-option-grid">
+        <button
+          v-for="image in projectImageOptions"
+          :key="image"
+          type="button"
+          class="image-option"
+          :class="{ selected: project?.image === image }"
+          @click="replaceProjectImage(image)"
+        >
+          <img :src="image" alt="" />
+          <span class="image-option-check" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10.5 3L4.8 8.7 1.8 5.7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </span>
+        </button>
+      </div>
+    </BottomSheet>
+
+    <input
+      ref="imageInput"
+      type="file"
+      accept="image/*"
+      class="hidden-file-input"
+      @change="onProjectImageSelected"
+    />
 
     <SideMenu v-model="menuOpen" :project-id="projectId" />
   </div>
@@ -312,6 +528,7 @@ function toggleDevice(id: string, on: boolean) {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
 }
 
 .hero-photo::after {
@@ -354,16 +571,62 @@ function toggleDevice(id: string, on: boolean) {
   cursor: pointer;
 }
 
-.hero-title {
+.hero-bottom-row {
   position: relative;
   z-index: 1;
-  margin: auto 0 0;
-  padding: 0 20px 34px;
+  margin-top: auto;
+  padding: 0 20px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.hero-title-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hero-title {
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: #fff;
   text-align: left;
+  min-width: 0;
+}
+
+.hero-category-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.46);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+}
+
+.hero-image-edit {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(17, 17, 17, 0.38);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .hero-photo {
@@ -374,7 +637,7 @@ function toggleDevice(id: string, on: boolean) {
 .stats-card {
   position: relative;
   z-index: 2;
-  margin: -22px var(--space-page-x) 0;
+  margin: -12px var(--space-page-x) 0;
   display: flex;
   align-items: center;
   background: var(--color-surface);
@@ -406,6 +669,38 @@ function toggleDevice(id: string, on: boolean) {
   width: 1px;
   align-self: stretch;
   background: var(--color-border);
+}
+
+.collaborator-avatar-stack {
+  display: flex;
+  align-items: center;
+}
+
+.collaborator-avatar-mini {
+  position: relative;
+  z-index: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(17, 17, 17, 0.35);
+  cursor: default;
+}
+
+.collaborator-avatar-mini.is-active {
+  z-index: 1;
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.collaborator-avatar-mini:not(:first-child) {
+  margin-left: -8px;
 }
 
 .last-sync {
@@ -465,6 +760,83 @@ function toggleDevice(id: string, on: boolean) {
 .scene-icon-label {
   font-size: 11px;
   color: var(--color-text-secondary);
+}
+
+.scene-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.scene-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+}
+
+.scene-name {
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.scene-subtitle {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.scene-inline-input {
+  width: 100%;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-body);
+  color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.scene-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.scene-action-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-surface-alt);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.scene-action-delete {
+  color: var(--color-error);
+}
+
+.scene-action-link {
+  border: none;
+  background: transparent;
+  color: var(--color-accent);
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 2px;
+  cursor: pointer;
 }
 
 .tab-content {
@@ -625,6 +997,94 @@ function toggleDevice(id: string, on: boolean) {
   border-bottom: none;
 }
 
+.collaborators-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  background: var(--color-surface);
+}
+
+.collaborator-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.collaborator-row:last-child {
+  border-bottom: none;
+}
+
+.collaborator-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  border: 1px solid rgba(17, 17, 17, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.collaborator-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.collaborator-email {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-body);
+  color: var(--color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collaborator-topline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.collaborator-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.collaborator-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.collaborator-status.online {
+  color: var(--color-success);
+}
+
+.collaborator-status.offline {
+  color: var(--color-error);
+}
+
+.collaborator-role {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
 .project-nav {
   position: absolute;
   left: 0;
@@ -670,7 +1130,7 @@ function toggleDevice(id: string, on: boolean) {
   height: 56px;
   border-radius: 50%;
   border: 4px solid var(--color-surface);
-  background: var(--color-primary);
+  background: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -681,6 +1141,9 @@ function toggleDevice(id: string, on: boolean) {
 
 .sheet-action {
   width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   text-align: left;
   padding: 14px 0;
   border: none;
@@ -692,7 +1155,82 @@ function toggleDevice(id: string, on: boolean) {
   cursor: pointer;
 }
 
+.sheet-action svg {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.image-option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.image-upload-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px dashed var(--color-border-secondary);
+  background: var(--color-surface-alt);
+  color: var(--color-primary);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.image-option {
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.image-option img {
+  width: 100%;
+  height: 92px;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
+}
+
+.image-option.selected {
+  border-color: var(--color-accent);
+}
+
+.image-option-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+}
+
+.image-option.selected .image-option-check {
+  opacity: 1;
+}
+
+.hidden-file-input {
+  display: none;
+}
+
 .sheet-action:last-child {
   border-bottom: none;
 }
+
 </style>

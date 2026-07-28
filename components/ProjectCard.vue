@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import type { Project } from '~/composables/useProjectsStore'
 
-defineProps<{ project: Project }>()
+const props = defineProps<{ project: Project }>()
 defineEmits<{ open: []; menu: [] }>()
+
+const { collaborators } = useCollaboratorsStore(props.project.id)
+
+function collaboratorInitial(email: string) {
+  const initial = email.trim().charAt(0)
+  return initial ? initial.toUpperCase() : '?'
+}
 </script>
 
 <template>
@@ -20,6 +27,15 @@ defineEmits<{ open: []; menu: [] }>()
     <div class="project-content">
       <div class="project-card-head">
         <span class="project-name">{{ project.name }}</span>
+        <div v-if="collaborators.length > 0" class="card-avatar-stack">
+          <span
+            v-for="collaborator in collaborators"
+            :key="collaborator.id"
+            class="card-avatar-mini"
+            :class="{ 'is-active': collaborator.active }"
+            :title="collaborator.email"
+          >{{ collaboratorInitial(collaborator.email) }}</span>
+        </div>
         <button type="button" class="menu-btn" aria-label="Altre azioni" @click.stop="$emit('menu')">
           <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor"><circle cx="2" cy="2" r="2" /><circle cx="2" cy="8" r="2" /><circle cx="2" cy="14" r="2" /></svg>
         </button>
@@ -43,8 +59,9 @@ defineEmits<{ open: []; menu: [] }>()
 <style scoped>
 .project-card {
   display: flex;
-  gap: 14px;
-  padding: 12px;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
   border: none;
   border-radius: 22px;
   box-shadow: 0 2px 10px -4px rgba(17, 17, 17, 0.1), 0 10px 24px -12px rgba(17, 17, 17, 0.14);
@@ -60,14 +77,16 @@ defineEmits<{ open: []; menu: [] }>()
 .project-thumb-wrap {
   position: relative;
   flex-shrink: 0;
+  width: 100%;
 }
 
 .project-thumb {
-  width: 92px;
-  height: 104px;
+  width: 100%;
+  height: 168px;
   object-fit: cover;
-  border-radius: 16px;
+  border-radius: 22px 22px 0 0;
   display: block;
+  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
 }
 
 .status-badge {
@@ -99,7 +118,7 @@ defineEmits<{ open: []; menu: [] }>()
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 2px 0;
+  padding: 12px 14px 14px;
 }
 
 .project-card-head {
@@ -115,6 +134,39 @@ defineEmits<{ open: []; menu: [] }>()
   letter-spacing: -0.01em;
   color: var(--color-primary);
   line-height: 1.25;
+}
+
+.card-avatar-stack {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.card-avatar-mini {
+  position: relative;
+  z-index: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(17, 17, 17, 0.35);
+  cursor: default;
+}
+
+.card-avatar-mini:not(:first-child) {
+  margin-left: -7px;
+}
+
+.card-avatar-mini.is-active {
+  z-index: 1;
+  background: var(--color-accent);
+  color: #fff;
 }
 
 .menu-btn {

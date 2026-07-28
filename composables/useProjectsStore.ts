@@ -19,6 +19,8 @@ export interface Project {
   deleted: boolean
 }
 
+const PROJECTS_STORAGE_KEY = 'dc-projects-v1'
+
 const categoryImages: Record<ProjectCategory, string> = {
   Office: '/images/project-office.jpg',
   Industry: '/images/project-industry.jpg',
@@ -26,6 +28,18 @@ const categoryImages: Record<ProjectCategory, string> = {
   Retail: '/images/project-retail.jpg',
   Relamping: '/images/project-generic.jpg',
   Altro: '/images/project-generic.jpg'
+}
+
+export const projectImageOptions = [
+  '/images/project-industry.jpg',
+  '/images/project-office.jpg',
+  '/images/project-sport.jpg',
+  '/images/project-retail.jpg',
+  '/images/project-generic.jpg'
+] as const
+
+export function getCategoryImage(category: ProjectCategory) {
+  return categoryImages[category]
 }
 
 function makeProjects(): Project[] {
@@ -127,6 +141,70 @@ function makeProjects(): Project[] {
 export function useProjectsStore() {
   const projects = useState<Project[]>('dc-projects', () => makeProjects())
   const isOnline = useState<boolean>('dc-is-online', () => true)
+  const hydrated = useState<boolean>('dc-projects-hydrated', () => false)
+
+  function normalizeProject(raw: Partial<Project>): Project | null {
+    if (!raw.id || !raw.name || !raw.category || !raw.image || !raw.address || !raw.city || !raw.lastSync || !raw.syncStatus || !raw.connectionStatus) {
+      return null
+    }
+    return {
+      id: raw.id,
+      name: raw.name,
+      category: raw.category,
+      image: raw.image,
+      address: raw.address,
+      city: raw.city,
+      lastSync: raw.lastSync,
+      levels: typeof raw.levels === 'number' ? raw.levels : 0,
+      devices: typeof raw.devices === 'number' ? raw.devices : 0,
+      syncStatus: raw.syncStatus,
+      connectionStatus: raw.connectionStatus,
+      faultCount: raw.faultCount,
+      favorite: !!raw.favorite,
+      deleted: !!raw.deleted
+    }
+  }
+
+  function hydrateProjects() {
+    if (!import.meta.client || hydrated.value) return
+    hydrated.value = true
+    try {
+      const raw = localStorage.getItem(PROJECTS_STORAGE_KEY)
+      if (!raw) return
+      const parsed = JSON.parse(raw) as Partial<Project>[]
+      if (!Array.isArray(parsed)) return
+      const normalized = parsed
+        .map(normalizeProject)
+        .filter((project): project is Project => !!project)
+      if (normalized.length > 0) {
+        projects.value = normalized
+      }
+    } catch {
+      // Ignore corrupt storage and keep seeded defaults.
+    }
+  }
+
+  function persistProjects() {
+    if (!import.meta.client) return
+    localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects.value))
+  }
+
+  hydrateProjects()
+
+  if (import.meta.client) {
+    watch(projects, persistProjects, { deep: true })
+  }
+
+  function makeProjectId(name: string) {
+    const baseId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'progetto'
+    let nextId = baseId
+    let counter = 2
+    while (projects.value.some((project) => project.id === nextId)) {
+      nextId = `${baseId}-${counter}`
+      counter += 1
+    }
+    return nextId
+  }
 
   function toggleFavorite(id: string) {
     const project = projects.value.find((p) => p.id === id)
@@ -138,13 +216,17 @@ export function useProjectsStore() {
     if (project) project.deleted = true
   }
 
-  function createProject(input: { name: string; category: ProjectCategory; address: string; city: string }) {
-    const id = input.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+  function updateProject(id: string, patch: Partial<Project>) {
+    projects.value = projects.value.map((p) => (p.id === id ? { ...p, ...patch } : p))
+  }
+
+  function createProject(input: { name: string; category: ProjectCategory; address: string; city: string; image?: string }) {
+    const id = makeProjectId(input.name)
     const project: Project = {
       id,
       name: input.name,
       category: input.category,
-      image: categoryImages[input.category],
+      image: input.image || categoryImages[input.category],
       address: input.address,
       city: input.city,
       lastSync: 'Non sincronizzato',
@@ -159,5 +241,5 @@ export function useProjectsStore() {
     return project
   }
 
-  return { projects, isOnline, toggleFavorite, removeProject, createProject }
+  return { projects, isOnline, toggleFavorite, removeProject, updateProject, createProject }
 }

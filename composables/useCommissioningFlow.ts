@@ -3,7 +3,9 @@ import type { ProjectCategory } from '~/composables/useProjectsStore'
 export interface NewProjectDraft {
   name: string
   category: ProjectCategory | ''
+  image: string
   address: string
+  floor: string
   note: string
   timezone: string
   useCurrentLocation: boolean
@@ -15,8 +17,10 @@ export interface CompanyInfoDraft {
   companyAddress: string
 }
 
+export type CreationMode = 'manuale' | 'guidata' | 'ai'
+
 function emptyDraft(): NewProjectDraft {
-  return { name: '', category: '', address: '', note: '', timezone: '', useCurrentLocation: false }
+  return { name: '', category: '', image: '', address: '', floor: '', note: '', timezone: '', useCurrentLocation: false }
 }
 
 function emptyCompanyDraft(): CompanyInfoDraft {
@@ -28,10 +32,12 @@ export function useCommissioningFlow() {
   const installerRoleEnabled = useState<boolean>('dc-installer-role', () => false)
   const newProjectDraft = useState<NewProjectDraft>('dc-new-project-draft', emptyDraft)
   const companyInfoDraft = useState<CompanyInfoDraft>('dc-company-draft', emptyCompanyDraft)
+  const creationMode = useState<CreationMode | null>('dc-creation-mode', () => null)
 
   function resetNewProjectDraft() {
     newProjectDraft.value = emptyDraft()
     companyInfoDraft.value = emptyCompanyDraft()
+    creationMode.value = null
   }
 
   return {
@@ -39,6 +45,7 @@ export function useCommissioningFlow() {
     installerRoleEnabled,
     newProjectDraft,
     companyInfoDraft,
+    creationMode,
     resetNewProjectDraft
   }
 }
