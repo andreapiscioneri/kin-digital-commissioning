@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ProvisionedDevice } from '~/composables/useDeviceCatalog'
+import type { Collaborator } from '~/composables/useCollaboratorsStore'
 import type { Level } from '~/composables/useLevelsStore'
 import { projectImageOptions } from '~/composables/useProjectsStore'
 
@@ -9,15 +10,15 @@ const projectId = route.params.id as string
 const { projects, updateProject } = useProjectsStore()
 const { levels } = useLevelsStore(projectId)
 const { provisionedDevices, updateDevice } = useDeviceCatalog(projectId)
-const { collaborators } = useCollaboratorsStore(projectId)
+const { collaborators, removeCollaborator } = useCollaboratorsStore(projectId)
 const { groups } = useGroupsStore(projectId)
 const { scenes, updateScene, removeScene } = useScenesStore(projectId)
+const { installerRoleEnabled } = useCommissioningFlow()
 const { goBack, goForward } = useNavStack()
 
 seedBeghelliIfEmpty(projectId)
 
 const project = computed(() => projects.value.find((p) => p.id === projectId))
-const activeTab = ref((route.query.tab as string) || 'livelli')
 const menuOpen = ref(false)
 const showAddSheet = ref(false)
 const showImageSheet = ref(false)
@@ -32,12 +33,37 @@ const tabs = [
   { value: 'collaboratori', label: 'Collaboratori', icon: 'users' }
 ]
 
-function selectTab(tab: string) {
-  activeTab.value = tab
+type ProjectTab = 'livelli' | 'dispositivi' | 'scene' | 'collaboratori'
+const allowedTabs: ProjectTab[] = tabs.map((tab) => tab.value as ProjectTab)
+
+function normalizeTab(tab: unknown): ProjectTab {
+  if (typeof tab === 'string' && allowedTabs.includes(tab as ProjectTab)) {
+    return tab as ProjectTab
+  }
+  return 'livelli'
 }
 
-watch(activeTab, (tab: string) => {
+const activeTab = ref<ProjectTab>(normalizeTab(route.query.tab))
+
+function selectTab(tab: string) {
+  const nextTab = normalizeTab(tab)
+  if (nextTab === activeTab.value) return
+  cancelInlineRename()
+  showAddSheet.value = false
+  activeTab.value = nextTab
+}
+
+watch(activeTab, (tab: ProjectTab) => {
+  if (route.query.tab === tab) return
   router.replace({ query: { ...route.query, tab } })
+})
+
+watch(() => route.query.tab, (tab: unknown) => {
+  const normalizedTab = normalizeTab(tab)
+  if (normalizedTab !== activeTab.value) {
+    cancelInlineRename()
+    activeTab.value = normalizedTab
+  }
 })
 
 const totalSubLevels = computed(() => levels.value.reduce((sum: number, l: Level) => sum + l.subLevels, 0))
@@ -87,6 +113,15 @@ function deviceIdLabel(d: { id: string; type: string }) {
 function collaboratorInitial(email: string) {
   const initial = email.trim().charAt(0)
   return initial ? initial.toUpperCase() : '?'
+}
+
+const canManageCollaborators = computed(() =>
+  installerRoleEnabled.value || collaborators.value.some((collaborator: Collaborator) => collaborator.role === 'Installer')
+)
+
+function removeCollaboratorFromProject(collaboratorId: string) {
+  if (!canManageCollaborators.value) return
+  removeCollaborator(collaboratorId)
 }
 
 function openSceneEditor(sceneId: string) {
@@ -347,15 +382,22 @@ function onProjectImageSelected(event: Event) {
               <div v-for="collaborator in collaborators" :key="collaborator.id" class="collaborator-row">
                 <span class="collaborator-avatar">{{ collaboratorInitial(collaborator.email) }}</span>
                 <span class="collaborator-content">
-                  <span class="collaborator-topline">
-                    <span class="collaborator-email">{{ collaborator.email }}</span>
-                    <span class="collaborator-status" :class="{ online: collaborator.active, offline: !collaborator.active }">
-                      <span class="collaborator-status-dot" />
-                      {{ collaborator.active ? 'Online' : 'Offline' }}
-                    </span>
-                  </span>
+                  <span class="collaborator-email">{{ collaborator.email }}</span>
                   <span class="collaborator-role">{{ collaborator.role }}</span>
+                  <span class="collaborator-status" :class="{ online: collaborator.active, offline: !collaborator.active }">
+                    <span class="collaborator-status-dot" />
+                    {{ collaborator.active ? 'Online' : 'Offline' }}
+                  </span>
                 </span>
+                <button
+                  v-if="canManageCollaborators"
+                  type="button"
+                  class="collaborator-remove-btn"
+                  aria-label="Elimina collaboratore"
+                  @click="removeCollaboratorFromProject(collaborator.id)"
+                >
+                  <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M8 5V3.5A1.5 1.5 0 019.5 2h1A1.5 1.5 0 0112 3.5V5M15 5v11a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 015 16V5h10z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M8.5 8.5v6M11.5 8.5v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+                </button>
               </div>
             </div>
             <Button variant="secondary" @click="goForward(`/progetti/${projectId}/utenti`)">+ Invita collaboratori</Button>
@@ -535,7 +577,7 @@ function onProjectImageSelected(event: Event) {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.1) 35%, rgba(0, 0, 0, 0.65) 100%);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.2) 35%, rgba(0, 0, 0, 0.7) 100%);
 }
 
 .hero-status-bar {
@@ -562,7 +604,7 @@ function onProjectImageSelected(event: Event) {
   height: 38px;
   border-radius: 50%;
   border: none;
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(8px);
   color: #fff;
   display: flex;
@@ -1034,6 +1076,7 @@ function onProjectImageSelected(event: Event) {
 }
 
 .collaborator-content {
+  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -1048,12 +1091,6 @@ function onProjectImageSelected(event: Event) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.collaborator-topline {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .collaborator-status {
@@ -1085,18 +1122,35 @@ function onProjectImageSelected(event: Event) {
   color: var(--color-text-secondary);
 }
 
+.collaborator-remove-btn {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+ color: var(--color-error);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .project-nav {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0));
   z-index: 4;
   display: flex;
   align-items: stretch;
   height: 64px;
-  padding-bottom: env(safe-area-inset-bottom, 0);
-  background: var(--color-surface);
-  border-top: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  box-shadow: var(--shadow-menu);
 }
 
 .project-nav-item {
@@ -1106,13 +1160,17 @@ function onProjectImageSelected(event: Event) {
   align-items: center;
   justify-content: center;
   gap: 3px;
+  margin: 8px 6px;
   border: none;
+  border-radius: 16px;
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .project-nav-item.active {
+  background: var(--color-accent-soft);
   color: var(--color-accent);
 }
 
@@ -1124,12 +1182,12 @@ function onProjectImageSelected(event: Event) {
 .fab {
   position: absolute;
   left: 50%;
-  bottom: 30px;
+  bottom: calc(46px + env(safe-area-inset-bottom, 0));
   transform: translateX(-50%);
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  border: 4px solid var(--color-surface);
+  border: 4px solid var(--color-bg);
   background: var(--color-accent);
   display: flex;
   align-items: center;

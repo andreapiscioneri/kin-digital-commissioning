@@ -21,5 +21,9 @@ export function useCollaboratorsStore(projectId: string) {
     collaborators.value = [...collaborators.value, { id: `collab-${Date.now()}`, email, role, active }]
   }
 
-  return { collaborators, invite }
+  function removeCollaborator(id: string) {
+    collaborators.value = collaborators.value.filter((collaborator: Collaborator) => collaborator.id !== id)
+  }
+
+  return { collaborators, invite, removeCollaborator }
 }

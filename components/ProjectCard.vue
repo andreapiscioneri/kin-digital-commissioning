@@ -98,7 +98,7 @@ function collaboratorInitial(email: string) {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(4px);
-  color: var(--color-text-secondary);
+  color: rgba(17, 17, 17, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
