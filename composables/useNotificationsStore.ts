@@ -22,5 +22,9 @@ export function useNotificationsStore() {
     notifications.value = notifications.value.map((n) => ({ ...n, read: true }))
   }
 
-  return { notifications, unreadCount, markAllRead }
+  function removeNotification(id: string) {
+    notifications.value = notifications.value.filter((n) => n.id !== id)
+  }
+
+  return { notifications, unreadCount, markAllRead, removeNotification }
 }

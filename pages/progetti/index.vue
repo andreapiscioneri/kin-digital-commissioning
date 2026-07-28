@@ -2,7 +2,7 @@
 import type { Project, ProjectCategory, ProjectConnectionStatus } from '~/composables/useProjectsStore'
 
 const { projects, isOnline, toggleFavorite, removeProject } = useProjectsStore()
-const { notifications, unreadCount, markAllRead } = useNotificationsStore()
+const { notifications, unreadCount, markAllRead, removeNotification } = useNotificationsStore()
 const { installerRoleEnabled } = useCommissioningFlow()
 const route = useRoute()
 const router = useRouter()
@@ -267,6 +267,9 @@ function goToInstallerProfile() {
           <p class="notification-description">{{ item.description }}</p>
           <p class="notification-time">{{ item.time }}</p>
         </div>
+        <button type="button" class="notification-remove" aria-label="Elimina notifica" @click="removeNotification(item.id)">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M8 5V3.5A1.5 1.5 0 019.5 2h1A1.5 1.5 0 0112 3.5V5M15 5v11a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 015 16V5h10z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M8.5 8.5v6M11.5 8.5v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        </button>
       </div>
     </BottomSheet>
   </div>
@@ -550,6 +553,19 @@ function goToInstallerProfile() {
   gap: 12px;
   padding: 14px 0;
   border-bottom: 1px solid var(--color-border);
+}
+
+.notification-remove {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .notification-row:last-child {
