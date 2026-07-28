@@ -20,7 +20,7 @@ seedBeghelliIfEmpty(projectId)
 
 const project = computed(() => projects.value.find((p) => p.id === projectId))
 const menuOpen = ref(false)
-const showAddSheet = ref(false)
+const showFabFan = ref(false)
 const showImageSheet = ref(false)
 const imageInput = ref<HTMLInputElement | null>(null)
 const renamingSceneId = ref<string | null>(null)
@@ -49,7 +49,7 @@ function selectTab(tab: string) {
   const nextTab = normalizeTab(tab)
   if (nextTab === activeTab.value) return
   cancelInlineRename()
-  showAddSheet.value = false
+  showFabFan.value = false
   activeTab.value = nextTab
 }
 
@@ -180,6 +180,34 @@ function onProjectImageSelected(event: Event) {
   }
   reader.readAsDataURL(file)
   input.value = ''
+}
+
+function closeFabFan() {
+  showFabFan.value = false
+}
+
+function toggleFabFan() {
+  showFabFan.value = !showFabFan.value
+}
+
+function addLevel() {
+  closeFabFan()
+  goForward(`/progetti/${projectId}/livelli/nuovo`)
+}
+
+function addSubLevel() {
+  closeFabFan()
+  if (selectedLevelId.value) {
+    goForward(`/progetti/${projectId}/livelli/${selectedLevelId.value}`)
+    return
+  }
+  goForward(`/progetti/${projectId}/livelli/nuovo`)
+}
+
+function addDevice() {
+  closeFabFan()
+  const levelQuery = selectedLevelId.value ? `?levelId=${selectedLevelId.value}` : ''
+  goForward(`/progetti/${projectId}/dispositivi/scan${levelQuery}`)
 }
 </script>
 
@@ -494,24 +522,39 @@ function onProjectImageSelected(event: Event) {
       </button>
     </nav>
 
-    <button type="button" class="fab" aria-label="Aggiungi" @click="showAddSheet = true">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="#fff" stroke-width="1.8" stroke-linecap="round" /></svg>
-    </button>
+    <button
+      v-if="showFabFan"
+      type="button"
+      class="fab-overlay"
+      aria-label="Chiudi menu aggiunta"
+      @click="closeFabFan"
+    />
 
-    <BottomSheet v-model="showAddSheet" title="Aggiungi">
-      <button type="button" class="sheet-action" @click="showAddSheet = false; goForward(`/progetti/${projectId}/livelli/nuovo`)">
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="3" y="2.5" width="14" height="15" rx="1.8" stroke="currentColor" stroke-width="1.3" /><path d="M3 7.5h14" stroke="currentColor" stroke-width="1.3" /><path d="M10 10v5M7.5 12.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        Aggiungi livello
+    <div class="fab-fan" :class="{ open: showFabFan }" aria-hidden="true">
+      <button type="button" class="fab-action fab-action-level" @click="addLevel">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="2.5" width="14" height="15" rx="1.8" stroke="currentColor" stroke-width="1.3" /><path d="M3 7.5h14" stroke="currentColor" stroke-width="1.3" /><path d="M10 10v5M7.5 12.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        <span>+ livello</span>
       </button>
-      <button type="button" class="sheet-action" @click="showAddSheet = false; goForward(`/progetti/${projectId}/dispositivi/scan?levelId=${selectedLevelId}`)">
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="6" y="2" width="8" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><path d="M8 6h4M8 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><path d="M10 13.5v3M8.5 15h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        Aggiungi dispositivo
+      <button type="button" class="fab-action fab-action-sublevel" @click="addSubLevel">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="4" rx="1.2" stroke="currentColor" stroke-width="1.2" /><rect x="3" y="9" width="14" height="4" rx="1.2" stroke="currentColor" stroke-width="1.2" /><path d="M10 13v4M8 15h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        <span>+ sottolivello</span>
       </button>
-      <button type="button" class="sheet-action" @click="showAddSheet = false; goForward(`/progetti/${projectId}/gruppi/nuovo`)">
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.3" /><circle cx="13" cy="7" r="2.2" stroke="currentColor" stroke-width="1.3" /><path d="M3.5 15c.8-2.3 2.3-3.6 3.9-3.6S10.5 12.7 11.3 15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><path d="M8.7 15c.8-2.3 2.3-3.6 3.9-3.6s3.1 1.3 3.9 3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        Crea gruppo
+      <button type="button" class="fab-action fab-action-device" @click="addDevice">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="6" y="2" width="8" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><path d="M8 6h4M8 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><path d="M10 13.5v3M8.5 15h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        <span>+ dispositivo</span>
       </button>
-    </BottomSheet>
+    </div>
+
+    <button
+      type="button"
+      class="fab"
+      :class="{ open: showFabFan }"
+      aria-label="Aggiungi"
+      :aria-expanded="showFabFan"
+      @click="toggleFabFan"
+    >
+      <svg class="fab-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="#fff" stroke-width="1.8" stroke-linecap="round" /></svg>
+    </button>
 
     <BottomSheet v-model="showImageSheet" title="Immagine progetto">
       <button type="button" class="image-upload-btn" @click="openDeviceImagePicker">
@@ -769,6 +812,12 @@ function onProjectImageSelected(event: Event) {
   gap: 18px;
   overflow-x: auto;
   padding-bottom: 12px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scene-icon-row::-webkit-scrollbar {
+  display: none;
 }
 
 .scene-icon-item {
@@ -893,6 +942,12 @@ function onProjectImageSelected(event: Event) {
   gap: 20px;
   overflow-x: auto;
   border-bottom: 1px solid var(--color-border);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.floor-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .floor-tab {
@@ -1141,7 +1196,7 @@ function onProjectImageSelected(event: Event) {
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: calc(12px + env(safe-area-inset-bottom, 0));
+  bottom: calc(8px + env(safe-area-inset-bottom, 0));
   z-index: 4;
   display: flex;
   align-items: stretch;
@@ -1182,7 +1237,7 @@ function onProjectImageSelected(event: Event) {
 .fab {
   position: absolute;
   left: 50%;
-  bottom: calc(46px + env(safe-area-inset-bottom, 0));
+  bottom: calc(42px + env(safe-area-inset-bottom, 0));
   transform: translateX(-50%);
   width: 56px;
   height: 56px;
@@ -1194,7 +1249,89 @@ function onProjectImageSelected(event: Event) {
   justify-content: center;
   cursor: pointer;
   box-shadow: var(--shadow-fab);
+  z-index: 7;
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.fab.open {
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.fab-icon {
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.fab-overlay {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: transparent;
   z-index: 5;
+  cursor: default;
+}
+
+.fab-fan {
+  position: absolute;
+  left: 50%;
+  bottom: calc(42px + env(safe-area-inset-bottom, 0));
+  transform: translateX(-50%);
+  z-index: 6;
+}
+
+.fab-action {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 0) scale(0.86);
+  opacity: 0;
+  pointer-events: none;
+  border: 1.5px solid color-mix(in srgb, var(--color-primary) 18%, var(--color-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface) 96%, #ffffff);
+  color: var(--color-primary);
+  box-shadow: 0 10px 24px -14px rgba(17, 17, 17, 0.45), 0 3px 10px -6px rgba(17, 17, 17, 0.32);
+  height: 40px;
+  width: 156px;
+  max-width: calc(100vw - 44px);
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
+}
+
+.fab-action-level {
+  transition-delay: 0ms;
+}
+
+.fab-action-sublevel {
+  transition-delay: 20ms;
+}
+
+.fab-action-device {
+  transition-delay: 40ms;
+}
+
+.fab-fan.open .fab-action {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fab-fan.open .fab-action-level {
+  transform: translate(-50%, -112px) scale(1);
+}
+
+.fab-fan.open .fab-action-sublevel {
+  transform: translate(calc(-50% - 82px), -66px) scale(1);
+}
+
+.fab-fan.open .fab-action-device {
+  transform: translate(calc(-50% + 82px), -66px) scale(1);
 }
 
 .sheet-action {

@@ -25,6 +25,7 @@ const menuOpenFor = ref<string | null>(null)
 const sideMenuOpen = ref(false)
 const showFilters = ref(false)
 const showSort = ref(false)
+const showInstallerBanner = ref(true)
 const sortBy = ref<'name' | 'lastSync'>('name')
 
 const categories: ProjectCategory[] = ['Office', 'Industry', 'Sport indoor', 'Retail']
@@ -104,7 +105,15 @@ function goToInstallerProfile() {
 
     <template v-else-if="!hasAnyProject || demoState === 'empty'">
       <GreetingHeader :notification-count="unreadCount" @menu="sideMenuOpen = true" @notifications="openNotifications" />
-      <div v-if="!installerRoleEnabled" class="installer-banner">
+      <div v-if="!installerRoleEnabled && showInstallerBanner" class="installer-banner">
+        <button
+          type="button"
+          class="installer-banner-close"
+          aria-label="Chiudi avviso ruolo Installer"
+          @click="showInstallerBanner = false"
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+        </button>
         <p>Solo il ruolo <strong>Installer</strong> può creare progetti.</p>
         <button type="button" class="installer-banner-link" @click="goToInstallerProfile">Abilita il ruolo per iniziare</button>
       </div>
@@ -162,7 +171,15 @@ function goToInstallerProfile() {
     <template v-else>
       <GreetingHeader :notification-count="unreadCount" @menu="sideMenuOpen = true" @notifications="openNotifications" />
 
-      <div v-if="!installerRoleEnabled" class="installer-banner">
+      <div v-if="!installerRoleEnabled && showInstallerBanner" class="installer-banner">
+        <button
+          type="button"
+          class="installer-banner-close"
+          aria-label="Chiudi avviso ruolo Installer"
+          @click="showInstallerBanner = false"
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+        </button>
         <p>Solo il ruolo <strong>Installer</strong> può creare progetti.</p>
         <button type="button" class="installer-banner-link" @click="goToInstallerProfile">Abilita il ruolo per iniziare</button>
       </div>
@@ -285,13 +302,30 @@ function goToInstallerProfile() {
 }
 
 .installer-banner {
+  position: relative;
   margin: 0 var(--space-page-x) 4px;
-  padding: 12px 16px;
+  padding: 12px 40px 12px 16px;
   border-radius: var(--radius-card);
   background: var(--color-accent-soft);
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.installer-banner-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .installer-banner p {
@@ -348,6 +382,12 @@ function goToInstallerProfile() {
   gap: 6px;
   padding: 14px var(--space-page-x);
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab {
@@ -471,6 +511,12 @@ function goToInstallerProfile() {
   gap: 8px;
   padding: 14px var(--space-page-x);
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
 }
 
 .body {

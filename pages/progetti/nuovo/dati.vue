@@ -196,7 +196,7 @@ function onContinue() {
         </span>
       </div>
 
-      <Button variant="secondary" :disabled="locating" @click="useCurrentLocation">
+      <Button class="location-cta" variant="secondary" :disabled="locating" @click="useCurrentLocation">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 00-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.4" /><circle cx="10" cy="8" r="2" stroke="currentColor" stroke-width="1.4" /></svg>
         {{ locating ? 'Individuazione posizione…' : 'Usa posizione corrente' }}
       </Button>
@@ -370,6 +370,13 @@ function onContinue() {
   text-align: center;
   font-size: var(--font-size-small);
   color: var(--color-text-secondary);
+}
+
+.location-cta {
+  height: 56px !important;
+  min-height: 56px;
+  font-size: var(--font-size-button);
+  border-radius: var(--radius-button);
 }
 
 .address-field {

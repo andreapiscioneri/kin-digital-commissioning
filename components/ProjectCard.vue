@@ -63,7 +63,7 @@ function collaboratorInitial(email: string) {
   gap: 0;
   padding: 0;
   border: none;
-  border-radius: 22px;
+  border-radius: 18px;
   box-shadow: 0 2px 10px -4px rgba(17, 17, 17, 0.1), 0 10px 24px -12px rgba(17, 17, 17, 0.14);
   background: var(--color-surface);
   cursor: pointer;
@@ -82,9 +82,9 @@ function collaboratorInitial(email: string) {
 
 .project-thumb {
   width: 100%;
-  height: 168px;
+  height: 146px;
   object-fit: cover;
-  border-radius: 22px 22px 0 0;
+  border-radius: 18px 18px 0 0;
   display: block;
   filter: grayscale(0.6) contrast(1.12) saturate(1.25);
 }
@@ -118,7 +118,7 @@ function collaboratorInitial(email: string) {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 12px 14px 14px;
+  padding: 10px 12px 12px;
 }
 
 .project-card-head {
@@ -129,7 +129,7 @@ function collaboratorInitial(email: string) {
 
 .project-name {
   flex: 1;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--color-primary);
@@ -145,12 +145,12 @@ function collaboratorInitial(email: string) {
 .card-avatar-mini {
   position: relative;
   z-index: 0;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--color-surface-alt);
   color: var(--color-text-secondary);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -160,7 +160,7 @@ function collaboratorInitial(email: string) {
 }
 
 .card-avatar-mini:not(:first-child) {
-  margin-left: -7px;
+  margin-left: -6px;
 }
 
 .card-avatar-mini.is-active {
@@ -174,7 +174,7 @@ function collaboratorInitial(email: string) {
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
-  padding: 4px;
+  padding: 3px;
   flex-shrink: 0;
 }
 

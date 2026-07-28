@@ -39,6 +39,11 @@ function openScan() {
   close()
   goForward(props.projectId ? `/scan-qr?projectId=${props.projectId}` : '/scan-qr')
 }
+
+function openNewProject() {
+  close()
+  goForward('/progetti/nuovo')
+}
 </script>
 
 <template>
@@ -69,6 +74,9 @@ function openScan() {
           </div>
 
           <div class="menu-footer">
+            <Button variant="primary" @click="openNewProject">
+              Crea nuovo impianto
+            </Button>
             <Button variant="secondary" @click="openScan">
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="6" height="6" stroke="currentColor" stroke-width="1.3" /><rect x="12" y="2" width="6" height="6" stroke="currentColor" stroke-width="1.3" /><rect x="2" y="12" width="6" height="6" stroke="currentColor" stroke-width="1.3" /><path d="M12 12h2.5M16 12h2M12 16h2M16 15v3h2" stroke="currentColor" stroke-width="1.3" /></svg>
               Scan QR Code
@@ -106,7 +114,7 @@ function openScan() {
 .menu-top {
   display: flex;
   justify-content: flex-end;
-  padding: 8px 0 16px;
+  padding: calc(env(safe-area-inset-top, 0) + 8px) 0 16px;
 }
 
 .menu-list {

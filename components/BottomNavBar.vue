@@ -35,6 +35,7 @@ function openNewProject() {
     <button v-if="showFab" type="button" class="nav-fab" aria-label="Nuovo progetto" @click="openNewProject">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="#fff" stroke-width="1.8" stroke-linecap="round" /></svg>
     </button>
+
   </nav>
 </template>
 
@@ -123,4 +124,5 @@ function openNewProject() {
   box-shadow: var(--shadow-fab);
   z-index: 51;
 }
+
 </style>

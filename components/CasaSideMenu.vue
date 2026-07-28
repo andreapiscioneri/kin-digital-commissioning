@@ -103,6 +103,7 @@ function close() {
 
 .menu-top {
   position: relative;
+  padding-top: calc(env(safe-area-inset-top, 0) + 4px);
   padding-bottom: 16px;
 }
 

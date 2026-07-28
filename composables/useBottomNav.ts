@@ -5,7 +5,7 @@ export interface BottomNavItem {
   badge?: number
 }
 
-const NAV_PATHS = ['/dashboard', '/progetti', '/account/notifiche', '/account/profilo']
+const NAV_PATHS = ['/dashboard', '/account/notifiche', '/account/profilo']
 
 export function useBottomNav() {
   const route = useRoute()
@@ -20,7 +20,7 @@ export function useBottomNav() {
 
   const normalizedPath = computed(() => (route.path.length > 1 ? route.path.replace(/\/+$/, '') : route.path))
   const isVisible = computed(() => NAV_PATHS.includes(normalizedPath.value))
-  const showFab = computed(() => isVisible.value)
+  const showFab = computed(() => normalizedPath.value === '/dashboard')
 
   return { items, isVisible, showFab, normalizedPath }
 }
