@@ -4,6 +4,7 @@ const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
 
 const { goForward } = useNavStack()
 const colorMode = useColorMode()
+const menuLogoSrc = computed(() => (colorMode.value === 'dark' ? '/images/Kin-2.png' : '/images/Kin.png'))
 
 const themeOptions = [
   { value: 'light', label: 'Chiaro' },
@@ -73,7 +74,7 @@ function openScan() {
               Scan QR Code
             </Button>
             <p class="menu-version">Versione in uso: 0.0.000</p>
-            <img src="/images/Kin.png" alt="Kin" class="menu-brand-logo" />
+            <img :src="menuLogoSrc" alt="Kin" class="menu-brand-logo" />
           </div>
         </aside>
       </Transition>

@@ -3,6 +3,8 @@ import { useHomeStore } from '~/composables/useHomeStore'
 
 defineProps<{ modelValue: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
+const colorMode = useColorMode()
+const menuLogoSrc = computed(() => (colorMode.value === 'dark' ? '/images/Kin-2.png' : '/images/Kin.png'))
 
 const { property } = useHomeStore()
 
@@ -70,7 +72,7 @@ function close() {
           </nav>
 
           <div class="menu-footer">
-            <img src="/images/Kin.png" alt="Kin" class="menu-made-by-logo" />
+            <img :src="menuLogoSrc" alt="Kin" class="menu-made-by-logo" />
           </div>
         </aside>
       </Transition>
