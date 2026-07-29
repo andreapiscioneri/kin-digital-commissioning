@@ -19,14 +19,14 @@ export interface Project {
   deleted: boolean
 }
 
-const PROJECTS_STORAGE_KEY = 'dc-projects-v1'
+const PROJECTS_STORAGE_KEY = 'dc-projects-v3'
 
 const categoryImages: Record<ProjectCategory, string> = {
   Office: '/images/project-office.jpg',
   Industry: '/images/project-industry.jpg',
   'Sport indoor': '/images/project-sport.jpg',
   Retail: '/images/project-retail.jpg',
-  Relamping: '/images/project-generic.jpg',
+  Relamping: '/images/project-relamping.jpg',
   Altro: '/images/project-generic.jpg'
 }
 
@@ -35,6 +35,7 @@ export const projectImageOptions = [
   '/images/project-office.jpg',
   '/images/project-sport.jpg',
   '/images/project-retail.jpg',
+  '/images/project-relamping.jpg',
   '/images/project-generic.jpg'
 ] as const
 
@@ -48,7 +49,7 @@ function makeProjects(): Project[] {
       id: 'verdi-srl',
       name: 'Verdi Srl',
       category: 'Office',
-      image: categoryImages.Office,
+      image: '/images/project-office.jpg',
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: '12/06/2026',
@@ -63,7 +64,7 @@ function makeProjects(): Project[] {
       id: 'kiko-milano-srl',
       name: 'Kiko Milano Srl',
       category: 'Retail',
-      image: categoryImages.Retail,
+      image: '/images/project-retail.jpg',
       address: 'Via Domenico Bosatelli 1 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: '10/06/2026',
@@ -78,7 +79,7 @@ function makeProjects(): Project[] {
       id: 'beghelli',
       name: 'Beghelli',
       category: 'Industry',
-      image: categoryImages.Industry,
+      image: '/images/project-industry.jpg',
       address: 'Via Mozzeghine, 13/15, 40053',
       city: 'Valsamoggia BO',
       lastSync: '21/06/2026',
@@ -93,7 +94,7 @@ function makeProjects(): Project[] {
       id: 'rossi-spa',
       name: 'Rossi SpA',
       category: 'Office',
-      image: categoryImages.Office,
+      image: '/images/project-office-2.jpg',
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: '18/06/2026',
@@ -108,7 +109,7 @@ function makeProjects(): Project[] {
       id: 'paladozza',
       name: 'Paladozza',
       category: 'Sport indoor',
-      image: categoryImages['Sport indoor'],
+      image: '/images/project-sport.jpg',
       address: 'Piazza Manfredi Azzarita, 2, 40122',
       city: 'Bologna BO',
       lastSync: '18/06/2026',
@@ -123,13 +124,13 @@ function makeProjects(): Project[] {
       id: 'miin-cosmetics-bg',
       name: 'Miin Cosmetics BG',
       category: 'Retail',
-      image: categoryImages.Retail,
+      image: '/images/project-retail-2.jpg',
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
-      lastSync: '18/06/2026',
+      lastSync: 'Non sincronizzato',
       levels: 4,
       devices: 16,
-      syncStatus: 'synced',
+      syncStatus: 'not-synced',
       connectionStatus: 'fault',
       faultCount: 3,
       favorite: false,

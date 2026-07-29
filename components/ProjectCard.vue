@@ -27,30 +27,27 @@ function collaboratorInitial(email: string) {
     <div class="project-content">
       <div class="project-card-head">
         <span class="project-name">{{ project.name }}</span>
-        <div v-if="collaborators.length > 0" class="card-avatar-stack">
-          <span
-            v-for="collaborator in collaborators"
-            :key="collaborator.id"
-            class="card-avatar-mini"
-            :class="{ 'is-active': collaborator.active }"
-            :title="collaborator.email"
-          >{{ collaboratorInitial(collaborator.email) }}</span>
-        </div>
         <button type="button" class="menu-btn" aria-label="Altre azioni" @click.stop="$emit('menu')">
           <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor"><circle cx="2" cy="2" r="2" /><circle cx="2" cy="8" r="2" /><circle cx="2" cy="14" r="2" /></svg>
         </button>
       </div>
 
-      <div class="project-address">
-        <svg width="11" height="13" viewBox="0 0 12 14" fill="none" aria-hidden="true"><path d="M6 13S1 8.4 1 5a5 5 0 0110 0c0 3.4-5 8-5 8z" stroke="currentColor" stroke-width="1.2" /><circle cx="6" cy="5" r="1.6" stroke="currentColor" stroke-width="1.2" /></svg>
-        <span>{{ project.address }}, {{ project.city }}</span>
-      </div>
-
-      <p class="project-sync">Sincronizzato il {{ project.lastSync }}</p>
+      <div class="project-city">{{ project.city }}</div>
 
       <div class="project-meta-row">
-        <span class="meta-pill">Livelli <strong>{{ project.levels }}</strong></span>
-        <span class="meta-pill">Dispositivi <strong>{{ project.devices }}</strong></span>
+        <span class="meta-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 9l3-3h12l3 3v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
+          <strong>{{ project.levels }}</strong> piani
+        </span>
+        <span class="meta-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.3" /><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.3" /></svg>
+          <strong>{{ project.devices }}</strong> dispositivi
+        </span>
+      </div>
+
+      <div class="project-status" :class="{ 'not-synced': project.lastSync === 'Non sincronizzato' }">
+        <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4" :fill="project.lastSync === 'Non sincronizzato' ? '#999' : 'var(--color-success)'" /></svg>
+        <span>{{ project.lastSync === 'Non sincronizzato' ? 'Non sincronizzato' : 'Sincronizzato il ' + project.lastSync }}</span>
       </div>
     </div>
   </div>
@@ -82,7 +79,7 @@ function collaboratorInitial(email: string) {
 
 .project-thumb {
   width: 100%;
-  height: 146px;
+  height: 140px;
   object-fit: cover;
   border-radius: 18px 18px 0 0;
   display: block;
@@ -117,23 +114,25 @@ function collaboratorInitial(email: string) {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 10px 12px 12px;
+  gap: 3px;
+  padding: 12px 14px 14px;
 }
 
 .project-card-head {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 2px;
 }
 
 .project-name {
   flex: 1;
-  font-size: 1rem;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--color-primary);
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .card-avatar-stack {
@@ -178,42 +177,50 @@ function collaboratorInitial(email: string) {
   flex-shrink: 0;
 }
 
-.project-address {
-  display: flex;
-  gap: 5px;
-  font-size: var(--font-size-small);
+.project-city {
+  font-size: 13px;
   color: var(--color-text-secondary);
-  line-height: 1.35;
-}
-
-.project-address svg {
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.project-sync {
-  margin: 0;
-  font-size: 11px;
-  color: var(--color-text-secondary);
-  opacity: 0.85;
+  line-height: 1.3;
+  margin-bottom: 2px;
 }
 
 .project-meta-row {
   display: flex;
-  gap: 6px;
-  margin-top: 2px;
+  gap: 8px;
+  margin-bottom: 3px;
 }
 
 .meta-pill {
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: var(--color-surface-alt);
-  font-size: 11px;
-  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  font-size: 12px;
+  color: var(--color-accent);
+}
+
+.meta-pill svg {
+  color: var(--color-accent);
+  flex-shrink: 0;
 }
 
 .meta-pill strong {
-  color: var(--color-primary);
+  color: var(--color-accent);
   font-weight: 700;
 }
+
+.project-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-success);
+  margin-bottom: 2px;
+}
+
+.project-status.not-synced {
+  color: #999;
+}
+
+
 </style>

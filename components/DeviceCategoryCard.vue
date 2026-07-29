@@ -31,10 +31,10 @@ const allOn = computed(() => onCount.value === props.category.devices.length)
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
-  padding: 16px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .category-open {
@@ -43,8 +43,8 @@ const allOn = computed(() => onCount.value === props.category.devices.length)
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
-  padding: 0 0 22px;
+  gap: 5px;
+  padding: 0 0 19px;
   cursor: pointer;
   text-align: left;
   width: 100%;
