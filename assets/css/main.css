@@ -132,6 +132,7 @@
 }
 
 /* Colors — Design System GEWISS reale (palette Hierarchy: Orange/6, Grey/7, Neutral/White) */
+:root,
 .light-mode {
   --color-bg: #fafafa; /* Grey/1 */
   --color-surface: #ffffff;

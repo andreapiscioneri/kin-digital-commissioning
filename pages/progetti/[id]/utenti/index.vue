@@ -4,7 +4,9 @@ import type { CollaboratorRole } from '~/composables/useCollaboratorsStore'
 const route = useRoute()
 const projectId = route.params.id as string
 const { invite, collaborators } = useCollaboratorsStore(projectId)
-const { goBack, goClose } = useNavStack()
+const { goBack, goClose, goForward } = useNavStack()
+const backDestination = computed(() => (route.query.back as string) || `/progetti/${projectId}`)
+const nextDestination = computed(() => (route.query.next as string) || `/progetti/${projectId}`)
 
 type Screen = 'intro' | 'form' | 'success'
 const screen = ref<Screen>('intro')
@@ -33,7 +35,11 @@ const emailError = computed(() => {
 
 const canInvite = computed(() => isEmailValid.value && !!role.value)
 function finishCollaborators() {
-  goClose(`/progetti/${projectId}`)
+  if (route.query.next) {
+    goForward(nextDestination.value)
+    return
+  }
+  goClose(nextDestination.value)
 }
 
 function skipCollaborators() {
@@ -83,7 +89,7 @@ function collaboratorInitial(emailAddress: string) {
         <div class="intro-bg-overlay" />
         <div class="intro-content">
           <StatusBar inverted />
-          <AppHeader title="" leading="back" trailing="close" inverted @back="goBack(`/progetti/${projectId}`)" @close="finishCollaborators" />
+          <AppHeader title="" leading="back" trailing="close" inverted @back="goBack(backDestination)" @close="finishCollaborators" />
           <div class="body centered">
             <span class="placeholder-icon">
               <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="6" r="2.5" stroke="currentColor" stroke-width="1.3" /><path d="M2 16c0-1.5 2-3 5-3s5 1.5 5 3v2H2v-2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><circle cx="16" cy="6" r="2.5" stroke="currentColor" stroke-width="1.3" /><path d="M11 16c0-1.5 1.5-3 4-3s4 1.5 4 3v2h-8v-2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>

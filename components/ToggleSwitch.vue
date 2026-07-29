@@ -25,7 +25,7 @@ const emit = defineEmits<{ 'update:modelValue': [boolean] }>()
   height: 26px;
   border-radius: 999px;
   border: none;
-  background: var(--color-ink);
+  background: var(--color-chip-hover);
   padding: 3px;
   display: flex;
   align-items: center;

@@ -22,6 +22,7 @@ const project = computed(() => projects.value.find((p) => p.id === projectId))
 const menuOpen = ref(false)
 const showFabFan = ref(false)
 const showImageSheet = ref(false)
+const showFloorplanExpanded = ref(false)
 const imageInput = ref<HTMLInputElement | null>(null)
 const renamingSceneId = ref<string | null>(null)
 const renameSceneValue = ref('')
@@ -334,10 +335,21 @@ function addDevice() {
             <div class="floorplan-card">
               <div class="floorplan-caption">PLANIMETRIA {{ (selectedLevel?.name || '').toUpperCase() }} · 3D</div>
               <FloorplanScene3D class="floorplan-3d-host" :rooms="floorplanRooms" :lamp-states="floorplanLampStates" />
-              <p class="floorplan-hint">Trascina per ruotare · pizzica per zoomare</p>
-              <button type="button" class="floorplan-expand" aria-label="Espandi planimetria">
+              <p class="floorplan-hint">Trascina per ruotare · due dita per zoomare</p>
+              <button type="button" class="floorplan-expand" aria-label="Espandi planimetria" @click="showFloorplanExpanded = true">
                 <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M7 2H2v5M13 2h5v5M2 13v5h5M18 13v5h-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
               </button>
+            </div>
+
+            <div v-if="showFloorplanExpanded" class="floorplan-modal">
+              <div class="floorplan-modal-header">
+                <span class="floorplan-modal-title">PLANIMETRIA {{ (selectedLevel?.name || '').toUpperCase() }} · 3D</span>
+                <button type="button" class="floorplan-modal-close" aria-label="Chiudi vista espansa" @click="showFloorplanExpanded = false">
+                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+                </button>
+              </div>
+              <FloorplanScene3D class="floorplan-3d-host floorplan-3d-host-expanded" :rooms="floorplanRooms" :lamp-states="floorplanLampStates" />
+              <p class="floorplan-hint">Trascina per ruotare · due dita per zoomare</p>
             </div>
 
             <template v-if="zonesForSelectedLevel.length === 0">
@@ -526,17 +538,17 @@ function addDevice() {
     />
 
     <div class="fab-fan" :class="{ open: showFabFan }" aria-hidden="true">
-      <button type="button" class="fab-action fab-action-level" @click="addLevel">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="2.5" width="14" height="15" rx="1.8" stroke="currentColor" stroke-width="1.3" /><path d="M3 7.5h14" stroke="currentColor" stroke-width="1.3" /><path d="M10 10v5M7.5 12.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        <span>Livello</span>
+      <button type="button" class="fab-action fab-action-level" aria-label="Aggiungi livello" @click="addLevel">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="none"><rect x="3" y="2.5" width="14" height="15" rx="1.8" stroke="currentColor" stroke-width="1.3" /><path d="M3 7.5h14" stroke="currentColor" stroke-width="1.3" /><path d="M10 10v5M7.5 12.5h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        <span class="fab-action-label">Livello</span>
       </button>
-      <button type="button" class="fab-action fab-action-sublevel" @click="addSubLevel">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="4" rx="1.2" stroke="currentColor" stroke-width="1.2" /><rect x="3" y="9" width="14" height="4" rx="1.2" stroke="currentColor" stroke-width="1.2" /><path d="M10 13v4M8 15h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        <span>Sottolivello</span>
+      <button type="button" class="fab-action fab-action-sublevel" aria-label="Aggiungi sottolivello" @click="addSubLevel">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="4" rx="1.2" stroke="currentColor" stroke-width="1.2" /><rect x="3" y="9" width="14" height="4" rx="1.2" stroke="currentColor" stroke-width="1.2" /><path d="M10 13v4M8 15h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        <span class="fab-action-label">Sottolivello</span>
       </button>
-      <button type="button" class="fab-action fab-action-device" @click="addDevice">
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="6" y="2" width="8" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><path d="M8 6h4M8 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><path d="M10 13.5v3M8.5 15h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        <span>Dispositivo</span>
+      <button type="button" class="fab-action fab-action-device" aria-label="Aggiungi dispositivo" @click="addDevice">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="none"><rect x="6" y="2" width="8" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><path d="M8 6h4M8 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><path d="M10 13.5v3M8.5 15h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
+        <span class="fab-action-label">Dispositivo</span>
       </button>
     </div>
 
@@ -975,7 +987,7 @@ function addDevice() {
   border: 1px solid var(--color-border-secondary);
   border-radius: var(--radius-card);
   overflow: hidden;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .floorplan-caption {
@@ -996,6 +1008,10 @@ function addDevice() {
   background: linear-gradient(180deg, #dfe6ea, #b9c4cc);
 }
 
+.dark-mode .floorplan-3d-host {
+  background: linear-gradient(180deg, #2a323b, #14181d);
+}
+
 .floorplan-hint {
   margin: 0;
   padding: 6px 10px 10px;
@@ -1012,13 +1028,56 @@ function addDevice() {
   height: 26px;
   border-radius: 8px;
   border: none;
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
   box-shadow: var(--shadow-card);
   color: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.floorplan-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.floorplan-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.floorplan-modal-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.floorplan-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-surface-alt);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.floorplan-3d-host-expanded {
+  flex: 1;
+  height: auto;
 }
 
 .zone-card {
@@ -1298,64 +1357,60 @@ function addDevice() {
   position: absolute;
   left: 50%;
   bottom: calc(44px + env(safe-area-inset-bottom, 0));
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(0) scale(0.75);
   z-index: 6;
-}
-
-.fab-action {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translate(-50%, 0) scale(0.86);
+  display: flex;
+  align-items: stretch;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 14%, var(--color-border));
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--color-surface) 97%, #ffffff);
+  box-shadow: 0 10px 24px -14px rgba(17, 17, 17, 0.45), 0 3px 10px -6px rgba(17, 17, 17, 0.32);
+  padding: 4px;
   opacity: 0;
   pointer-events: none;
-  border: 1.5px solid color-mix(in srgb, var(--color-primary) 18%, var(--color-border));
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-surface) 96%, #ffffff);
-  color: var(--color-primary);
-  box-shadow: 0 10px 24px -14px rgba(17, 17, 17, 0.45), 0 3px 10px -6px rgba(17, 17, 17, 0.32);
-  height: 40px;
-  width: 156px;
-  max-width: calc(100vw - 44px);
-  padding: 0 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  font-family: var(--font-family);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
   transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
 }
 
-.fab-action-device {
-  transition-delay: 0ms;
-}
-
-.fab-action-sublevel {
-  transition-delay: 30ms;
-}
-
-.fab-action-level {
-  transition-delay: 60ms;
-}
-
-.fab-fan.open .fab-action {
+.fab-fan.open {
+  transform: translateX(-50%) translateY(-64px) scale(1);
   opacity: 1;
   pointer-events: auto;
 }
 
-.fab-fan.open .fab-action-level {
-  transform: translate(-50%, -196px) scale(1);
+.fab-action {
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  width: 92px;
+  padding: 12px 6px 10px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 24px;
+  transition: background 150ms ease;
 }
 
-.fab-fan.open .fab-action-sublevel {
-  transform: translate(-50%, -138px) scale(1);
+.fab-action:not(:last-child) {
+  border-right: 1px solid var(--color-border-secondary);
+  border-radius: 24px 0 0 24px;
 }
 
-.fab-fan.open .fab-action-device {
-  transform: translate(-50%, -80px) scale(1);
+.fab-action:last-child {
+  border-radius: 0 24px 24px 0;
+}
+
+.fab-action:active {
+  background: var(--color-surface-alt);
+}
+
+.fab-action-label {
+  font-family: var(--font-family);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .sheet-action {

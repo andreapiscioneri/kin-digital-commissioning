@@ -2,8 +2,14 @@
 const route = useRoute()
 const projectId = route.params.id as string
 const { levels } = useLevelsStore(projectId)
+const { collaborators } = useCollaboratorsStore(projectId)
 const { goBack, goClose, goForward } = useNavStack()
-const hasCompletedScan = computed(() => route.query.from === 'scan')
+const hasCompletedInvite = computed(() => route.query.from === 'invite')
+
+function collaboratorInitial(email: string) {
+  const initial = email.trim().charAt(0)
+  return initial ? initial.toUpperCase() : '?'
+}
 
 function openLevel(id: string) {
   goForward(`/progetti/${projectId}/livelli/${id}`)
@@ -12,16 +18,18 @@ function openLevel(id: string) {
 function onContinue() {
   if (levels.value.length === 0) return
 
-  if (hasCompletedScan.value) {
-    goForward(`/progetti/${projectId}/utenti`)
+  if (!hasCompletedInvite.value) {
+    const recapAfterInvite = `/progetti/${projectId}/livelli?from=invite`
+    goForward(
+      `/progetti/${projectId}/utenti?next=${encodeURIComponent(recapAfterInvite)}&back=${encodeURIComponent(`/progetti/${projectId}/livelli`)}`
+    )
     return
   }
 
   const firstLevel = levels.value[0]
   const firstZone = firstLevel.subLevelNames?.[0] || firstLevel.name
-  const recapAfterScan = `/progetti/${projectId}/livelli?from=scan`
   goForward(
-    `/progetti/${projectId}/dispositivi/scan?levelId=${firstLevel.id}&zona=${encodeURIComponent(firstZone)}&next=${encodeURIComponent(recapAfterScan)}&back=${encodeURIComponent(`/progetti/${projectId}/livelli`)}`
+    `/progetti/${projectId}/dispositivi/scan?levelId=${firstLevel.id}&zona=${encodeURIComponent(firstZone)}&next=${encodeURIComponent(`/progetti/${projectId}`)}&back=${encodeURIComponent(`/progetti/${projectId}/livelli?from=invite`)}`
   )
 }
 </script>
@@ -47,10 +55,24 @@ function onContinue() {
           @click="openLevel(level.id)"
         />
       </template>
+
+      <template v-if="hasCompletedInvite">
+        <p class="section-caption">Collaboratori</p>
+        <div v-if="collaborators.length > 0" class="collaborators-list">
+          <div v-for="collab in collaborators" :key="collab.id" class="collaborator-row">
+            <span class="collab-avatar">{{ collaboratorInitial(collab.email) }}</span>
+            <span class="collab-text">
+              <span class="collab-email">{{ collab.email }}</span>
+              <span class="collab-role">{{ collab.role }}</span>
+            </span>
+          </div>
+        </div>
+        <p v-else class="no-collaborators">Nessun collaboratore invitato per questo impianto.</p>
+      </template>
     </div>
 
     <div class="footer">
-      <Button variant="primary" :disabled="levels.length === 0" @click="onContinue">{{ hasCompletedScan ? 'Invita collaboratori' : 'Continua' }}</Button>
+      <Button variant="primary" :disabled="levels.length === 0" @click="onContinue">{{ hasCompletedInvite ? 'Avvia scansione' : 'Invita collaboratori' }}</Button>
     </div>
   </div>
 </template>
@@ -74,5 +96,76 @@ function onContinue() {
 
 .footer {
   padding: 16px var(--space-page-x) 24px;
+}
+
+.section-caption {
+  margin: 8px 0 0;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.collaborators-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.collaborator-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.collaborator-row:last-child {
+  border-bottom: none;
+}
+
+.collab-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  border: 1px solid rgba(17, 17, 17, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.collab-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.collab-email {
+  font-size: var(--font-size-body);
+  color: var(--color-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collab-role {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.no-collaborators {
+  margin: 0;
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
 }
 </style>

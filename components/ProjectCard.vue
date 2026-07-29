@@ -70,7 +70,7 @@ function collaboratorInitial(email: string) {
   padding: 0;
   border: none;
   border-radius: 18px;
-  box-shadow: 0 2px 10px -4px rgba(17, 17, 17, 0.1), 0 10px 24px -12px rgba(17, 17, 17, 0.14);
+  box-shadow: var(--shadow-card);
   background: var(--color-surface);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;

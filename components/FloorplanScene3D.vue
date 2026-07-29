@@ -15,6 +15,9 @@ const props = defineProps<{
   lampStates: boolean[]
 }>()
 
+const colorMode = useColorMode()
+const isDark = computed(() => colorMode.value === 'dark')
+
 const canvasHost = ref<HTMLDivElement | null>(null)
 
 let renderer: THREE.WebGLRenderer | null = null
@@ -26,13 +29,39 @@ let frameId = 0
 
 const WALL_HEIGHT = 15
 const WALL_THICKNESS = 1.4
-const FLOOR_COLOR = 0xd9bd91
-const FLOOR_COLOR_LIT = 0xf0d19f
-const WALL_COLOR = 0xf7f5f0
 const RUG_COLOR = 0xc7ccce
 const WOOD_COLOR = 0xb0855a
 const FABRIC_COLOR = 0xaab0b4
 const ACCENT_COLOR = 0xe0521c
+
+const PALETTE = {
+  light: {
+    wall: 0xf7f5f0,
+    floor: 0xd9bd91,
+    floorLit: 0xf0d19f,
+    slab: 0xe9e4da,
+    ambientSky: 0xffffff,
+    ambientGround: 0x9aa6ad,
+    ambientIntensity: 0.85,
+    dirColor: 0xfff3e0,
+    dirIntensity: 0.9
+  },
+  dark: {
+    wall: 0x3d444d,
+    floor: 0x7e6042,
+    floorLit: 0xd9a35c,
+    slab: 0x1b2025,
+    ambientSky: 0x8fa0ad,
+    ambientGround: 0x14181c,
+    ambientIntensity: 0.55,
+    dirColor: 0xffe9c7,
+    dirIntensity: 0.55
+  }
+} as const
+
+function currentPalette() {
+  return isDark.value ? PALETTE.dark : PALETTE.light
+}
 
 type FurnitureKind = 'bed' | 'sofa' | 'kitchen' | 'desk' | 'dining' | 'lounge' | 'plant' | 'none'
 
@@ -44,6 +73,10 @@ type RoomMesh = {
   light: THREE.PointLight
 }
 let roomMeshes: (RoomMesh | null)[] = []
+let allWallMats: THREE.MeshStandardMaterial[] = []
+let slabMat: THREE.MeshStandardMaterial | null = null
+let ambientLight: THREE.HemisphereLight | null = null
+let dirLight: THREE.DirectionalLight | null = null
 
 function wallShellGeometry(w: number, d: number, height: number, thickness: number) {
   const outer = new THREE.Shape()
@@ -187,6 +220,7 @@ function buildScene() {
 
   const ambient = new THREE.HemisphereLight(0xffffff, 0x9aa6ad, 0.85)
   scene.add(ambient)
+  ambientLight = ambient
   const dir = new THREE.DirectionalLight(0xfff3e0, 0.9)
   dir.position.set(160, 260, 140)
   dir.castShadow = true
@@ -196,6 +230,7 @@ function buildScene() {
   dir.shadow.camera.top = 200
   dir.shadow.camera.bottom = -200
   scene.add(dir)
+  dirLight = dir
 
   const bounds = props.rooms.reduce(
     (acc, r) => ({
@@ -209,14 +244,17 @@ function buildScene() {
   const centerX = (bounds.minX + bounds.maxX) / 2
   const centerZ = (bounds.minY + bounds.maxY) / 2
 
+  const slabMaterial = new THREE.MeshStandardMaterial({ color: 0xe9e4da })
+  slabMat = slabMaterial
   const slab = new THREE.Mesh(
     new THREE.BoxGeometry(bounds.maxX - bounds.minX + 6, 2, bounds.maxY - bounds.minY + 6),
-    new THREE.MeshStandardMaterial({ color: 0xe9e4da })
+    slabMaterial
   )
   slab.position.set(0, -1.2, 0)
   slab.receiveShadow = true
   scene.add(slab)
 
+  allWallMats = []
   roomMeshes = props.rooms.map((room, i) => {
     const rw = room.w - 2
     const rd = room.h - 2
@@ -228,13 +266,14 @@ function buildScene() {
     scene!.add(roomGroup)
 
     const floorGeo = new THREE.BoxGeometry(rw - WALL_THICKNESS * 2, 0.8, rd - WALL_THICKNESS * 2)
-    const floorMat = new THREE.MeshStandardMaterial({ color: FLOOR_COLOR, roughness: 0.75 })
+    const floorMat = new THREE.MeshStandardMaterial({ roughness: 0.75 })
     const floor = new THREE.Mesh(floorGeo, floorMat)
     floor.position.set(0, 0.4, 0)
     floor.receiveShadow = true
     roomGroup.add(floor)
 
-    const wallMat = new THREE.MeshStandardMaterial({ color: WALL_COLOR, roughness: 0.95 })
+    const wallMat = new THREE.MeshStandardMaterial({ roughness: 0.95 })
+    allWallMats.push(wallMat)
     const walls = new THREE.Mesh(wallShellGeometry(rw, rd, WALL_HEIGHT, WALL_THICKNESS), wallMat)
     walls.castShadow = true
     walls.receiveShadow = true
@@ -265,17 +304,35 @@ function buildScene() {
   controls.target.set(0, 4, 0)
   controls.update()
 
+  applyTheme()
   applyLampStates()
   animate()
 }
 
+function applyTheme() {
+  const p = currentPalette()
+
+  if (ambientLight) {
+    ambientLight.color.set(p.ambientSky)
+    ambientLight.groundColor.set(p.ambientGround)
+    ambientLight.intensity = p.ambientIntensity
+  }
+  if (dirLight) {
+    dirLight.color.set(p.dirColor)
+    dirLight.intensity = p.dirIntensity
+  }
+  if (slabMat) slabMat.color.set(p.slab)
+  allWallMats.forEach((mat) => mat.color.set(p.wall))
+}
+
 function applyLampStates() {
+  const p = currentPalette()
   roomMeshes.forEach((mesh, i) => {
     if (!mesh) return
     const on = !!props.lampStates[i]
 
     const floorMat = mesh.floor.material as THREE.MeshStandardMaterial
-    floorMat.color.set(on ? FLOOR_COLOR_LIT : FLOOR_COLOR)
+    floorMat.color.set(on ? p.floorLit : p.floor)
     floorMat.emissive.set(on ? 0xffb75e : 0x000000)
     floorMat.emissiveIntensity = on ? 0.18 : 0
 
@@ -308,6 +365,11 @@ watch(
   () => applyLampStates(),
   { deep: true }
 )
+
+watch(isDark, () => {
+  applyTheme()
+  applyLampStates()
+})
 
 onMounted(() => {
   buildScene()
