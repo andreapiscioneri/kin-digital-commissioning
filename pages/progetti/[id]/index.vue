@@ -83,6 +83,21 @@ const devicesForSelectedLevel = computed(() =>
   provisionedDevices.value.filter((d: ProvisionedDevice) => d.levelId === selectedLevelId.value)
 )
 
+const floorplanRooms = [
+  { x: 12, y: 14, w: 42, h: 46, dot: { cx: 33, cy: 37 } },
+  { x: 58, y: 14, w: 42, h: 46, dot: { cx: 79, cy: 37 } },
+  { x: 104, y: 14, w: 42, h: 46, dot: { cx: 125, cy: 37 } },
+  { x: 150, y: 14, w: 42, h: 46, dot: { cx: 171, cy: 37 } },
+  { x: 196, y: 14, w: 42, h: 46, dot: { cx: 217, cy: 37 } },
+  { x: 242, y: 14, w: 46, h: 46, dot: { cx: 263, cy: 37 } },
+  { x: 12, y: 66, w: 130, h: 50, dot: null },
+  { x: 150, y: 66, w: 138, h: 50, dot: null }
+]
+
+const floorplanLampStates = computed(() =>
+  devicesForSelectedLevel.value.filter((d: ProvisionedDevice) => d.type === 'Lampada').map((d: ProvisionedDevice) => !!d.on)
+)
+
 const zonesForSelectedLevel = computed(() => {
   const map = new Map<string, typeof devicesForSelectedLevel.value>()
   for (const device of devicesForSelectedLevel.value) {
@@ -317,29 +332,9 @@ function addDevice() {
             <p class="floor-summary">{{ selectedLevel?.subLevels || 0 }} sottolivelli · {{ devicesForSelectedLevel.length }} dispositivi</p>
 
             <div class="floorplan-card">
-              <div class="floorplan-caption">PLANIMETRIA {{ (selectedLevel?.name || '').toUpperCase() }}</div>
-              <svg class="floorplan-svg" viewBox="0 0 300 130" fill="none" aria-hidden="true">
-                <rect x="1" y="1" width="298" height="128" fill="#fff" stroke="#c7d2da" stroke-width="1" />
-                <path d="M1 1v128M300 1v128" stroke="#c7d2da" stroke-width="1" />
-                <g stroke="#8fa3b3" stroke-width="1">
-                  <rect x="12" y="14" width="42" height="46" />
-                  <rect x="58" y="14" width="42" height="46" />
-                  <rect x="104" y="14" width="42" height="46" />
-                  <rect x="150" y="14" width="42" height="46" />
-                  <rect x="196" y="14" width="42" height="46" />
-                  <rect x="242" y="14" width="46" height="46" />
-                  <rect x="12" y="66" width="130" height="50" />
-                  <rect x="150" y="66" width="138" height="50" />
-                </g>
-                <g fill="#c9d6df">
-                  <circle cx="33" cy="37" r="3" />
-                  <circle cx="79" cy="37" r="3" />
-                  <circle cx="125" cy="37" r="3" />
-                  <circle cx="171" cy="37" r="3" />
-                  <circle cx="217" cy="37" r="3" />
-                  <circle cx="263" cy="37" r="3" />
-                </g>
-              </svg>
+              <div class="floorplan-caption">PLANIMETRIA {{ (selectedLevel?.name || '').toUpperCase() }} · 3D</div>
+              <FloorplanScene3D class="floorplan-3d-host" :rooms="floorplanRooms" :lamp-states="floorplanLampStates" />
+              <p class="floorplan-hint">Trascina per ruotare · pizzica per zoomare</p>
               <button type="button" class="floorplan-expand" aria-label="Espandi planimetria">
                 <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M7 2H2v5M13 2h5v5M2 13v5h5M18 13v5h-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
               </button>
@@ -994,10 +989,19 @@ function addDevice() {
   color: var(--color-text-secondary);
 }
 
-.floorplan-svg {
+.floorplan-3d-host {
   width: 100%;
-  height: auto;
+  height: 260px;
   display: block;
+  background: linear-gradient(180deg, #dfe6ea, #b9c4cc);
+}
+
+.floorplan-hint {
+  margin: 0;
+  padding: 6px 10px 10px;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  text-align: center;
 }
 
 .floorplan-expand {
@@ -1237,7 +1241,7 @@ function addDevice() {
 .fab {
   position: absolute;
   left: 50%;
-  bottom: calc(42px + env(safe-area-inset-bottom, 0));
+  bottom: calc(44px + env(safe-area-inset-bottom, 0));
   transform: translateX(-50%);
   width: 56px;
   height: 56px;
@@ -1253,6 +1257,16 @@ function addDevice() {
   transition: transform var(--duration-base) var(--ease-standard);
 }
 
+.fab:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-accent) 45%, white);
+  outline-offset: 3px;
+}
+
+.fab-action:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 .fab.open {
   transform: translateX(-50%) rotate(45deg);
 }
@@ -1265,15 +1279,25 @@ function addDevice() {
   position: absolute;
   inset: 0;
   border: none;
-  background: transparent;
+  background: rgba(17, 17, 17, 0.32);
   z-index: 5;
   cursor: default;
+  animation: fab-scrim-in 180ms ease;
+}
+
+@keyframes fab-scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .fab-fan {
   position: absolute;
   left: 50%;
-  bottom: calc(42px + env(safe-area-inset-bottom, 0));
+  bottom: calc(44px + env(safe-area-inset-bottom, 0));
   transform: translateX(-50%);
   z-index: 6;
 }
@@ -1305,16 +1329,16 @@ function addDevice() {
   transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
 }
 
-.fab-action-level {
+.fab-action-device {
   transition-delay: 0ms;
 }
 
 .fab-action-sublevel {
-  transition-delay: 20ms;
+  transition-delay: 30ms;
 }
 
-.fab-action-device {
-  transition-delay: 40ms;
+.fab-action-level {
+  transition-delay: 60ms;
 }
 
 .fab-fan.open .fab-action {
@@ -1323,15 +1347,15 @@ function addDevice() {
 }
 
 .fab-fan.open .fab-action-level {
-  transform: translate(-50%, -112px) scale(1);
+  transform: translate(-50%, -196px) scale(1);
 }
 
 .fab-fan.open .fab-action-sublevel {
-  transform: translate(calc(-50% - 82px), -66px) scale(1);
+  transform: translate(-50%, -138px) scale(1);
 }
 
 .fab-fan.open .fab-action-device {
-  transform: translate(calc(-50% + 82px), -66px) scale(1);
+  transform: translate(-50%, -80px) scale(1);
 }
 
 .sheet-action {

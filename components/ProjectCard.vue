@@ -27,6 +27,15 @@ function collaboratorInitial(email: string) {
     <div class="project-content">
       <div class="project-card-head">
         <span class="project-name">{{ project.name }}</span>
+        <div v-if="collaborators.length > 0" class="card-avatar-stack">
+          <span
+            v-for="collaborator in collaborators"
+            :key="collaborator.id"
+            class="card-avatar-mini"
+            :class="{ 'is-active': collaborator.active }"
+            :title="collaborator.email"
+          >{{ collaboratorInitial(collaborator.email) }}</span>
+        </div>
         <button type="button" class="menu-btn" aria-label="Altre azioni" @click.stop="$emit('menu')">
           <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor"><circle cx="2" cy="2" r="2" /><circle cx="2" cy="8" r="2" /><circle cx="2" cy="14" r="2" /></svg>
         </button>
