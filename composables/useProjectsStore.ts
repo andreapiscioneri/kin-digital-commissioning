@@ -19,14 +19,14 @@ export interface Project {
   deleted: boolean
 }
 
-const PROJECTS_STORAGE_KEY = 'dc-projects-v3'
+const PROJECTS_STORAGE_KEY = 'dc-projects-v5'
 
 const categoryImages: Record<ProjectCategory, string> = {
   Office: '/images/project-office.jpg',
   Industry: '/images/project-industry.jpg',
   'Sport indoor': '/images/project-sport.jpg',
   Retail: '/images/project-retail.jpg',
-  Relamping: '/images/project-relamping.jpg',
+  Relamping: '/images/project-office-2.jpg',
   Altro: '/images/project-generic.jpg'
 }
 
@@ -45,36 +45,6 @@ export function getCategoryImage(category: ProjectCategory) {
 
 function makeProjects(): Project[] {
   return [
-    {
-      id: 'verdi-srl',
-      name: 'Verdi Srl',
-      category: 'Office',
-      image: '/images/project-office.jpg',
-      address: 'Via Domenico Bosatelli 1, 24069',
-      city: 'Cenate Sotto (BG)',
-      lastSync: '12/06/2026',
-      levels: 2,
-      devices: 22,
-      syncStatus: 'not-synced',
-      connectionStatus: 'none',
-      favorite: true,
-      deleted: false
-    },
-    {
-      id: 'kiko-milano-srl',
-      name: 'Kiko Milano Srl',
-      category: 'Retail',
-      image: '/images/project-retail.jpg',
-      address: 'Via Domenico Bosatelli 1 24069',
-      city: 'Cenate Sotto (BG)',
-      lastSync: '10/06/2026',
-      levels: 2,
-      devices: 50,
-      syncStatus: 'not-synced',
-      connectionStatus: 'none',
-      favorite: true,
-      deleted: false
-    },
     {
       id: 'beghelli',
       name: 'Beghelli',
@@ -106,25 +76,10 @@ function makeProjects(): Project[] {
       deleted: false
     },
     {
-      id: 'paladozza',
-      name: 'Paladozza',
-      category: 'Sport indoor',
-      image: '/images/project-sport.jpg',
-      address: 'Piazza Manfredi Azzarita, 2, 40122',
-      city: 'Bologna BO',
-      lastSync: '18/06/2026',
-      levels: 4,
-      devices: 18,
-      syncStatus: 'synced',
-      connectionStatus: 'online',
-      favorite: false,
-      deleted: false
-    },
-    {
       id: 'miin-cosmetics-bg',
       name: 'Miin Cosmetics BG',
       category: 'Retail',
-      image: '/images/project-retail-2.jpg',
+      image: '/images/project-retail.jpg',
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: 'Non sincronizzato',

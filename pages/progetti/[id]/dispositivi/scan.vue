@@ -164,17 +164,12 @@ function backFromIntro() {
 
     <template v-if="screen === 'intro'">
       <div class="intro-bg">
-        <img src="/images/scan-bg.jpg" alt="" class="intro-bg-image" />
+        <img src="/images/bluetooth-new.png" alt="" class="intro-bg-image" />
         <div class="intro-bg-overlay" />
         <div class="intro-content">
           <StatusBar inverted />
           <AppHeader title="" leading="back" trailing="close" inverted @back="backFromIntro" @close="goClose(`/progetti/${projectId}`)" />
           <div class="body centered">
-            <span class="radar-illustration" aria-hidden="true">
-              <span class="radar-ring ring-1" />
-              <span class="radar-ring ring-2" />
-              <span class="radar-dot" />
-            </span>
             <h1 class="title">Aggiungi dispositivi a “{{ zone }}”</h1>
             <p class="subtitle">Questo processo ti guiderà nell'individuazione dei dispositivi da aggiungere alla zona.</p>
             <div class="note">
@@ -307,9 +302,10 @@ function backFromIntro() {
 }
 
 .body.centered {
-  align-items: center;
-  text-align: center;
-  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  justify-content: flex-end;
+  padding-bottom: 36px;
   gap: 16px;
 }
 
@@ -327,13 +323,13 @@ function backFromIntro() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
+  filter: grayscale(0.3) contrast(1.08) saturate(1.14);
 }
 
 .intro-bg-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(17, 17, 17, 0.55) 0%, rgba(17, 17, 17, 0.75) 60%, rgba(17, 17, 17, 0.92) 100%);
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.36) 0%, rgba(17, 17, 17, 0.24) 40%, rgba(17, 17, 17, 0.66) 100%);
 }
 
 .intro-content {

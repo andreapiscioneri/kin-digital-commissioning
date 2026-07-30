@@ -3,14 +3,14 @@ withDefaults(
   defineProps<{
     title?: string
     leading?: 'back' | 'none'
-    trailing?: 'close' | 'none'
+    trailing?: 'close' | 'trash' | 'none'
     divider?: boolean
     inverted?: boolean
   }>(),
   { title: '', leading: 'back', trailing: 'none', divider: true, inverted: false }
 )
 
-const emit = defineEmits<{ back: []; close: [] }>()
+const emit = defineEmits<{ back: []; close: []; trash: [] }>()
 </script>
 
 <template>
@@ -24,6 +24,9 @@ const emit = defineEmits<{ back: []; close: [] }>()
 
     <button v-if="trailing === 'close'" type="button" class="icon-btn" aria-label="Chiudi" @click="emit('close')">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 1l14 14M15 1L1 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+    </button>
+    <button v-else-if="trailing === 'trash'" type="button" class="icon-btn" aria-label="Elimina" @click="emit('trash')">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M8 5V3.5A1.5 1.5 0 019.5 2h1A1.5 1.5 0 0112 3.5V5M15 5v11a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 015 16V5h10z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M8.5 8.5v6M11.5 8.5v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
     </button>
     <span v-else class="icon-spacer" />
   </header>

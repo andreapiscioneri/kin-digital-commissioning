@@ -70,13 +70,13 @@ defineEmits<{ click: [MouseEvent] }>()
 }
 
 .btn.primary {
-  background: var(--color-accent);
+  background: linear-gradient(135deg, #ff6a2f 0%, #db3700 60%, #b02b00 100%);
   color: #ffffff;
-  box-shadow: var(--shadow-fab);
+  box-shadow: none;
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: var(--color-accent-hover);
+  background: linear-gradient(135deg, #ff7a42 0%, #e84000 60%, #c03000 100%);
 }
 
 .btn.primary:disabled {

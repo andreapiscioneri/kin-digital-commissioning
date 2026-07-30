@@ -20,14 +20,16 @@ defineEmits<{ menu: []; notifications: [] }>()
 
 <template>
   <header class="greeting-header">
-    <span class="avatar">{{ initials }}</span>
+    <span class="avatar">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5" /><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+    </span>
     <span class="greeting-text">
       <span class="greeting-title">Benvenuto</span>
       <span class="greeting-subtitle">Bentornato, {{ props.name }}</span>
     </span>
-    <button type="button" class="icon-btn" aria-label="Notifiche" @click="$emit('notifications')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
-      <span v-if="notificationCount > 0" class="badge">{{ notificationCount }}</span>
+    <button type="button" class="icon-btn notif-btn" aria-label="Notifiche" @click="$emit('notifications')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3a6 6 0 00-6 6v4l-2 3h16l-2-3V9a6 6 0 00-6-6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><path d="M9.5 19a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
+      <span v-if="notificationCount > 0" class="notif-badge">{{ notificationCount }}</span>
     </button>
     <button type="button" class="icon-btn" aria-label="Menu" @click="$emit('menu')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg>
@@ -43,7 +45,7 @@ defineEmits<{ menu: []; notifications: [] }>()
   gap: 14px;
   padding: 22px var(--space-page-x) 26px;
   overflow: hidden;
-  background: var(--color-surface);
+  background: transparent;
 }
 
 .avatar {
@@ -51,17 +53,14 @@ defineEmits<{ menu: []; notifications: [] }>()
   z-index: 1;
   width: 48px;
   height: 48px;
-  border-radius: 16px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: linear-gradient(145deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
-  box-shadow: 0 6px 16px -4px var(--color-focus-ring);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  background: transparent;
+  border: 2px solid var(--color-accent);
+  color: var(--color-accent);
 }
 
 .greeting-text {
@@ -93,8 +92,8 @@ defineEmits<{ menu: []; notifications: [] }>()
   height: 40px;
   border-radius: 12px;
   border: none;
-  background: color-mix(in srgb, var(--color-surface) 75%, transparent);
-  box-shadow: var(--shadow-card);
+  background: transparent;
+  box-shadow: none;
   color: var(--color-primary);
   display: flex;
   align-items: center;
@@ -103,7 +102,11 @@ defineEmits<{ menu: []; notifications: [] }>()
   flex-shrink: 0;
 }
 
-.badge {
+.notif-btn {
+  position: relative;
+}
+
+.notif-badge {
   position: absolute;
   top: -2px;
   right: -2px;

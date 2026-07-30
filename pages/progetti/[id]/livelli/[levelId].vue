@@ -2,7 +2,7 @@
 const route = useRoute()
 const projectId = route.params.id as string
 const levelId = route.params.levelId as string
-const { getLevel, updateLevel } = useLevelsStore(projectId)
+const { getLevel, updateLevel, removeLevel } = useLevelsStore(projectId)
 const { goBack, goBackTo } = useNavStack()
 
 const level = getLevel(levelId)
@@ -17,6 +17,7 @@ const showGalleryPermission = ref(false)
 const showGalleryPicker = ref(false)
 const takingPhoto = ref(false)
 const deleteTarget = ref<number | null>(null)
+const showDeleteLevelDialog = ref(false)
 const draggingIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
 
@@ -118,6 +119,16 @@ function denyCamera() {
   showCameraPermission.value = false
 }
 
+function askDeleteLevel() {
+  showDeleteLevelDialog.value = true
+}
+
+function confirmDeleteLevel() {
+  removeLevel(levelId)
+  showDeleteLevelDialog.value = false
+  goBackTo(`/progetti/${projectId}/livelli`)
+}
+
 function save() {
   updateLevel(levelId, { name: name.value, subLevels: subLevels.value, subLevelNames: subLevelNames.value, hasPlan: hasPlan.value })
   goBackTo(`/progetti/${projectId}/livelli`)
@@ -127,7 +138,13 @@ function save() {
 <template>
   <div class="screen">
     <StatusBar />
-    <AppHeader :title="`Modifica “${level?.name}”`" leading="back" trailing="none" @back="goBack(`/progetti/${projectId}/livelli`)" />
+    <AppHeader
+      :title="`Modifica “${level?.name}”`"
+      leading="back"
+      trailing="trash"
+      @back="goBack(`/progetti/${projectId}/livelli`)"
+      @trash="askDeleteLevel"
+    />
 
     <div class="body">
       <div class="plan-card">
@@ -201,6 +218,20 @@ function save() {
       <div class="dialog-btn-row">
         <Button variant="ghost" @click="deleteTarget = null">Annulla</Button>
         <Button variant="primary" @click="confirmDeleteSubLevel">Elimina</Button>
+      </div>
+    </AlertDialog>
+
+    <AlertDialog
+      v-model="showDeleteLevelDialog"
+      :title="`Elimina livello “${level?.name || ''}”`"
+      description="L'eliminazione del livello non può essere annullata."
+    >
+      <template #icon>
+        <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><path d="M10 2L1 18h18L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><circle cx="10" cy="15" r="0.8" fill="currentColor" /></svg>
+      </template>
+      <div class="dialog-btn-row">
+        <Button variant="ghost" @click="showDeleteLevelDialog = false">Annulla</Button>
+        <Button variant="primary" @click="confirmDeleteLevel">Elimina</Button>
       </div>
     </AlertDialog>
 

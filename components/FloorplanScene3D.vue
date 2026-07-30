@@ -25,6 +25,7 @@ let scene: THREE.Scene | null = null
 let camera: THREE.PerspectiveCamera | null = null
 let controls: OrbitControls | null = null
 let resizeObserver: ResizeObserver | null = null
+let fallbackResizeTimeout = 0
 let frameId = 0
 
 const WALL_HEIGHT = 15
@@ -373,13 +374,25 @@ watch(isDark, () => {
 
 onMounted(() => {
   buildScene()
-  resizeObserver = new ResizeObserver(handleResize)
-  if (canvasHost.value) resizeObserver.observe(canvasHost.value)
+
+  if ('ResizeObserver' in window) {
+    resizeObserver = new ResizeObserver(handleResize)
+    if (canvasHost.value) resizeObserver.observe(canvasHost.value)
+  }
+
+  window.addEventListener('resize', handleResize)
+  window.visualViewport?.addEventListener('resize', handleResize)
+
+  requestAnimationFrame(handleResize)
+  fallbackResizeTimeout = window.setTimeout(handleResize, 140)
 })
 
 onUnmounted(() => {
   cancelAnimationFrame(frameId)
+  window.clearTimeout(fallbackResizeTimeout)
   resizeObserver?.disconnect()
+  window.removeEventListener('resize', handleResize)
+  window.visualViewport?.removeEventListener('resize', handleResize)
   controls?.dispose()
   if (renderer) {
     renderer.dispose()

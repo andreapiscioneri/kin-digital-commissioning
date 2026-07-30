@@ -17,10 +17,10 @@ function collaboratorInitial(email: string) {
     <div class="project-thumb-wrap">
       <img :src="project.image" alt="" class="project-thumb" />
       <span v-if="project.connectionStatus === 'fault'" class="status-badge fault" aria-hidden="true">
-        <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M10 2L1 18h18L10 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /><circle cx="10" cy="15" r="0.8" fill="currentColor" /></svg>
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2L1 18h18L10 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="10" cy="15" r="1" fill="currentColor" /></svg>
       </span>
       <span v-else class="status-badge" :class="{ online: project.connectionStatus === 'online' }" aria-hidden="true">
-        <svg width="12" height="12" viewBox="0 0 20 20" fill="none"><path d="M5.5 15a3.5 3.5 0 01-.5-6.96A4.5 4.5 0 0113.9 6.6 3.5 3.5 0 0114 13H5.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /></svg>
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M5.5 15a3.5 3.5 0 01-.5-6.96A4.5 4.5 0 0113.9 6.6 3.5 3.5 0 0114 13H5.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg>
       </span>
     </div>
 
@@ -99,12 +99,13 @@ function collaboratorInitial(email: string) {
   position: absolute;
   top: 6px;
   left: 6px;
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(4px);
-  color: rgba(17, 17, 17, 0.65);
+  color: #141413;
+  box-shadow: 0 2px 6px -2px rgba(17, 17, 17, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,7 +138,7 @@ function collaboratorInitial(email: string) {
 
 .project-name {
   flex: 1;
-  font-size: 15px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--color-primary);

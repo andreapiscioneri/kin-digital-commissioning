@@ -104,7 +104,7 @@ function makeZones(): Zone[] {
           devices: [
             { id: 'sm-1', name: 'Luce regia', icon: 'light', on: true },
             { id: 'sm-2', name: 'Faretti soffitto', icon: 'ceiling', on: true },
-            { id: 'sm-3', name: 'Impianto audio', icon: 'tv', on: true }
+            { id: 'sm-3', name: 'Progetto audio', icon: 'tv', on: true }
           ]
         }
       ]

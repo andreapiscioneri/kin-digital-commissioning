@@ -26,11 +26,7 @@ function onContinue() {
     return
   }
 
-  const firstLevel = levels.value[0]
-  const firstZone = firstLevel.subLevelNames?.[0] || firstLevel.name
-  goForward(
-    `/progetti/${projectId}/dispositivi/scan?levelId=${firstLevel.id}&zona=${encodeURIComponent(firstZone)}&next=${encodeURIComponent(`/progetti/${projectId}`)}&back=${encodeURIComponent(`/progetti/${projectId}/livelli?from=invite`)}`
-  )
+  goClose(`/progetti/${projectId}`)
 }
 </script>
 
@@ -67,12 +63,12 @@ function onContinue() {
             </span>
           </div>
         </div>
-        <p v-else class="no-collaborators">Nessun collaboratore invitato per questo impianto.</p>
+        <p v-else class="no-collaborators">Nessun collaboratore invitato per questo Progetto.</p>
       </template>
     </div>
 
     <div class="footer">
-      <Button variant="primary" :disabled="levels.length === 0" @click="onContinue">{{ hasCompletedInvite ? 'Avvia scansione' : 'Invita collaboratori' }}</Button>
+      <Button variant="primary" :disabled="levels.length === 0" @click="onContinue">{{ hasCompletedInvite ? 'Vai al progetto' : 'Invita collaboratori' }}</Button>
     </div>
   </div>
 </template>

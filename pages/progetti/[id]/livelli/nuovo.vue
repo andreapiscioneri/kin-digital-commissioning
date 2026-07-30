@@ -138,15 +138,12 @@ function onAiStepperContinue() {
 
     <template v-else-if="screen === 'intro'">
       <div class="intro-bg">
-        <img src="/images/309633a9-7774-496e-be4a-b9f8625a7a54.png" alt="" class="intro-bg-image" />
+        <img src="/images/livello-new.png" alt="" class="intro-bg-image" />
         <div class="intro-bg-overlay" />
         <div class="intro-content">
           <StatusBar inverted />
           <AppHeader title="Modalità manuale" leading="back" trailing="close" inverted @back="goToModeSelection" @close="goDashboard" />
           <div class="body centered">
-            <span class="placeholder-icon">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><circle cx="8" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" /><path d="M2 17l5.5-5.5L12 16l4-4 6 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
-            </span>
             <h1 class="title">Creazione dei livelli</h1>
             <p class="subtitle">I livelli rappresentano la prima suddivisione del progetto, come Piano Terra, Primo Piano o Esterno.</p>
           </div>
@@ -207,6 +204,7 @@ function onAiStepperContinue() {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background: #05070a;
 }
 
 .intro-bg-image {
@@ -215,7 +213,7 @@ function onAiStepperContinue() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
+  filter: grayscale(0.3) contrast(1.08) saturate(1.14);
 }
 
 .intro-bg-overlay {
@@ -223,9 +221,9 @@ function onAiStepperContinue() {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.3) 40%,
-    rgba(0, 0, 0, 0.8) 100%
+    rgba(0, 0, 0, 0.36) 0%,
+    rgba(0, 0, 0, 0.24) 40%,
+    rgba(0, 0, 0, 0.66) 100%
   );
   z-index: 1;
 }
@@ -275,9 +273,10 @@ function onAiStepperContinue() {
 }
 
 .body.centered {
-  align-items: center;
-  text-align: center;
-  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  justify-content: flex-end;
+  padding-bottom: 36px;
 }
 
 .title.left,

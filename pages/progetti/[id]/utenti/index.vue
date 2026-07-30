@@ -85,15 +85,12 @@ function collaboratorInitial(emailAddress: string) {
 
     <template v-if="screen === 'intro'">
       <div class="intro-bg">
-        <img src="/images/samuel-angor-oRSrWHrIfAc-unsplash.jpg" alt="" class="intro-bg-image" />
+        <img src="/images/invita-collaboratori-new.png" alt="" class="intro-bg-image" />
         <div class="intro-bg-overlay" />
         <div class="intro-content">
           <StatusBar inverted />
           <AppHeader title="" leading="back" trailing="close" inverted @back="goBack(backDestination)" @close="finishCollaborators" />
           <div class="body centered">
-            <span class="placeholder-icon">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="6" r="2.5" stroke="currentColor" stroke-width="1.3" /><path d="M2 16c0-1.5 2-3 5-3s5 1.5 5 3v2H2v-2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><circle cx="16" cy="6" r="2.5" stroke="currentColor" stroke-width="1.3" /><path d="M11 16c0-1.5 1.5-3 4-3s4 1.5 4 3v2h-8v-2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
-            </span>
             <h1 class="title">Invita i collaboratori</h1>
             <p class="subtitle">Puoi invitare altri collaboratori che potranno gestire questo progetto</p>
           </div>
@@ -211,7 +208,7 @@ function collaboratorInitial(emailAddress: string) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
+  filter: grayscale(0.3) contrast(1.08) saturate(1.14);
 }
 
 .intro-bg-overlay {
@@ -219,9 +216,9 @@ function collaboratorInitial(emailAddress: string) {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.3) 40%,
-    rgba(0, 0, 0, 0.8) 100%
+    rgba(0, 0, 0, 0.36) 0%,
+    rgba(0, 0, 0, 0.24) 40%,
+    rgba(0, 0, 0, 0.66) 100%
   );
   z-index: 1;
 }
@@ -270,9 +267,10 @@ function collaboratorInitial(emailAddress: string) {
 }
 
 .body.centered {
-  align-items: center;
-  text-align: center;
-  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  justify-content: flex-end;
+  padding-bottom: 36px;
 }
 
 .illustration {

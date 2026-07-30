@@ -21,7 +21,7 @@ const nameError = computed(() => (nameTouched.value && !newProjectDraft.value.na
 
 const categoryOptions: { value: ProjectCategory; label: string; description: string }[] = [
   { value: 'Office', label: 'Office', description: 'Spazi, ufficio, coworking' },
-  { value: 'Industry', label: 'Industry', description: 'Fabbriche, impianti, industrie' },
+  { value: 'Industry', label: 'Industry', description: 'Fabbriche, Progetti, industrie' },
   { value: 'Sport indoor', label: 'Sport indoor', description: 'Palestre, piscine, sport' },
   { value: 'Relamping', label: 'Relamping', description: 'Aggiornamenti di sistemi' },
   { value: 'Altro', label: 'Altro', description: 'Altro tipo di progetto' }
@@ -233,7 +233,7 @@ function onContinue() {
         <div class="location-permission-content">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="location-icon"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
           <span>Vuoi consentire a <strong>Kin Sync</strong> di utilizzare la tua posizione?</span>
-          <p class="location-description">La tua posizione rende più facile trovare l'indirizzo del tuo impianto.</p>
+          <p class="location-description">La tua posizione rende più facile trovare l'indirizzo del tuo Progetto.</p>
         </div>
       </template>
       <Button variant="ios" :disabled="locating" @click="grantLocation">Consenti quando utilizzi l'app</Button>
@@ -617,6 +617,8 @@ function onContinue() {
   cursor: pointer;
   font-family: var(--font-family);
   transition: background-color 0.2s;
+  outline: none;
+  width: 100%;
 }
 
 .category-item:last-child {
@@ -624,11 +626,15 @@ function onContinue() {
 }
 
 .category-item:hover {
-  background-color: var(--color-bg-hover, #f5f5f5);
+  background-color: var(--color-surface-alt);
 }
 
 .category-item.is-selected {
-  background-color: var(--color-bg-selected, #f0f0f0);
+  background-color: var(--color-accent-soft);
+  border-bottom-color: transparent;
+  border-radius: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .category-icon {
@@ -638,6 +644,8 @@ function onContinue() {
   width: 40px;
   height: 40px;
   flex-shrink: 0;
+  background: var(--color-surface-alt);
+  border-radius: 10px;
   color: var(--color-primary);
 }
 
@@ -656,7 +664,7 @@ function onContinue() {
 .category-label {
   font-size: var(--font-size-body);
   font-weight: 500;
-  color: var(--color-text);
+  color: var(--color-primary);
   display: block;
 }
 

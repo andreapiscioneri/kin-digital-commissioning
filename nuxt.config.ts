@@ -14,8 +14,8 @@ export default defineNuxtConfig({
   colorMode: {
     classPrefix: '',
     classSuffix: '-mode',
-    preference: 'light',
-    fallback: 'light',
+    preference: 'dark',
+    fallback: 'dark',
     storageKey: 'kinsync-color-mode'
   },
   css: ['~/assets/css/main.css'],

@@ -52,21 +52,13 @@ function confirmInterrupt() {
 <template>
   <div class="screen">
     <div class="intro-bg">
-      <img src="/images/nuovo-progetto-bg.jpg" alt="" class="intro-bg-image" />
+      <img src="/images/nuovo-progetto-new.png" alt="" class="intro-bg-image" />
       <div class="intro-bg-overlay" />
       <div class="intro-content">
         <StatusBar inverted />
         <AppHeader title="" leading="back" trailing="close" inverted @back="goClose('/progetti')" @close="showInterrupt = true" />
 
         <div class="body">
-          <svg class="illustration" width="200" height="160" viewBox="0 0 220 180" fill="none" aria-hidden="true">
-            <path d="M110 20l80 46v0l-80 46-80-46z" stroke="currentColor" stroke-width="1.2" />
-            <path d="M30 66v58l80 46v-58M190 66v58l-80 46" stroke="currentColor" stroke-width="1.2" />
-            <path d="M55 50l40-23 40 23M60 62v50M100 40v96M140 62v50" stroke="currentColor" stroke-width="1" />
-            <rect x="70" y="75" width="20" height="16" stroke="currentColor" stroke-width="1" />
-            <rect x="110" y="75" width="20" height="16" stroke="currentColor" stroke-width="1" />
-          </svg>
-
           <h1 class="title">Creazione progetto</h1>
           <p class="subtitle">Questo processo ti guiderà nella creazione di un nuovo progetto, configurando livelli, sottolivelli e dispositivi.</p>
         </div>
@@ -130,7 +122,7 @@ function confirmInterrupt() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
+  filter: grayscale(0.3) contrast(1.08) saturate(1.14);
 }
 
 .intro-bg-overlay {
@@ -138,9 +130,9 @@ function confirmInterrupt() {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.75) 0%,
-    rgba(0, 0, 0, 0.5) 40%,
-    rgba(0, 0, 0, 1) 100%
+    rgba(0, 0, 0, 0.36) 0%,
+    rgba(0, 0, 0, 0.24) 40%,
+    rgba(0, 0, 0, 0.66) 100%
   );
 }
 
@@ -157,10 +149,10 @@ function confirmInterrupt() {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 20px var(--space-page-x);
+  align-items: flex-start;
+  justify-content: flex-end;
+  text-align: left;
+  padding: 20px var(--space-page-x) 36px;
   gap: 16px;
 }
 
@@ -174,15 +166,14 @@ function confirmInterrupt() {
   font-size: var(--font-size-h1);
   font-weight: 600;
   color: #fff;
-  text-align: center;
+  text-align: left;
 }
 
 .subtitle {
   margin: 0;
   font-size: var(--font-size-body);
   color: rgba(255, 255, 255, 0.85);
-  text-align: center;
-  max-width: 320px;
+  text-align: left;
 }
 
 .note {

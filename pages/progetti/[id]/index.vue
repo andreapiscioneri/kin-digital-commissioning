@@ -31,7 +31,7 @@ const tabs = [
   { value: 'livelli', label: 'Progetto', icon: 'project' },
   { value: 'dispositivi', label: 'Dispositivi', icon: 'devices' },
   { value: 'scene', label: 'Scene', icon: 'scene' },
-  { value: 'collaboratori', label: 'Collaboratori', icon: 'users' }
+  { value: 'collaboratori', label: 'Diagnostica', icon: 'users' }
 ]
 
 type ProjectTab = 'livelli' | 'dispositivi' | 'scene' | 'collaboratori'
@@ -120,6 +120,102 @@ const zonesForSelectedLevel = computed(() => {
   return [...knownZones, ...extraZones]
 })
 
+const configuredDevicesCount = computed(() =>
+  provisionedDevices.value.filter((d: ProvisionedDevice) => d.configured).length
+)
+
+const pendingDevicesCount = computed(() => provisionedDevices.value.length - configuredDevicesCount.value)
+
+const lampsOnCount = computed(() =>
+  provisionedDevices.value.filter((d: ProvisionedDevice) => d.type === 'Lampada' && !!d.on).length
+)
+
+const onlineCollaboratorsCount = computed(() => collaborators.value.filter((collaborator: Collaborator) => collaborator.active).length)
+
+const scenesWithoutDevicesCount = computed(() => scenes.value.filter((scene) => scene.deviceIds.length === 0).length)
+
+const diagnosticsIssues = computed(() => {
+  const issues: { label: string; detail: string; tone: 'ok' | 'warn' | 'critical' }[] = []
+
+  if (levels.value.length === 0) {
+    issues.push({
+      label: 'Struttura livelli',
+      detail: 'Nessun livello creato nel progetto.',
+      tone: 'critical'
+    })
+  } else {
+    issues.push({
+      label: 'Struttura livelli',
+      detail: `${levels.value.length} livelli e ${totalSubLevels.value} sottolivelli configurati.`,
+      tone: 'ok'
+    })
+  }
+
+  if (provisionedDevices.value.length === 0) {
+    issues.push({
+      label: 'Dispositivi',
+      detail: 'Nessun dispositivo associato al progetto.',
+      tone: 'critical'
+    })
+  } else if (pendingDevicesCount.value > 0) {
+    issues.push({
+      label: 'Dispositivi',
+      detail: `${pendingDevicesCount.value} dispositivi richiedono ancora configurazione.`,
+      tone: 'warn'
+    })
+  } else {
+    issues.push({
+      label: 'Dispositivi',
+      detail: 'Tutti i dispositivi risultano configurati.',
+      tone: 'ok'
+    })
+  }
+
+  if (scenes.value.length === 0) {
+    issues.push({
+      label: 'Scene',
+      detail: 'Nessuna scena configurata.',
+      tone: 'warn'
+    })
+  } else if (scenesWithoutDevicesCount.value > 0) {
+    issues.push({
+      label: 'Scene',
+      detail: `${scenesWithoutDevicesCount.value} scene senza dispositivi assegnati.`,
+      tone: 'warn'
+    })
+  } else {
+    issues.push({
+      label: 'Scene',
+      detail: 'Scene complete e pronte all\'uso.',
+      tone: 'ok'
+    })
+  }
+
+  if (collaborators.value.length === 0) {
+    issues.push({
+      label: 'Team',
+      detail: 'Nessun collaboratore invitato al progetto.',
+      tone: 'warn'
+    })
+  } else {
+    issues.push({
+      label: 'Team',
+      detail: `${onlineCollaboratorsCount.value}/${collaborators.value.length} collaboratori online.`,
+      tone: 'ok'
+    })
+  }
+
+  return issues
+})
+
+const diagnosticsHeadline = computed(() => {
+  const criticalCount = diagnosticsIssues.value.filter((issue) => issue.tone === 'critical').length
+  const warnCount = diagnosticsIssues.value.filter((issue) => issue.tone === 'warn').length
+  if (criticalCount > 0) return 'Intervento necessario'
+  if (warnCount > 0) return 'Stato da completare'
+  return 'Stato operativo'
+})
+
 function deviceIdLabel(d: { id: string; type: string }) {
   const prefix = d.type.slice(0, 3).toUpperCase()
   const suffix = d.id.slice(-4).toUpperCase()
@@ -203,7 +299,7 @@ function closeFabFan() {
 }
 
 function toggleFabFan() {
-  showFabFan.value = !showFabFan.value
+  addDevice()
 }
 
 function addLevel() {
@@ -258,27 +354,27 @@ function addDevice() {
     </div>
 
     <div class="stats-card">
-      <div class="stat-col">
+      <button type="button" class="stat-col" :class="{ active: activeTab === 'livelli' }" @click="selectTab('livelli')">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3" /><path d="M2 9h16" stroke="currentColor" stroke-width="1.3" /></svg>
         <span class="stat-label">Livelli</span>
         <span class="stat-value">{{ levels.length }}</span>
-      </div>
+      </button>
       <span class="stat-divider" />
-      <div class="stat-col">
+      <button type="button" class="stat-col" :class="{ active: activeTab === 'livelli' }" @click="selectTab('livelli')">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.3" /><rect x="11" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.3" /><rect x="2" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.3" /></svg>
         <span class="stat-label">Sottolivelli</span>
         <span class="stat-value">{{ totalSubLevels }}</span>
-      </div>
+      </button>
       <span class="stat-divider" />
-      <div class="stat-col">
+      <button type="button" class="stat-col" :class="{ active: activeTab === 'dispositivi' }" @click="selectTab('dispositivi')">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><rect x="6" y="2" width="8" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><path d="M8 6h4M8 10h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
         <span class="stat-label">Dispositivi</span>
         <span class="stat-value">{{ provisionedDevices.length }}</span>
-      </div>
+      </button>
       <span class="stat-divider" />
-      <div class="stat-col">
+      <button type="button" class="stat-col" :class="{ active: activeTab === 'collaboratori' }" @click="selectTab('collaboratori')">
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="6.5" r="3" stroke="currentColor" stroke-width="1.3" /><path d="M1.5 17c1-3 3-4.7 5.5-4.7S11.5 14 12.5 17" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /><circle cx="14.5" cy="7" r="2.4" stroke="currentColor" stroke-width="1.3" /><path d="M13 12.6c2.2.2 3.7 1.7 4.5 4.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-        <span class="stat-label">Collaboratori</span>
+        <span class="stat-label">Diagnostica</span>
         <div v-if="collaborators.length > 0" class="collaborator-avatar-stack">
           <span
             v-for="collaborator in collaborators"
@@ -289,7 +385,7 @@ function addDevice() {
           >{{ collaboratorInitial(collaborator.email) }}</span>
         </div>
         <span v-else class="stat-value">0</span>
-      </div>
+      </button>
     </div>
     <p class="last-sync">Ultima sincronizzazione: {{ project?.lastSync }}</p>
 
@@ -358,9 +454,14 @@ function addDevice() {
               </EmptyState>
             </template>
             <template v-else>
-              <div v-for="group in zonesForSelectedLevel" :key="group.zone" class="zone-card">
-                <p class="zone-title">{{ group.zone }}</p>
-                <p class="zone-count">{{ group.devices.length }} dispositivi</p>
+              <div v-for="group in zonesForSelectedLevel" :key="group.zone" class="zone-card" @click="goForward(`/progetti/${projectId}/livelli/${selectedLevelId}`)">
+                <div class="zone-header">
+                  <div class="zone-header-text">
+                    <p class="zone-title">{{ group.zone }}</p>
+                    <p class="zone-count">{{ group.devices.length }} dispositivi</p>
+                  </div>
+                  <svg width="8" height="14" viewBox="0 0 8 14" fill="none" class="zone-chevron"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </div>
                 <div v-for="d in group.devices" :key="d.id" class="zone-device-row">
                   <IconBadge :size="32">
                     <svg v-if="d.type === 'Lampada'" width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="8" r="5" stroke="currentColor" stroke-width="1.3" /><path d="M8 15h4M8.5 17h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
@@ -407,36 +508,40 @@ function addDevice() {
         </template>
 
         <template v-else-if="activeTab === 'collaboratori'">
-          <template v-if="collaborators.length === 0">
-            <EmptyState variant="card" title="Nessun collaboratore invitato" subtitle="Invita collaboratori per condividere la gestione del progetto.">
-              <Button variant="secondary" @click="goForward(`/progetti/${projectId}/utenti`)">+ Invita collaboratori</Button>
-            </EmptyState>
-          </template>
-          <template v-else>
-            <div class="collaborators-list">
-              <div v-for="collaborator in collaborators" :key="collaborator.id" class="collaborator-row">
-                <span class="collaborator-avatar">{{ collaboratorInitial(collaborator.email) }}</span>
-                <span class="collaborator-content">
-                  <span class="collaborator-email">{{ collaborator.email }}</span>
-                  <span class="collaborator-role">{{ collaborator.role }}</span>
-                  <span class="collaborator-status" :class="{ online: collaborator.active, offline: !collaborator.active }">
-                    <span class="collaborator-status-dot" />
-                    {{ collaborator.active ? 'Online' : 'Offline' }}
-                  </span>
-                </span>
-                <button
-                  v-if="canManageCollaborators"
-                  type="button"
-                  class="collaborator-remove-btn"
-                  aria-label="Elimina collaboratore"
-                  @click="removeCollaboratorFromProject(collaborator.id)"
-                >
-                  <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M8 5V3.5A1.5 1.5 0 019.5 2h1A1.5 1.5 0 0112 3.5V5M15 5v11a1.5 1.5 0 01-1.5 1.5h-7A1.5 1.5 0 015 16V5h10z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /><path d="M8.5 8.5v6M11.5 8.5v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" /></svg>
-                </button>
-              </div>
+          <div class="diagnostic-card">
+            <p class="diagnostic-title">Diagnostica progetto</p>
+            <p class="diagnostic-headline">{{ diagnosticsHeadline }}</p>
+            <p class="diagnostic-caption">Recap rapido dello stato attuale della configurazione.</p>
+          </div>
+
+          <div class="diagnostic-grid">
+            <div class="diagnostic-kpi">
+              <span class="diagnostic-kpi-label">Dispositivi configurati</span>
+              <strong class="diagnostic-kpi-value">{{ configuredDevicesCount }}/{{ provisionedDevices.length }}</strong>
             </div>
-            <Button variant="secondary" @click="goForward(`/progetti/${projectId}/utenti`)">+ Invita collaboratori</Button>
-          </template>
+            <div class="diagnostic-kpi">
+              <span class="diagnostic-kpi-label">Lampade accese</span>
+              <strong class="diagnostic-kpi-value">{{ lampsOnCount }}</strong>
+            </div>
+            <div class="diagnostic-kpi">
+              <span class="diagnostic-kpi-label">Scene</span>
+              <strong class="diagnostic-kpi-value">{{ scenes.length }}</strong>
+            </div>
+            <div class="diagnostic-kpi">
+              <span class="diagnostic-kpi-label">Gruppi creati</span>
+              <strong class="diagnostic-kpi-value">{{ groups.length }}</strong>
+            </div>
+          </div>
+
+          <div class="diagnostic-list">
+            <div v-for="issue in diagnosticsIssues" :key="issue.label" class="diagnostic-item" :class="`tone-${issue.tone}`">
+              <span class="diagnostic-dot" />
+              <span class="diagnostic-item-content">
+                <strong class="diagnostic-item-title">{{ issue.label }}</strong>
+                <span class="diagnostic-item-detail">{{ issue.detail }}</span>
+              </span>
+            </div>
+          </div>
         </template>
 
         <template v-else-if="activeTab === 'scene'">
@@ -511,24 +616,6 @@ function addDevice() {
       </section>
     </div>
 
-    <nav class="project-nav">
-      <button
-        v-for="tab in tabs"
-        :key="tab.value"
-        type="button"
-        class="project-nav-item"
-        :class="{ active: activeTab === tab.value }"
-        @click="selectTab(tab.value)"
-      >
-        <svg v-if="tab.icon === 'project'" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.7 2 4 4.7 4 8c0 4.5 6 10 6 10s6-5.5 6-10c0-3.3-2.7-6-6-6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" /><circle cx="10" cy="8" r="2.2" stroke="currentColor" stroke-width="1.4" /></svg>
-        <svg v-else-if="tab.icon === 'devices'" width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" /><rect x="11" y="2" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" /><rect x="2" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" /><rect x="11" y="11" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.4" /></svg>
-        <svg v-else-if="tab.icon === 'users'" width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.4" /><circle cx="13" cy="7" r="2.2" stroke="currentColor" stroke-width="1.4" /><path d="M3.2 15c.8-2.1 2.2-3.3 3.8-3.3s3 1.2 3.8 3.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /><path d="M9 15c.8-2.1 2.2-3.3 3.8-3.3s3 1.2 3.8 3.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
-        <svg v-else-if="tab.icon === 'scene'" width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.4" /><path d="M10 1v2M10 17v2M1 10h2M17 10h2M4 4l1.5 1.5M14.5 14.5L16 16M16 4l-1.5 1.5M5.5 14.5L4 16" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" /></svg>
-        <svg v-else width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 15h16M4 15V9l3-2 3 3 4-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        <span class="project-nav-label">{{ tab.label }}</span>
-      </button>
-    </nav>
-
     <button
       v-if="showFabFan"
       type="button"
@@ -556,7 +643,7 @@ function addDevice() {
       type="button"
       class="fab"
       :class="{ open: showFabFan }"
-      aria-label="Aggiungi"
+      aria-label="Aggiungi dispositivo"
       :aria-expanded="showFabFan"
       @click="toggleFabFan"
     >
@@ -745,6 +832,18 @@ function addDevice() {
   align-items: center;
   gap: 2px;
   color: var(--color-text-secondary);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-family);
+}
+
+.stat-col.active {
+  color: var(--color-text-secondary);
+}
+
+.stat-col.active .stat-value {
+  color: var(--color-primary);
 }
 
 .stat-label {
@@ -1041,11 +1140,13 @@ function addDevice() {
   position: fixed;
   inset: 0;
   z-index: 50;
+  width: 100%;
+  height: 100dvh;
   background: var(--color-bg);
   display: flex;
   flex-direction: column;
   padding-top: env(safe-area-inset-top, 0);
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  overscroll-behavior: contain;
 }
 
 .floorplan-modal-header {
@@ -1053,6 +1154,7 @@ function addDevice() {
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
+  flex-shrink: 0;
 }
 
 .floorplan-modal-title {
@@ -1076,8 +1178,15 @@ function addDevice() {
 }
 
 .floorplan-3d-host-expanded {
-  flex: 1;
-  height: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.floorplan-modal .floorplan-hint {
+  flex-shrink: 0;
+  padding-bottom: max(10px, env(safe-area-inset-bottom, 0));
 }
 
 .zone-card {
@@ -1088,6 +1197,25 @@ function addDevice() {
   box-shadow: var(--shadow-card);
   background: var(--color-surface);
   padding: 14px 14px 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.zone-card:active {
+  opacity: 0.8;
+  transform: scale(0.98);
+}
+
+.zone-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.zone-header-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .zone-title {
@@ -1098,9 +1226,15 @@ function addDevice() {
 }
 
 .zone-count {
-  margin: 2px 0 8px;
+  margin: 2px 0 0;
   font-size: var(--font-size-small);
   color: var(--color-text-secondary);
+}
+
+.zone-chevron {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  margin-left: 12px;
 }
 
 .zone-device-row {
@@ -1157,7 +1291,67 @@ function addDevice() {
   border-bottom: none;
 }
 
-.collaborators-list {
+.diagnostic-card {
+  border: 1px solid var(--color-border-secondary);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.diagnostic-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.diagnostic-headline {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.diagnostic-caption {
+  margin: 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.diagnostic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.diagnostic-kpi {
+  border: 1px solid var(--color-border-secondary);
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.diagnostic-kpi-label {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.diagnostic-kpi-value {
+  font-size: 1rem;
+  color: var(--color-primary);
+}
+
+.diagnostic-list {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--color-border-secondary);
@@ -1166,152 +1360,68 @@ function addDevice() {
   background: var(--color-surface);
 }
 
-.collaborator-row {
+.diagnostic-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--color-border);
 }
 
-.collaborator-row:last-child {
+.diagnostic-item:last-child {
   border-bottom: none;
 }
 
-.collaborator-avatar {
-  width: 34px;
-  height: 34px;
+.diagnostic-dot {
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
-  border: 1px solid rgba(17, 17, 17, 0.35);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 700;
   flex-shrink: 0;
+  background: var(--color-success);
 }
 
-.collaborator-content {
+.diagnostic-item-content {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
-.collaborator-email {
-  flex: 1;
-  min-width: 0;
+.diagnostic-item-title {
   font-size: var(--font-size-body);
-  color: var(--color-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.collaborator-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
   font-weight: 600;
-  flex-shrink: 0;
+  color: var(--color-primary);
 }
 
-.collaborator-status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.collaborator-status.online {
-  color: var(--color-success);
-}
-
-.collaborator-status.offline {
-  color: var(--color-error);
-}
-
-.collaborator-role {
+.diagnostic-item-detail {
   font-size: var(--font-size-small);
   color: var(--color-text-secondary);
 }
 
-.collaborator-remove-btn {
-  margin-left: auto;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: 0;
-  background: transparent;
- color: var(--color-error);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
+.diagnostic-item.tone-warn .diagnostic-dot {
+  background: var(--color-warning, #df9300);
 }
 
-.project-nav {
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: calc(8px + env(safe-area-inset-bottom, 0));
-  z-index: 4;
-  display: flex;
-  align-items: stretch;
-  height: 64px;
-  border-radius: 22px;
-  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
-  backdrop-filter: blur(14px) saturate(180%);
-  -webkit-backdrop-filter: blur(14px) saturate(180%);
-  box-shadow: var(--shadow-menu);
+.diagnostic-item.tone-critical .diagnostic-dot {
+  background: var(--color-error);
 }
 
-.project-nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  margin: 8px 6px;
-  border: none;
-  border-radius: 16px;
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.project-nav-item.active {
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
-}
-
-.project-nav-label {
-  font-size: 11px;
-  font-weight: 500;
-}
 
 .fab {
   position: absolute;
-  left: 50%;
-  bottom: calc(44px + env(safe-area-inset-bottom, 0));
-  transform: translateX(-50%);
+  right: 20px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0));
   width: 56px;
   height: 56px;
   border-radius: 50%;
   border: 4px solid var(--color-bg);
-  background: var(--color-accent);
+  background: linear-gradient(135deg, #ff6a2f 0%, #db3700 60%, #b02b00 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: var(--shadow-fab);
+  box-shadow: none;
   z-index: 7;
   transition: transform var(--duration-base) var(--ease-standard);
 }
@@ -1327,7 +1437,7 @@ function addDevice() {
 }
 
 .fab.open {
-  transform: translateX(-50%) rotate(45deg);
+  transform: rotate(45deg);
 }
 
 .fab-icon {
@@ -1355,59 +1465,64 @@ function addDevice() {
 
 .fab-fan {
   position: absolute;
-  left: 50%;
-  bottom: calc(44px + env(safe-area-inset-bottom, 0));
-  transform: translateX(-50%) translateY(0) scale(0.75);
+  right: 20px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0));
   z-index: 6;
-  display: flex;
-  align-items: stretch;
+}
+
+.fab-action {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  transform: translateY(0) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
   border: 1px solid color-mix(in srgb, var(--color-primary) 14%, var(--color-border));
   border-radius: 28px;
   background: color-mix(in srgb, var(--color-surface) 97%, #ffffff);
+  color: var(--color-primary);
   box-shadow: 0 10px 24px -14px rgba(17, 17, 17, 0.45), 0 3px 10px -6px rgba(17, 17, 17, 0.32);
-  padding: 4px;
-  opacity: 0;
-  pointer-events: none;
+  height: 48px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
   transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
 }
 
-.fab-fan.open {
-  transform: translateX(-50%) translateY(-64px) scale(1);
+.fab-action-device {
+  transition-delay: 0ms;
+}
+
+.fab-action-sublevel {
+  transition-delay: 30ms;
+}
+
+.fab-action-level {
+  transition-delay: 60ms;
+}
+
+.fab-fan.open .fab-action {
   opacity: 1;
   pointer-events: auto;
 }
 
-.fab-action {
-  border: none;
-  background: transparent;
-  color: var(--color-primary);
-  width: 92px;
-  padding: 12px 6px 10px;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-radius: 24px;
-  transition: background 150ms ease;
+.fab-fan.open .fab-action-device {
+  transform: translateY(-64px) scale(1);
 }
 
-.fab-action:not(:last-child) {
-  border-right: 1px solid var(--color-border-secondary);
-  border-radius: 24px 0 0 24px;
+.fab-fan.open .fab-action-sublevel {
+  transform: translateY(-122px) scale(1);
 }
 
-.fab-action:last-child {
-  border-radius: 0 24px 24px 0;
-}
-
-.fab-action:active {
-  background: var(--color-surface-alt);
+.fab-fan.open .fab-action-level {
+  transform: translateY(-180px) scale(1);
 }
 
 .fab-action-label {
   font-family: var(--font-family);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.1;
   white-space: nowrap;

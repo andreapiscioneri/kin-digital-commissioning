@@ -51,15 +51,12 @@ function onContinue() {
     <div :key="screen" class="screen-body">
     <template v-if="screen === 'config'">
       <div class="intro-bg">
-        <img src="/images/configurazione-progetto-bg.jpg" alt="" class="intro-bg-image" />
+        <img src="/images/configurazione-progetto-new.png" alt="" class="intro-bg-image" />
         <div class="intro-bg-overlay" />
         <div class="intro-content">
           <StatusBar inverted />
           <AppHeader title="Configurazione progetto" leading="back" trailing="close" inverted @back="goDashboardBack" @close="showInterrupt = true" />
           <div class="body centered">
-            <span class="placeholder-icon">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="1.5" stroke="currentColor" stroke-width="1.3" /><circle cx="8" cy="10" r="1.6" stroke="currentColor" stroke-width="1.3" /><path d="M2 17l5.5-5.5L12 16l4-4 6 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
-            </span>
             <h1 class="title">Configurazione progetto</h1>
             <p class="subtitle">Nel prossimo passaggio ti mostreremo tre modalità di configurazione tra cui scegliere.</p>
           </div>
@@ -163,7 +160,7 @@ function onContinue() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
+  filter: grayscale(0.3) contrast(1.08) saturate(1.14);
 }
 
 .intro-bg-overlay {
@@ -171,9 +168,9 @@ function onContinue() {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.3) 40%,
-    rgba(0, 0, 0, 0.8) 100%
+    rgba(0, 0, 0, 0.36) 0%,
+    rgba(0, 0, 0, 0.24) 40%,
+    rgba(0, 0, 0, 0.66) 100%
   );
   z-index: 1;
 }
@@ -221,9 +218,10 @@ function onContinue() {
 }
 
 .body.centered {
-  align-items: center;
-  text-align: center;
-  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  justify-content: flex-end;
+  padding-bottom: 36px;
 }
 
 .title {

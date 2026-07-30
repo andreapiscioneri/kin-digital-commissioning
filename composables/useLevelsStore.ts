@@ -29,9 +29,13 @@ export function useLevelsStore(projectId: string) {
     levels.value = levels.value.map((l: Level) => (l.id === id ? { ...l, ...patch } : l))
   }
 
+  function removeLevel(id: string) {
+    levels.value = levels.value.filter((l: Level) => l.id !== id)
+  }
+
   function getLevel(id: string) {
     return levels.value.find((l: Level) => l.id === id)
   }
 
-  return { levels, createLevels, updateLevel, getLevel }
+  return { levels, createLevels, updateLevel, removeLevel, getLevel }
 }

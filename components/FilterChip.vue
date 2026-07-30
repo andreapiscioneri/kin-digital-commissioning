@@ -24,8 +24,8 @@ defineEmits<{ click: [] }>()
 }
 
 .chip.active {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: linear-gradient(135deg, #ff6a2f 0%, #db3700 60%, #b02b00 100%);
+  border-color: transparent;
   color: #ffffff;
   font-weight: 500;
 }

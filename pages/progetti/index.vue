@@ -62,6 +62,7 @@ function resetFilters() {
 }
 
 const hasAnyProject = computed(() => projects.value.some((p) => !p.deleted))
+const hasFavorites = computed(() => projects.value.some((p) => !p.deleted && p.favorite))
 const menuProject = computed(() => projects.value.find((p) => p.id === menuOpenFor.value) || null)
 
 function retryConnection() {
@@ -185,12 +186,12 @@ function goToInstallerProfile() {
       </div>
 
       <div class="tabs">
-        <button type="button" class="tab" :class="{ active: activeTab === 'preferiti' }" @click="activeTab = 'preferiti'">
+        <button v-if="hasFavorites" type="button" class="tab" :class="{ active: activeTab === 'preferiti' }" @click="activeTab = 'preferiti'">
           <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.5 5.5L18 8l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" /></svg>
           Preferiti
         </button>
-        <button type="button" class="tab" :class="{ active: activeTab === 'tutti' }" @click="activeTab = 'tutti'">Tutti gli impianti</button>
-        <button type="button" class="tab" :class="{ active: activeTab === 'eliminati' }" @click="activeTab = 'eliminati'">Impianti eliminati</button>
+        <button type="button" class="tab" :class="{ active: activeTab === 'tutti' }" @click="activeTab = 'tutti'">Tutti i Progetti</button>
+        <button type="button" class="tab" :class="{ active: activeTab === 'eliminati' }" @click="activeTab = 'eliminati'">Progetti eliminati</button>
       </div>
 
       <div class="toolbar">
@@ -228,6 +229,10 @@ function goToInstallerProfile() {
           @menu="menuOpenFor = project.id"
         />
       </div>
+
+      <button type="button" class="new-project-fab" aria-label="Crea nuovo progetto" @click="goToNewProject">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="#fff" stroke-width="1.8" stroke-linecap="round" /></svg>
+      </button>
     </template>
 
     <SideMenu v-model="sideMenuOpen" />
@@ -408,7 +413,7 @@ function goToInstallerProfile() {
 }
 
 .tab.active {
-  background: var(--color-accent);
+  background: linear-gradient(135deg, #ff6a2f 0%, #db3700 60%, #b02b00 100%);
   color: #ffffff;
   font-weight: 600;
 }
@@ -641,5 +646,27 @@ function goToInstallerProfile() {
   font-size: var(--font-size-small);
   color: var(--color-text-secondary);
   opacity: 0.7;
+}
+
+.new-project-fab {
+  position: absolute;
+  right: 20px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0));
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 4px solid var(--color-bg);
+  background: linear-gradient(135deg, #ff6a2f 0%, #db3700 60%, #b02b00 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: none;
+  z-index: 7;
+}
+
+.new-project-fab:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-accent) 45%, white);
+  outline-offset: 3px;
 }
 </style>
