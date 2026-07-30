@@ -111,6 +111,14 @@ function enforceVerdiImage(list: Project[]) {
   })
 }
 
+function enforceMiinImage(list: Project[]) {
+  return list.map((project) =>
+    project.id === 'miin-cosmetics-bg'
+      ? { ...project, image: '/images/project-retail.jpg' }
+      : project
+  )
+}
+
 export function useProjectsStore() {
   const projects = useState<Project[]>('dc-projects', () => makeProjects())
   const isOnline = useState<boolean>('dc-is-online', () => true)
@@ -150,7 +158,7 @@ export function useProjectsStore() {
         .map(normalizeProject)
         .filter((project): project is Project => !!project)
       if (normalized.length > 0) {
-        projects.value = enforceVerdiImage(enforceRossiImage(normalized))
+        projects.value = enforceMiinImage(enforceVerdiImage(enforceRossiImage(normalized)))
       }
     } catch {
       // Ignore corrupt storage and keep seeded defaults.
@@ -164,7 +172,7 @@ export function useProjectsStore() {
 
   hydrateProjects()
 
-  projects.value = enforceVerdiImage(enforceRossiImage(projects.value))
+  projects.value = enforceMiinImage(enforceVerdiImage(enforceRossiImage(projects.value)))
 
   if (import.meta.client) {
     watch(projects, persistProjects, { deep: true })
