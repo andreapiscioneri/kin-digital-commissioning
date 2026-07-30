@@ -19,7 +19,9 @@ export interface Project {
   deleted: boolean
 }
 
-const PROJECTS_STORAGE_KEY = 'dc-projects-v5'
+const PROJECTS_STORAGE_KEY = 'dc-projects-v6'
+const ROSSI_IMAGE = '/images/esterno-per-piccole-imprese-la-facciata-esterna-di-una-piccola-impresa-generica-188752899.webp'
+const VERDI_IMAGE = '/images/headquarter-deloitte-milano-som.jpg'
 
 const categoryImages: Record<ProjectCategory, string> = {
   Office: '/images/project-office.jpg',
@@ -27,7 +29,7 @@ const categoryImages: Record<ProjectCategory, string> = {
   'Sport indoor': '/images/project-sport.jpg',
   Retail: '/images/project-retail.jpg',
   Relamping: '/images/project-office-2.jpg',
-  Altro: '/images/project-generic.jpg'
+  Altro: '/images/project-retail-22.jpg'
 }
 
 export const projectImageOptions = [
@@ -36,7 +38,7 @@ export const projectImageOptions = [
   '/images/project-sport.jpg',
   '/images/project-retail.jpg',
   '/images/project-relamping.jpg',
-  '/images/project-generic.jpg'
+  '/images/project-retail-22.jpg'
 ] as const
 
 export function getCategoryImage(category: ProjectCategory) {
@@ -64,7 +66,7 @@ function makeProjects(): Project[] {
       id: 'rossi-spa',
       name: 'Rossi SpA',
       category: 'Office',
-      image: '/images/project-office-2.jpg',
+      image: ROSSI_IMAGE,
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: '18/06/2026',
@@ -92,6 +94,21 @@ function makeProjects(): Project[] {
       deleted: false
     }
   ]
+}
+
+function enforceRossiImage(list: Project[]) {
+  return list.map((project) =>
+    project.id === 'rossi-spa'
+      ? { ...project, image: ROSSI_IMAGE }
+      : project
+  )
+}
+
+function enforceVerdiImage(list: Project[]) {
+  return list.map((project) => {
+    const isVerdi = project.id.toLowerCase().includes('verdi') || project.name.toLowerCase().includes('verdi')
+    return isVerdi ? { ...project, image: VERDI_IMAGE } : project
+  })
 }
 
 export function useProjectsStore() {
@@ -133,7 +150,7 @@ export function useProjectsStore() {
         .map(normalizeProject)
         .filter((project): project is Project => !!project)
       if (normalized.length > 0) {
-        projects.value = normalized
+        projects.value = enforceVerdiImage(enforceRossiImage(normalized))
       }
     } catch {
       // Ignore corrupt storage and keep seeded defaults.
@@ -146,6 +163,8 @@ export function useProjectsStore() {
   }
 
   hydrateProjects()
+
+  projects.value = enforceVerdiImage(enforceRossiImage(projects.value))
 
   if (import.meta.client) {
     watch(projects, persistProjects, { deep: true })

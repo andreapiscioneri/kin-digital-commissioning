@@ -19,6 +19,10 @@ const { goBack, goForward } = useNavStack()
 seedBeghelliIfEmpty(projectId)
 
 const project = computed(() => projects.value.find((p) => p.id === projectId))
+const hasWarmFilter = computed(() => {
+  if (!project.value) return false
+  return project.value.id === 'rossi-spa' || project.value.id.toLowerCase().includes('verdi') || project.value.name.toLowerCase().includes('verdi')
+})
 const menuOpen = ref(false)
 const showFabFan = ref(false)
 const showImageSheet = ref(false)
@@ -325,8 +329,8 @@ function addDevice() {
 
 <template>
   <div class="screen">
-    <div class="hero-photo">
-      <img v-if="project?.image" :src="project.image" alt="" class="hero-image" />
+    <div class="hero-photo" :class="{ 'is-rossi': hasWarmFilter }">
+      <img v-if="project?.image" :src="project.image" alt="" class="hero-image" :class="{ 'hero-image-rossi': hasWarmFilter }" />
       <StatusBar inverted class="hero-status-bar" />
       <div class="hero-overlay-top">
         <button type="button" class="hero-icon-btn" aria-label="Indietro" @click="goBack('/progetti')">
@@ -710,11 +714,19 @@ function addDevice() {
   filter: grayscale(0.6) contrast(1.12) saturate(1.25);
 }
 
+.hero-image-rossi {
+  filter: sepia(0.58) saturate(1.42) hue-rotate(-15deg) contrast(1.08) brightness(0.86);
+}
+
 .hero-photo::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.2) 35%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+.hero-photo.is-rossi::after {
+  background: linear-gradient(to bottom, rgba(226, 92, 20, 0.24) 0%, rgba(190, 82, 26, 0.12) 40%, rgba(124, 45, 5, 0.2) 100%);
 }
 
 .hero-status-bar {
