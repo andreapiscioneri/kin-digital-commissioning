@@ -200,6 +200,18 @@ function buildFurniture(group: THREE.Group, kind: FurnitureKind, rw: number, rd:
   }
 }
 
+const BASE_FOV = 38
+
+// Vertical FOV is only tuned to look right for aspect >= 1 (landscape/square).
+// On a narrow portrait container (e.g. the expanded phone-frame modal) a fixed
+// vertical FOV crops the horizontal view, making the room look zoomed in — so
+// we widen the vertical FOV to keep the horizontal framing roughly constant.
+function fovForAspect(aspect: number) {
+  if (aspect >= 1) return BASE_FOV
+  const halfBase = THREE.MathUtils.degToRad(BASE_FOV / 2)
+  return THREE.MathUtils.radToDeg(Math.atan(Math.tan(halfBase) / aspect)) * 2
+}
+
 function buildScene() {
   if (!canvasHost.value) return
 
@@ -209,7 +221,7 @@ function buildScene() {
   const width = canvasHost.value.clientWidth
   const height = canvasHost.value.clientHeight
 
-  camera = new THREE.PerspectiveCamera(38, width / height, 1, 3000)
+  camera = new THREE.PerspectiveCamera(fovForAspect(width / height), width / height, 1, 3000)
   camera.position.set(140, 230, 210)
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
@@ -357,6 +369,7 @@ function handleResize() {
   const height = canvasHost.value.clientHeight
   if (width === 0 || height === 0) return
   camera.aspect = width / height
+  camera.fov = fovForAspect(camera.aspect)
   camera.updateProjectionMatrix()
   renderer.setSize(width, height)
 }

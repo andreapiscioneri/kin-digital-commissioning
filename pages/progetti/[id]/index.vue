@@ -1137,11 +1137,11 @@ function addDevice() {
 }
 
 .floorplan-modal {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 50;
+  z-index: 55;
   width: 100%;
-  height: 100dvh;
+  height: 100%;
   background: var(--color-bg);
   display: flex;
   flex-direction: column;
