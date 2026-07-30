@@ -27,7 +27,7 @@ const categoryImages: Record<ProjectCategory, string> = {
   Office: '/images/project-office.jpg',
   Industry: '/images/project-industry.jpg',
   'Sport indoor': '/images/project-sport.jpg',
-  Retail: '/images/project-retail.jpg',
+  Retail: '/images/project-retail-2222.jpg',
   Relamping: '/images/project-office-2.jpg',
   Altro: '/images/project-retail-22.jpg'
 }
@@ -36,7 +36,7 @@ export const projectImageOptions = [
   '/images/project-industry.jpg',
   '/images/project-office.jpg',
   '/images/project-sport.jpg',
-  '/images/project-retail.jpg',
+  '/images/project-retail-2222.jpg',
   '/images/project-relamping.jpg',
   '/images/project-retail-22.jpg'
 ] as const
@@ -81,7 +81,7 @@ function makeProjects(): Project[] {
       id: 'miin-cosmetics-bg',
       name: 'Miin Cosmetics BG',
       category: 'Retail',
-      image: '/images/project-retail.jpg',
+      image: '/images/project-retail-2222.jpg',
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: 'Non sincronizzato',
@@ -114,7 +114,7 @@ function enforceVerdiImage(list: Project[]) {
 function enforceMiinImage(list: Project[]) {
   return list.map((project) =>
     project.id === 'miin-cosmetics-bg'
-      ? { ...project, image: '/images/project-retail.jpg' }
+      ? { ...project, image: '/images/project-retail-2222.jpg' }
       : project
   )
 }
