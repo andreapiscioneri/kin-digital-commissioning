@@ -6,12 +6,6 @@ defineEmits<{ open: []; menu: [] }>()
 
 const { collaborators } = useCollaboratorsStore(props.project.id)
 
-const hasWarmFilter = computed(() =>
-  props.project.id === 'rossi-spa' ||
-  props.project.id.toLowerCase().includes('verdi') ||
-  props.project.name.toLowerCase().includes('verdi')
-)
-
 function collaboratorInitial(email: string) {
   const initial = email.trim().charAt(0)
   return initial ? initial.toUpperCase() : '?'
@@ -20,8 +14,8 @@ function collaboratorInitial(email: string) {
 
 <template>
   <div class="project-card" @click="$emit('open')">
-    <div class="project-thumb-wrap" :class="{ 'is-rossi': hasWarmFilter }">
-      <img :src="project.image" alt="" class="project-thumb" :class="{ 'project-thumb-rossi': hasWarmFilter }" />
+    <div class="project-thumb-wrap">
+      <img :src="project.image" alt="" class="project-thumb" />
       <span v-if="project.connectionStatus === 'fault'" class="status-badge fault" aria-hidden="true">
         <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2L1 18h18L10 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /><path d="M10 8v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" /><circle cx="10" cy="15" r="1" fill="currentColor" /></svg>
       </span>
@@ -98,21 +92,6 @@ function collaboratorInitial(email: string) {
   object-fit: cover;
   border-radius: 18px 18px 0 0;
   display: block;
-  filter: grayscale(0.6) contrast(1.12) saturate(1.25);
-}
-
-.project-thumb-rossi {
-  filter: sepia(0.58) saturate(1.42) hue-rotate(-15deg) contrast(1.08) brightness(0.86);
-}
-
-.project-thumb-wrap.is-rossi::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 18px 18px 0 0;
-  background: linear-gradient(180deg, rgba(226, 92, 20, 0.2) 0%, rgba(124, 45, 5, 0.16) 100%);
-  pointer-events: none;
-  z-index: 1;
 }
 
 .status-badge {

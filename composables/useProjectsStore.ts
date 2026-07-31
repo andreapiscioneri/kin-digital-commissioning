@@ -19,9 +19,11 @@ export interface Project {
   deleted: boolean
 }
 
-const PROJECTS_STORAGE_KEY = 'dc-projects-v6'
-const ROSSI_IMAGE = '/images/esterno-per-piccole-imprese-la-facciata-esterna-di-una-piccola-impresa-generica-188752899.webp'
-const VERDI_IMAGE = '/images/headquarter-deloitte-milano-som.jpg'
+const PROJECTS_STORAGE_KEY = 'dc-projects-v7'
+const BEGHELLI_IMAGE = '/images/project-beghelli-lattice.png'
+const ROSSI_IMAGE = '/images/project-rossi-corridor.png'
+const VERDI_IMAGE = '/images/project-verdi-corridor.png'
+const MIIN_IMAGE = '/images/project-miin-hall.png'
 
 const categoryImages: Record<ProjectCategory, string> = {
   Office: '/images/project-office.jpg',
@@ -51,7 +53,7 @@ function makeProjects(): Project[] {
       id: 'beghelli',
       name: 'Beghelli',
       category: 'Industry',
-      image: '/images/project-industry.jpg',
+      image: BEGHELLI_IMAGE,
       address: 'Via Mozzeghine, 13/15, 40053',
       city: 'Valsamoggia BO',
       lastSync: '21/06/2026',
@@ -81,7 +83,7 @@ function makeProjects(): Project[] {
       id: 'miin-cosmetics-bg',
       name: 'Miin Cosmetics BG',
       category: 'Retail',
-      image: '/images/project-retail-2222.jpg',
+      image: MIIN_IMAGE,
       address: 'Via Domenico Bosatelli 1, 24069',
       city: 'Cenate Sotto (BG)',
       lastSync: 'Non sincronizzato',
@@ -94,6 +96,14 @@ function makeProjects(): Project[] {
       deleted: false
     }
   ]
+}
+
+function enforceBeghelliImage(list: Project[]) {
+  return list.map((project) =>
+    project.id === 'beghelli'
+      ? { ...project, image: BEGHELLI_IMAGE }
+      : project
+  )
 }
 
 function enforceRossiImage(list: Project[]) {
@@ -114,7 +124,7 @@ function enforceVerdiImage(list: Project[]) {
 function enforceMiinImage(list: Project[]) {
   return list.map((project) =>
     project.id === 'miin-cosmetics-bg'
-      ? { ...project, image: '/images/project-retail-2222.jpg' }
+      ? { ...project, image: MIIN_IMAGE }
       : project
   )
 }
@@ -158,7 +168,7 @@ export function useProjectsStore() {
         .map(normalizeProject)
         .filter((project): project is Project => !!project)
       if (normalized.length > 0) {
-        projects.value = enforceMiinImage(enforceVerdiImage(enforceRossiImage(normalized)))
+        projects.value = enforceBeghelliImage(enforceMiinImage(enforceVerdiImage(enforceRossiImage(normalized))))
       }
     } catch {
       // Ignore corrupt storage and keep seeded defaults.
@@ -172,7 +182,7 @@ export function useProjectsStore() {
 
   hydrateProjects()
 
-  projects.value = enforceMiinImage(enforceVerdiImage(enforceRossiImage(projects.value)))
+  projects.value = enforceBeghelliImage(enforceMiinImage(enforceVerdiImage(enforceRossiImage(projects.value))))
 
   if (import.meta.client) {
     watch(projects, persistProjects, { deep: true })
